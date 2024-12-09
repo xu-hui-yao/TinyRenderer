@@ -1,0 +1,1 @@
+target_sources(tiny-renderer PRIVATE perspective.cpp)

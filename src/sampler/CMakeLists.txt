@@ -1,0 +1,1 @@
+target_sources(tiny-renderer PRIVATE independent.cpp)
