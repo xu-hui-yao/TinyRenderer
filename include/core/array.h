@@ -263,6 +263,14 @@ M_NAMESPACE_BEGIN
 			return result;
 		}
 
+		M_HOST_DEVICE TArray clamp(Scalar min, Scalar max) const {
+			TArray result;
+			for (int i = 0; i < Dimension; ++i) {
+				result.m_data[i] = M_MAX(M_MIN(m_data[i], max), min);
+			}
+			return result;
+		}
+
 		M_HOST_DEVICE Scalar max_value() const {
 			Scalar max = -M_MAX_FLOAT;
 			for (int i = 0; i < Dimension; ++i) {

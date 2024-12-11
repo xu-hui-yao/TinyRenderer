@@ -8,6 +8,7 @@ M_NAMESPACE_BEGIN
 
 		typedef Scalar_ Scalar;
 		typedef TArray<Scalar, 3, ArrayType::Vector, Device> VectorType;
+		typedef TArray<Scalar, 2, ArrayType::Vector, Device> VectorType2;
 		typedef TArray<Scalar, 3, ArrayType::Point, Device> PointType;
 		typedef TArray<Scalar, 3, ArrayType::Normal, Device> NormalType;
 
@@ -77,53 +78,53 @@ M_NAMESPACE_BEGIN
 		/** \brief Assuming that the given direction is in the local coordinate
 		 * system, return the cosine of the angle between the normal and v */
 		M_HOST_DEVICE static Scalar cos_theta(const VectorType& v, bool& valid) {
-			return v.norm(valid).z();
+			return v.z();
+		}
+
+		M_HOST_DEVICE static Scalar cos_theta(const NormalType& v, bool& valid) {
+			return v.z();
 		}
 
 		/** \brief Assuming that the given direction is in the local coordinate
 		 * system, return the sine of the angle between the normal and v */
 		M_HOST_DEVICE static Scalar sin_theta(const VectorType& v, bool& valid) {
-			auto norm_v = v.norm(valid);
-			Scalar temp = sin_theta2(norm_v, valid);
-			if (temp <= static_cast<Scalar>(0))
-				return static_cast<Scalar>(0);
-			return sqrt(temp);
+			return safe_sqrt(sin_theta2(v, valid));
+		}
+
+		/** \brief Assuming that the given direction is in the local coordinate
+				 * system, return the squared sine of the angle between the normal and v */
+		M_HOST_DEVICE static Scalar sin_theta2(const VectorType& v, bool& valid) {
+			return v.x() * v.x() + v.y() * v.y();
 		}
 
 		/** \brief Assuming that the given direction is in the local coordinate
 		 * system, return the tangent of the angle between the normal and v */
 		M_HOST_DEVICE static Scalar tan_theta(const VectorType& v, bool& valid) {
 			Scalar temp = static_cast<Scalar>(1) - v.z() * v.z();
-			if (temp <= static_cast<Scalar>(0))
-				return static_cast<Scalar>(0);
-			Scalar temp2 = v.z();
-			check_zero(temp2, valid);
-			return sqrt(temp) / temp2;
+			return safe_sqrt(temp) / v.z();
 		}
 
 		/** \brief Assuming that the given direction is in the local coordinate
-		 * system, return the squared sine of the angle between the normal and v */
-		M_HOST_DEVICE static Scalar sin_theta2(const VectorType& v, bool& valid) {
-			auto norm_v = v.norm(valid);
-			return static_cast<Scalar>(1) - norm_v.z() * norm_v.z();
+			 * system, return the tangent of the angle between the normal and v */
+		M_HOST_DEVICE static Scalar tan_theta2(const VectorType& v, bool& valid) {
+			Scalar temp = static_cast<Scalar>(1) - v.z() * v.z();
+			return M_MAX(Scalar(0), temp) / (v.z() * v.z());
 		}
 
 		/** \brief Assuming that the given direction is in the local coordinate
 		 * system, return the sine of the phi parameter in spherical coordinates */
 		M_HOST_DEVICE static Scalar sin_phi(const VectorType& v, bool& valid) {
-			auto norm_v = v.norm(valid);
-			Scalar sin_theta = TFrame::sin_theta(norm_v, valid);
+			Scalar sin_theta = TFrame::sin_theta(v, valid);
 			check_zero(sin_theta, valid);
-			return clamp(norm_v.y() / sin_theta, static_cast<Scalar>(-1), static_cast<Scalar>(1));
+			return clamp(v.y() / sin_theta, static_cast<Scalar>(-1), static_cast<Scalar>(1));
 		}
 
 		/** \brief Assuming that the given direction is in the local coordinate
 		 * system, return the cosine of the phi parameter in spherical coordinates */
 		M_HOST_DEVICE static Scalar cos_phi(const VectorType& v, bool& valid) {
-			auto norm_v = v.norm(valid);
-			Scalar sin_theta = TFrame::sin_theta(norm_v, valid);
+			Scalar sin_theta = TFrame::sin_theta(v, valid);
 			check_zero(sin_theta, valid);
-			return clamp(norm_v.x() / sin_theta, static_cast<Scalar>(-1), static_cast<Scalar>(1));
+			return clamp(v.x() / sin_theta, static_cast<Scalar>(-1), static_cast<Scalar>(1));
 		}
 
 		/** \brief Assuming that the given direction is in the local coordinate
@@ -144,6 +145,24 @@ M_NAMESPACE_BEGIN
 			auto sin_theta_2_v = sin_theta2(norm_v, valid);
 			check_zero(sin_theta_2_v, valid);
 			return clamp(norm_v.x() * norm_v.x() / sin_theta_2_v, static_cast<Scalar>(0), static_cast<Scalar>(1));
+		}
+
+		/** \brief Give a unit direction, this function returns the sine and cosine
+		 * of the azimuth in a reference spherical coordinate system (see the \ref
+		 * Frame description)
+		 */
+		static std::pair<Scalar, Scalar> sincos_phi(const VectorType& v) {
+			bool valid = true;
+			Scalar sin_theta_2 = sin_theta2(v, valid);
+			Scalar inv_sin_theta = Scalar(1) / sqrt(sin_theta_2);
+
+			VectorType2 result = VectorType2({v.x(), v.y()}) * inv_sin_theta;
+
+			result = abs(sin_theta_2) <= Scalar(4) * M_EPSILON
+				         ? VectorType2({1.f, 0.f})
+				         : result.clamp(Scalar(-1), Scalar(1));
+
+			return {result.y(), result.x()};
 		}
 
 		// Equality test

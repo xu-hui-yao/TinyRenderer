@@ -26,9 +26,9 @@ M_NAMESPACE_BEGIN
 		std::string ext = filename.extension();
 		std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 
-		if (ext == ".exr") {
+		if (ext == "exr") {
 			load_exr(filename.str());
-		} else if (ext == ".png" || ext == ".jpg" || ext == ".jpeg" || ext == ".bmp" || ext == ".tga") {
+		} else if (ext == "png" || ext == "jpg" || ext == "jpeg" || ext == "bmp" || ext == "tga") {
 			load_image(filename.str());
 		} else {
 			throw std::runtime_error("Unsupported image format: " + ext);

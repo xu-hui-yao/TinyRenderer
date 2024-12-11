@@ -57,6 +57,8 @@ M_NAMESPACE_BEGIN
 	class TBSDFSample;
 	template <typename Scalar, typename Index>
 	class TDiscreteDistribution;
+	template <typename Scalar, DeviceType Device>
+	class TMicrofacetDistribution;
 
 	typedef TArray<float, 1, ArrayType::Vector, DeviceType::CPU> Vector1f;
 	typedef TArray<float, 2, ArrayType::Vector, DeviceType::CPU> Vector2f;
@@ -98,6 +100,7 @@ M_NAMESPACE_BEGIN
 	typedef TDirectionSample<float, DeviceType::CPU> DirectionSample3f;
 	typedef TBSDFSample<float, DeviceType::CPU> BSDFSample3f;
 	typedef TDiscreteDistribution<float, int> DiscreteDistribution1f;
+	typedef TMicrofacetDistribution<float, DeviceType::CPU> MicrofacetDistribution1f;
 
 	class BSDF;
 	class BlockGenerator;
@@ -313,13 +316,18 @@ return *this;\
 		return x < 0 ? -x : x;
 	}
 
+	template <typename Scalar>
+	M_HOST_DEVICE Scalar lerp(Scalar a, Scalar b, Scalar t) {
+		return b * t + a * (Scalar(1) - t);
+	}
+
 	template <typename T>
 	M_HOST_DEVICE T copysign(T value, T sign) {
 		return value >= T(0) == sign >= T(0) ? value : -value;
 	}
 
-	template <typename T>
-	M_HOST_DEVICE T mulsign(T value, T sign) {
+	template <typename T, typename S>
+	M_HOST_DEVICE T mulsign(T value, S sign) {
 		return sign >= 0 ? value : -value;
 	}
 

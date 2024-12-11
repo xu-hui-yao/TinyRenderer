@@ -102,6 +102,7 @@ M_NAMESPACE_BEGIN
 				} else {
 					its.shading_frame = its.geometric_frame;
 				}
+				its.wi = its.to_local(its.wi);
 			}
 
 			return found_intersection;
