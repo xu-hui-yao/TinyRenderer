@@ -7,4 +7,8 @@ target_sources(tiny-renderer
         conductor.cpp
         dielectric.cpp
         thindielectric.cpp
+        plastic.cpp
+        roughplastic.cpp
+        mask.cpp
+        bumpmap.cpp
 )

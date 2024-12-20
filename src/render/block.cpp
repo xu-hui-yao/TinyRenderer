@@ -75,7 +75,8 @@ M_NAMESPACE_BEGIN
 	}
 
 	void ImageBlock::put(const ImageBlock& block) {
-		std::lock_guard lock(m_mutex);
+		std::scoped_lock lock(m_mutex);
+
 		Vector2i offset = block.get_offset() - m_offset + Vector2i(m_border_size - block.get_border_size());
 		Vector2i size = block.get_size() + Vector2i(2 * block.get_border_size());
 
@@ -85,9 +86,6 @@ M_NAMESPACE_BEGIN
 			}
 		}
 	}
-
-	void ImageBlock::lock() const { m_mutex.lock(); }
-	void ImageBlock::unlock() const { m_mutex.unlock(); }
 
 	std::shared_ptr<Bitmap> ImageBlock::to_bitmap() const {
 		auto result = std::make_shared<Bitmap>(m_size.y(), m_size.x(), 3);
@@ -137,9 +135,8 @@ M_NAMESPACE_BEGIN
 		return m_blocks_left != 0;
 	}
 
-
 	bool BlockGenerator::next(ImageBlock& block) {
-		std::lock_guard lock(m_mutex);
+		std::scoped_lock lock(m_mutex);
 
 		if (m_blocks_left == 0)
 			return false;

@@ -50,6 +50,10 @@ M_NAMESPACE_BEGIN
 		if (m_data == nullptr) {
 			throw std::runtime_error("Bitmap data is not loaded.");
 		}
+		if (m_data->get_channels() != 1 && m_data->get_channels() != 3) {
+			throw std::runtime_error(
+				"Bitmap data does not support channels: " + std::to_string(m_data->get_channels()));
+		}
 	}
 
 	Bitmap::~Bitmap() = default;
@@ -160,9 +164,21 @@ M_NAMESPACE_BEGIN
 	}
 
 	void Bitmap::load_exr(const std::string& filename) {
+		EXRVersion exr_version;
+		EXRHeader exr_header;
+		const char* err = nullptr;
+		InitEXRHeader(&exr_header);
+		if (ParseEXRHeaderFromFile(&exr_header, &exr_version, filename.c_str(), &err) != TINYEXR_SUCCESS) {
+			std::string error_message = err ? std::string(err) : "Unknown error";
+			if (err) FreeEXRErrorMessage(err);
+			throw std::runtime_error("Failed to parse EXR header: " + error_message);
+		}
+
 		float* exr_data;
 		int width, height;
-		const char* err = nullptr;
+		int channels = exr_header.num_channels;
+
+		FreeEXRHeader(&exr_header);
 
 		int ret = LoadEXR(&exr_data, &width, &height, filename.c_str(), &err);
 		if (ret != TINYEXR_SUCCESS) {
@@ -171,10 +187,10 @@ M_NAMESPACE_BEGIN
 			throw std::runtime_error("Failed to load EXR file: " + error_message);
 		}
 
-		m_data = std::make_shared<TensorXf>(height, width, 3, 0.0f);
+		m_data = std::make_shared<TensorXf>(height, width, channels, 0.0f);
 		for (int y = 0; y < height; ++y) {
 			for (int x = 0; x < width; ++x) {
-				for (int c = 0; c < 3; ++c) {
+				for (int c = 0; c < channels; ++c) {
 					m_data->operator()(y, x, c) = exr_data[(y * width + x) * 3 + c];
 				}
 			}
@@ -189,7 +205,7 @@ M_NAMESPACE_BEGIN
 			throw std::runtime_error("Failed to load image file: " + std::string(stbi_failure_reason()));
 		}
 
-		m_data = std::make_shared<TensorXf>(height, width, 3, 0.0f);
+		m_data = std::make_shared<TensorXf>(height, width, channels, 0.0f);
 		for (int y = 0; y < height; ++y) {
 			for (int x = 0; x < width; ++x) {
 				for (int c = 0; c < channels; ++c) {
@@ -208,18 +224,93 @@ M_NAMESPACE_BEGIN
 		return m_data->get_rows();
 	}
 
-	Color3f Bitmap::eval(const SurfaceIntersection3f& si, bool active) {
-		Point2f uv = si.uv;
+	Color3f Bitmap::eval(const SurfaceIntersection3f& si, bool& active) {
+		if (m_data->get_channels() == 3) {
+			Point2f uv = si.uv;
 
-		// Ensure uv coordinates are within the [0, 1] range
+			// Ensure uv coordinates are within the [0, 1] range
+			uv.x() = clamp(uv.x(), 0.0f, 1.0f);
+			uv.y() = clamp(uv.y(), 0.0f, 1.0f);
+
+			// Scale uv to the texture dimensions
+			float x = uv.x() * (static_cast<float>(m_data->get_cols()) - 1);
+			float y = uv.y() * (static_cast<float>(m_data->get_rows()) - 1);
+
+			// Calculate the integer and fractional parts
+			int x0 = static_cast<int>(floor(x));
+			int y0 = static_cast<int>(floor(y));
+			int x1 = clamp(x0 + 1, 0, m_data->get_cols() - 1);
+			int y1 = clamp(y0 + 1, 0, m_data->get_rows() - 1);
+
+			float fx = x - static_cast<float>(x0);
+			float fy = y - static_cast<float>(y0);
+
+			// Perform bi-linear interpolation
+			Color3f c00({m_data->operator()(y0, x0, 0), m_data->operator()(y0, x0, 1), m_data->operator()(y0, x0, 2)});
+			Color3f c10({m_data->operator()(y0, x1, 0), m_data->operator()(y0, x1, 1), m_data->operator()(y0, x1, 2)});
+			Color3f c01({m_data->operator()(y1, x0, 0), m_data->operator()(y1, x0, 1), m_data->operator()(y1, x0, 2)});
+			Color3f c11({m_data->operator()(y1, x1, 0), m_data->operator()(y1, x1, 1), m_data->operator()(y1, x1, 2)});
+
+			// Interpolate horizontally and vertically
+			Color3f c0 = c00 * (1 - fx) + c10 * fx;
+			Color3f c1 = c01 * (1 - fx) + c11 * fx;
+			Color3f result = c0 * (1 - fy) + c1 * fy;
+
+			return result;
+		} else {
+			return Color3f(eval_1(si, active));
+		}
+	}
+
+	float Bitmap::eval_1(const SurfaceIntersection3f& si, bool& active) {
+		if (m_data->get_channels() == 1) {
+			Point2f uv = si.uv;
+
+			// Ensure uv coordinates are within the [0, 1] range
+			uv.x() = clamp(uv.x(), 0.0f, 1.0f);
+			uv.y() = clamp(uv.y(), 0.0f, 1.0f);
+
+			// Scale uv to the texture dimensions
+			float x = uv.x() * (static_cast<float>(m_data->get_cols()) - 1);
+			float y = uv.y() * (static_cast<float>(m_data->get_rows()) - 1);
+
+			// Calculate the integer and fractional parts
+			int x0 = static_cast<int>(floor(x));
+			int y0 = static_cast<int>(floor(y));
+			int x1 = clamp(x0 + 1, 0, m_data->get_cols() - 1);
+			int y1 = clamp(y0 + 1, 0, m_data->get_rows() - 1);
+
+			float fx = x - static_cast<float>(x0);
+			float fy = y - static_cast<float>(y0);
+
+			// Perform bi-linear interpolation
+			float c00 = m_data->operator()(y0, x0, 0);
+			float c10 = m_data->operator()(y0, x1, 0);
+			float c01 = m_data->operator()(y1, x0, 0);
+			float c11 = m_data->operator()(y1, x1, 0);
+
+			// Interpolate horizontally and vertically
+			float c0 = c00 * (1 - fx) + c10 * fx;
+			float c1 = c01 * (1 - fx) + c11 * fx;
+			float result = c0 * (1 - fy) + c1 * fy;
+
+			return result;
+		} else {
+			return eval(si, active).luminance();
+		}
+	}
+
+	Vector2f Bitmap::eval_1_grad(const SurfaceIntersection3f& si, bool& active) {
+		// Ensure UV coordinates are within [0, 1] range
+		Point2f uv = si.uv;
 		uv.x() = clamp(uv.x(), 0.0f, 1.0f);
 		uv.y() = clamp(uv.y(), 0.0f, 1.0f);
 
-		// Scale uv to the texture dimensions
+		// Scale UV to texture dimensions
 		float x = uv.x() * (static_cast<float>(m_data->get_cols()) - 1);
 		float y = uv.y() * (static_cast<float>(m_data->get_rows()) - 1);
 
-		// Calculate the integer and fractional parts
+		// Integer and fractional parts
 		int x0 = static_cast<int>(floor(x));
 		int y0 = static_cast<int>(floor(y));
 		int x1 = clamp(x0 + 1, 0, m_data->get_cols() - 1);
@@ -228,22 +319,51 @@ M_NAMESPACE_BEGIN
 		float fx = x - static_cast<float>(x0);
 		float fy = y - static_cast<float>(y0);
 
-		// Perform bi-linear interpolation
-		Color3f c00({m_data->operator()(y0, x0, 0), m_data->operator()(y0, x0, 1), m_data->operator()(y0, x0, 2)});
-		Color3f c10({m_data->operator()(y0, x1, 0), m_data->operator()(y0, x1, 1), m_data->operator()(y0, x1, 2)});
-		Color3f c01({m_data->operator()(y1, x0, 0), m_data->operator()(y1, x0, 1), m_data->operator()(y1, x0, 2)});
-		Color3f c11({m_data->operator()(y1, x1, 0), m_data->operator()(y1, x1, 1), m_data->operator()(y1, x1, 2)});
+		// Load values from the bitmap
+		float f00 = m_data->operator()(y0, x0, 0);
+		float f10 = m_data->operator()(y0, x1, 0);
+		float f01 = m_data->operator()(y1, x0, 0);
+		float f11 = m_data->operator()(y1, x1, 0);
 
-		// Interpolate horizontally and vertically
-		Color3f c0 = c00 * (1 - fx) + c10 * fx;
-		Color3f c1 = c01 * (1 - fx) + c11 * fx;
-		Color3f result = c0 * (1 - fy) + c1 * fy;
+		// Compute gradients w.r.t. pixel coordinates (x, y)
+		Vector2f df_xy;
+		df_xy.x() = (1 - fy) * (f10 - f00) + fy * (f11 - f01); // Partial derivative w.r.t. x
+		df_xy.y() = (1 - fx) * (f01 - f00) + fx * (f11 - f10); // Partial derivative w.r.t. y
 
-		return result;
+		// Scale gradients to UV space
+		auto scale_u = static_cast<float>(m_data->get_cols() - 1);
+		auto scale_v = static_cast<float>(m_data->get_rows() - 1);
+		Vector2f df_uv(df_xy.x() * scale_u, df_xy.y() * scale_v);
+
+		return df_uv;
+	}
+
+	Color3f Bitmap::mean() {
+		if (m_data->get_channels() == 1) {
+			float sum = 0;
+			for (int i = 0; i < m_data->get_cols(); i++) {
+				for (int j = 0; j < m_data->get_rows(); j++) {
+					sum += m_data->operator()(j, i, 0);
+				}
+			}
+			sum /= static_cast<float>(m_data->get_cols() * m_data->get_rows());
+			return Color3f(sum);
+		} else {
+			Color3f sum(0.0f);
+			for (int i = 0; i < m_data->get_cols(); i++) {
+				for (int j = 0; j < m_data->get_rows(); j++) {
+					sum(0) += m_data->operator()(i, j, 0);
+					sum(1) += m_data->operator()(i, j, 1);
+					sum(2) += m_data->operator()(i, j, 2);
+				}
+			}
+			sum /= static_cast<float>(m_data->get_cols() * m_data->get_rows());
+			return sum;
+		}
 	}
 
 	std::string Bitmap::to_string() const {
-		return "Bitmap\n";
+		return "Bitmap";
 	}
 
 

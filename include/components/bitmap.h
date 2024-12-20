@@ -35,7 +35,13 @@ M_NAMESPACE_BEGIN
 
 		[[nodiscard]] int get_cols() const;
 
-		Color3f eval(const SurfaceIntersection3f& si, bool active) override;
+		Color3f eval(const SurfaceIntersection3f& si, bool& active) override;
+
+		float eval_1(const SurfaceIntersection3f& si, bool& active) override;
+
+		Vector2f eval_1_grad(const SurfaceIntersection3f& si, bool& active) override;
+
+		Color3f mean() override;
 
 		[[nodiscard]] std::string to_string() const override;
 

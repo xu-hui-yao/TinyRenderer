@@ -28,9 +28,6 @@ M_NAMESPACE_BEGIN
 		void put(const Point2f& pos, const Color3f& value);
 		void put(const ImageBlock& block);
 
-		void lock() const;
-		void unlock() const;
-
 		std::shared_ptr<Bitmap> to_bitmap() const;
 		void from_bitmap(const Bitmap& bitmap);
 

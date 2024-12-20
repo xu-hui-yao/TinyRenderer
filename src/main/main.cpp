@@ -46,6 +46,7 @@ static void render_block(const std::shared_ptr<Scene>& scene, const std::shared_
 }
 
 static void render(const std::shared_ptr<Scene>& scene, const std::string& filename, int thread_count) {
+	scene->construct();
 	auto camera = scene->get_camera();
 	Vector2i output_size = camera->get_output_size();
 	scene->get_integrator()->preprocess(scene);
@@ -82,7 +83,7 @@ static void render(const std::shared_ptr<Scene>& scene, const std::string& filen
 					block_generator.next(block);
 					sampler->prepare(block);  // The sampler of different block has different seeds.
 
-					// /* Render all contained pixels */
+					/* Render all contained pixels */
 					render_block(scene, sampler, block);
 
 					/* The image block has been processed. Now add it to
@@ -169,7 +170,6 @@ int main(int argc, char** argv) {
 	try {
 		auto root(load_from_xml(scene_name));
 		if (root->get_class_type() == Object::EScene) {
-			root->construct();
 			render(std::dynamic_pointer_cast<Scene>(root), scene_name, thread_count);
 		}
 	} catch (const std::exception& e) {

@@ -9,7 +9,8 @@
 M_NAMESPACE_BEGIN
 	class RoughConductor : public BSDF {
 	public:
-		explicit RoughConductor(const PropertyList& properties) : m_eta(nullptr), m_k(nullptr), m_alpha(nullptr) {
+		explicit RoughConductor(const PropertyList& properties) : m_eta(nullptr), m_k(nullptr), m_alpha(nullptr),
+		                                                          m_specular_reflectance(nullptr) {
 			m_name = properties.get_string("name", "rough conductor");
 		}
 
@@ -38,8 +39,11 @@ M_NAMESPACE_BEGIN
 					m_k = std::dynamic_pointer_cast<Texture>(child);
 				} else if (!this->m_alpha) {
 					m_alpha = std::dynamic_pointer_cast<Texture>(child);
+				} else if (!this->m_specular_reflectance) {
+					m_specular_reflectance = std::dynamic_pointer_cast<Texture>(child);
 				} else {
-					throw std::runtime_error("Rough conductor only supports eta and k and alpha");
+					throw std::runtime_error(
+						"Rough conductor only supports eta and k and alpha and specular_reflectance");
 				}
 				break;
 
@@ -70,6 +74,7 @@ M_NAMESPACE_BEGIN
 			// Perfect specular reflection based on the microfacet normal
 			bs.wo = reflect(si.wi, m);
 			bs.eta = 1.f;
+			bs.delta = false;
 
 			// Ensure that this is a valid sample
 			active &= bs.pdf != 0.0f && Frame3f::cos_theta(bs.wo, active) > 0.f;
@@ -86,7 +91,13 @@ M_NAMESPACE_BEGIN
 				fresnel_conductor(si.wi.dot(m), m_eta->eval(si, active)(2), m_k->eval(si, active)(2))
 			});
 
-			return {bs, active ? f * weight : Color3f(0)};
+			auto result = f * weight;
+
+			if (m_specular_reflectance) {
+				result *= m_specular_reflectance->eval(si, active);
+			}
+
+			return {bs, active ? result : Color3f(0)};
 		}
 
 		[[nodiscard]] Color3f eval(const SurfaceIntersection3f& si,
@@ -115,7 +126,7 @@ M_NAMESPACE_BEGIN
 			float g = distribution.g(si.wi, wo, h);
 
 			// Evaluate the full microfacet model (except Fresnel)
-			float result = d * g / (4.0f * Frame3f::cos_theta(si.wi, active));
+			float temp = d * g / (4.0f * Frame3f::cos_theta(si.wi, active));
 
 			// Evaluate the Fresnel factor
 			Color3f f({
@@ -124,7 +135,13 @@ M_NAMESPACE_BEGIN
 				fresnel_conductor(si.wi.dot(h), m_eta->eval(si, active)(2), m_k->eval(si, active)(2))
 			});
 
-			return active ? f * result : Color3f(0);
+			auto result = f * temp;
+
+			if (m_specular_reflectance) {
+				result *= m_specular_reflectance->eval(si, active);
+			}
+
+			return active ? result : Color3f(0);
 		}
 
 		[[nodiscard]] float pdf(const SurfaceIntersection3f& si, const Vector3f& wo, bool active) const override {
@@ -158,6 +175,7 @@ M_NAMESPACE_BEGIN
 				"  alpha = " + indent(m_alpha->to_string(), 2) + "\n"
 				"  eta = " + indent(m_eta->to_string(), 2) + "\n"
 				"  k = " + indent(m_k->to_string(), 2) + "\n"
+				"  specular_reflectance = " + indent(m_specular_reflectance->to_string(), 2) + "\n"
 				"]";
 		}
 
@@ -167,6 +185,7 @@ M_NAMESPACE_BEGIN
 		std::shared_ptr<Texture> m_eta;
 		std::shared_ptr<Texture> m_k;
 		std::shared_ptr<Texture> m_alpha;
+		std::shared_ptr<Texture> m_specular_reflectance;
 	};
 
 	REGISTER_CLASS(RoughConductor, "roughconductor");

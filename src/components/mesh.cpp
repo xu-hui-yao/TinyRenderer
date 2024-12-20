@@ -55,7 +55,7 @@ M_NAMESPACE_BEGIN
 				const auto& color0 = this->emitter->eval(si0, active);
 				const auto& color1 = this->emitter->eval(si1, active);
 				const auto& color2 = this->emitter->eval(si2, active);
-				float color = ((color0 + color1 + color2) / 3.0f).add() / 3.0f;
+				float color = (color0.luminance() + color1.luminance() + color2.luminance()) / 3.0f;
 				face_areas[i] *= color;
 			}
 		}

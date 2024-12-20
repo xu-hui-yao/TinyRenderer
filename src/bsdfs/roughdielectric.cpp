@@ -9,7 +9,8 @@
 M_NAMESPACE_BEGIN
 	class RoughDielectric : public BSDF {
 	public:
-		explicit RoughDielectric(const PropertyList& properties) : m_alpha(nullptr) {
+		explicit RoughDielectric(const PropertyList& properties) : m_alpha(nullptr), m_specular_reflectance(nullptr),
+		                                                           m_specular_transmittance(nullptr) {
 			m_name = properties.get_string("name", "rough dielectric");
 			float ext_ior = properties.get_float("ext_ior", 1.0);
 			float int_ior = properties.get_float("int_ior", 1.33);
@@ -33,8 +34,13 @@ M_NAMESPACE_BEGIN
 			case ETexture:
 				if (!this->m_alpha) {
 					m_alpha = std::dynamic_pointer_cast<Texture>(child);
+				} else if (!this->m_specular_reflectance) {
+					m_specular_reflectance = std::dynamic_pointer_cast<Texture>(child);
+				} else if (!this->m_specular_transmittance) {
+					m_specular_transmittance = std::dynamic_pointer_cast<Texture>(child);
 				} else {
-					throw std::runtime_error("Rough conductor only supports eta and k and alpha");
+					throw std::runtime_error(
+						"Rough dielectric only supports alpha and specular_reflectance and specular_transmittance");
 				}
 				break;
 
@@ -83,22 +89,32 @@ M_NAMESPACE_BEGIN
 			bs.eta = selected_r ? 1.0f : eta_it;
 			float dwh_dwo = 0.0f;
 
+			auto result = Color3f(weight);
 			if (selected_r) {
 				bs.wo = reflect(si.wi, m);
 				dwh_dwo = 1.0f / (4.0f * bs.wo.dot(m));
+				if (m_specular_reflectance) {
+					result *= m_specular_reflectance->eval(si, active);
+				}
 			}
 
 			if (selected_t) {
 				bs.wo = refract(si.wi, m, cos_theta_t, eta_ti);
 				float temp = si.wi.dot(m) + bs.eta * bs.wo.dot(m);
 				dwh_dwo = bs.eta * bs.eta * bs.wo.dot(m) / (temp * temp);
+				float factor = eta_ti;
+				result *= factor * factor;
+				if (m_specular_transmittance) {
+					result *= m_specular_transmittance->eval(si, active);
+				}
 			}
 
-			weight *= distribution.smith_g1(bs.wo, m);
+			result *= distribution.smith_g1(bs.wo, m);
 
 			bs.pdf *= abs(dwh_dwo);
+			bs.delta = false;
 
-			return {bs, Color3f(weight)};
+			return {bs, result};
 		}
 
 		[[nodiscard]] Color3f eval(const SurfaceIntersection3f& si,
@@ -139,6 +155,9 @@ M_NAMESPACE_BEGIN
 			if (eval_r) {
 				Color3f value(f * d * g / (4.0f * abs(cos_theta_i)));
 				result = value;
+				if (m_specular_reflectance) {
+					result *= m_specular_reflectance->eval(si, active);
+				}
 			}
 
 			if (eval_t) {
@@ -151,6 +170,9 @@ M_NAMESPACE_BEGIN
 				Color3f value(abs(
 					scale * (1.0f - f) * d * g * eta * eta * si.wi.dot(m) * wo.dot(m) / (cos_theta_i * temp * temp)));
 				result = value;
+				if (m_specular_transmittance) {
+					result *= m_specular_transmittance->eval(si, active);
+				}
 			}
 
 			return result;
@@ -209,6 +231,8 @@ M_NAMESPACE_BEGIN
 		[[nodiscard]] std::string to_string() const override {
 			return "RoughDielectric[\n"
 				"  alpha = " + indent(m_alpha->to_string(), 2) + "\n"
+				"  specular_reflectance = " + indent(m_specular_reflectance->to_string(), 2) + "\n"
+				"  specular_transmittance = " + indent(m_specular_transmittance->to_string(), 2) + "\n"
 				"  eta = " + std::to_string(m_eta) + "\n"
 				"]";
 		}
@@ -218,6 +242,8 @@ M_NAMESPACE_BEGIN
 	private:
 		float m_eta, m_inv_eta;
 		std::shared_ptr<Texture> m_alpha;
+		std::shared_ptr<Texture> m_specular_reflectance;
+		std::shared_ptr<Texture> m_specular_transmittance;
 		bool has_reflection, has_transmission;
 	};
 

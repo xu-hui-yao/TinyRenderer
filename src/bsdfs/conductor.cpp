@@ -3,13 +3,13 @@
 #include <core/frame.h>
 #include <core/record.h>
 #include <core/intersection.h>
-#include <core/microfacet.h>
 #include <core/fresnel.h>
 
 M_NAMESPACE_BEGIN
 	class Conductor : public BSDF {
 	public:
-		explicit Conductor(const PropertyList& properties) : m_eta(nullptr), m_k(nullptr) {
+		explicit Conductor(const PropertyList& properties) : m_eta(nullptr), m_k(nullptr),
+		                                                     m_specular_reflectance(nullptr) {
 			m_name = properties.get_string("name", "conductor");
 		}
 
@@ -33,8 +33,10 @@ M_NAMESPACE_BEGIN
 					m_eta = std::dynamic_pointer_cast<Texture>(child);
 				} else if (!this->m_k) {
 					m_k = std::dynamic_pointer_cast<Texture>(child);
+				} else if (!this->m_specular_reflectance) {
+					m_specular_reflectance = std::dynamic_pointer_cast<Texture>(child);
 				} else {
-					throw std::runtime_error("Rough conductor only supports eta and k and alpha");
+					throw std::runtime_error("Conductor only supports eta and k and specular_reflectance");
 				}
 				break;
 
@@ -61,6 +63,7 @@ M_NAMESPACE_BEGIN
 			bs.wo = reflect(si.wi);
 			bs.eta = 1.f;
 			bs.pdf = 1.f;
+			bs.delta = true;
 
 			// Evaluate the Fresnel factor
 			Color3f f({
@@ -68,6 +71,10 @@ M_NAMESPACE_BEGIN
 				fresnel_conductor(cos_theta_i, m_eta->eval(si, active)(1), m_k->eval(si, active)(1)),
 				fresnel_conductor(cos_theta_i, m_eta->eval(si, active)(2), m_k->eval(si, active)(2))
 			});
+
+			if (m_specular_reflectance) {
+				f *= m_specular_reflectance->eval(si, active);
+			}
 
 			return {bs, active ? f : Color3f(0)};
 		}
@@ -86,6 +93,7 @@ M_NAMESPACE_BEGIN
 			return "Conductor[\n"
 				"  eta = " + indent(m_eta->to_string(), 2) + "\n"
 				"  k = " + indent(m_k->to_string(), 2) + "\n"
+				"  specular_reflectance = " + indent(m_specular_reflectance->to_string(), 2) + "\n"
 				"]";
 		}
 
@@ -94,6 +102,7 @@ M_NAMESPACE_BEGIN
 	private:
 		std::shared_ptr<Texture> m_eta;
 		std::shared_ptr<Texture> m_k;
+		std::shared_ptr<Texture> m_specular_reflectance;
 	};
 
 	REGISTER_CLASS(Conductor, "conductor");

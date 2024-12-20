@@ -13,7 +13,13 @@ M_NAMESPACE_BEGIN
 
 		void add_child(const std::shared_ptr<Object>& child) override = 0;
 
-		virtual Color3f eval(const SurfaceIntersection3f& si, bool active) = 0;
+		virtual Color3f eval(const SurfaceIntersection3f& si, bool& active) = 0;
+
+		virtual float eval_1(const SurfaceIntersection3f& si, bool& active) = 0;
+
+		virtual Vector2f eval_1_grad(const SurfaceIntersection3f& si, bool& active) = 0;
+
+		virtual Color3f mean() = 0;
 
 		[[nodiscard]] EClassType get_class_type() const override { return ETexture; }
 
@@ -24,5 +30,7 @@ M_NAMESPACE_BEGIN
 	protected:
 		bool m_spatial_varying;
 	};
+
+	class Constant;
 
 M_NAMESPACE_END

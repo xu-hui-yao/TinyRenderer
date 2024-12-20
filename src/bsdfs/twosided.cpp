@@ -1,8 +1,7 @@
-#pragma once
-
 #include <components/bsdf.h>
 #include <core/record.h>
 #include <core/intersection.h>
+#include <core/frame.h>
 
 M_NAMESPACE_BEGIN
 	/**

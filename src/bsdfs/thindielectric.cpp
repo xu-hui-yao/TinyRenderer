@@ -24,7 +24,24 @@ M_NAMESPACE_BEGIN
 #endif
 		}
 
-		void add_child(const std::shared_ptr<Object>& child) override {}
+		void add_child(const std::shared_ptr<Object>& child) override {
+			switch (child->get_class_type()) {
+			case ETexture:
+				if (!this->m_specular_reflectance) {
+					m_specular_reflectance = std::dynamic_pointer_cast<Texture>(child);
+				} else if (!this->m_specular_transmittance) {
+					m_specular_transmittance = std::dynamic_pointer_cast<Texture>(child);
+				} else {
+					throw std::runtime_error(
+						"Rough dielectric only supports alpha and specular_reflectance and specular_transmittance");
+				}
+				break;
+
+			default:
+				throw std::runtime_error(
+					"BSDF::add_child(<" + class_type_name(child->get_class_type()) + ">) is not supported!");
+			}
+		}
 
 		[[nodiscard]] std::pair<BSDFSample3f, Color3f> sample(const SurfaceIntersection3f& si,
 		                                                      float sample1,
@@ -52,10 +69,22 @@ M_NAMESPACE_BEGIN
 				return {bs, Color3f(0.0f)};
 			}
 
+			Color3f result(weight);
+			if (selected_r) {
+				if (m_specular_reflectance) {
+					result *= m_specular_reflectance->eval(si, active);
+				}
+			} else {
+				if (m_specular_transmittance) {
+					result *= m_specular_transmittance->eval(si, active);
+				}
+			}
+
 			bs.wo = selected_r ? reflect(si.wi) : -si.wi;
 			bs.eta = 1.0f;
+			bs.delta = true;
 
-			return {bs, active ? Color3f(weight) : Color3f(0.0f)};
+			return {bs, active ? result : Color3f(0.0f)};
 		}
 
 		[[nodiscard]] Color3f eval(const SurfaceIntersection3f& si,
@@ -79,6 +108,8 @@ M_NAMESPACE_BEGIN
 	private:
 		float m_eta;
 		bool has_reflection, has_transmission;
+		std::shared_ptr<Texture> m_specular_reflectance;
+		std::shared_ptr<Texture> m_specular_transmittance;
 	};
 
 	REGISTER_CLASS(ThinDielectric, "thindielectric");

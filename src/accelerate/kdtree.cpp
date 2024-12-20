@@ -1,6 +1,7 @@
 #include <components/accelerate.h>
 #include <core/intersection.h>
 #include <components/mesh.h>
+#include <core/frame.h>
 
 M_NAMESPACE_BEGIN
 	class KDTreeNode {
@@ -160,14 +161,31 @@ M_NAMESPACE_BEGIN
 					uint32_t idx2 = face[its.primitive_index](2);
 
 					Point3f p0 = v[idx0], p1 = v[idx1], p2 = v[idx2];
+					Point2f uv0 = uv[idx0], uv1 = uv[idx1], uv2 = uv[idx2];
 
 					/* Compute the intersection position accurately
 					   using barycentric coordinates */
 					its.p = p0 * bary.x() + p1 * bary.y() + p2 * bary.z();
 
 					/* Compute proper texture coordinates if provided by the mesh */
-					if (!uv.empty())
-						its.uv = uv[idx0] * bary.x() + uv[idx1] * bary.y() + uv[idx2] * bary.z();
+					if (!uv.empty()) {
+						its.uv = uv0 * bary.x() + uv1 * bary.y() + uv2 * bary.z();
+						// Compute UV deltas
+						Vector2f duv1 = uv1 - uv0;
+						Vector2f duv2 = uv2 - uv0;
+						// Compute edge vectors
+						Vector3f dp1 = p1 - p0;
+						Vector3f dp2 = p2 - p0;
+						float det = duv1.x() * duv2.y() - duv1.y() * duv2.x();
+						if (abs(det) < M_EPSILON) {
+							its.dp_du = dp1;
+							its.dp_dv = dp2;
+						} else {
+							float inv_det = 1.0f / det;
+							its.dp_du = (dp1 * duv2.y() - dp2 * duv1.y()) * inv_det;
+							its.dp_dv = (-dp1 * duv2.x() + dp2 * duv1.x()) * inv_det;
+						}
+					}
 
 					/* Compute the geometry frame */
 					bool valid = true;
