@@ -129,4 +129,10 @@ M_HOST_DEVICE Point2f uniform_triangle_to_square(const Point2f &p);
 
 M_HOST_DEVICE float square_to_uniform_triangle_pdf(const Point2f &p);
 
+M_HOST_DEVICE Vector3f square_to_uniform_sphere(const Point2f &sample);
+
+M_HOST_DEVICE Point2f uniform_sphere_to_square(const Vector3f &p);
+
+M_HOST_DEVICE float square_to_uniform_sphere_pdf(const Vector3f &v);
+
 M_NAMESPACE_END

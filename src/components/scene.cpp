@@ -25,7 +25,7 @@ void Scene::construct() {
         throw std::runtime_error("No Sampler was specified!");
     }
 
-    for (const auto& mesh : m_meshes) {
+    for (const auto &mesh : m_meshes) {
         mesh->construct();
         if (mesh->is_emitter()) {
             m_num_emitters += 1;

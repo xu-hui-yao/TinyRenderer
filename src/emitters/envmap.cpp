@@ -1,12 +1,12 @@
 #include <components/bitmap.h>
 #include <components/emitter.h>
 #include <components/texture.h>
-#include <core/bounding_box.h>
 #include <core/common.h>
 #include <core/distribution.h>
 #include <core/intersection.h>
 #include <core/record.h>
 #include <core/spectrum.h>
+#include <core/warp.h>
 
 M_NAMESPACE_BEGIN
 class EnvironmentMap : public Emitter {
@@ -52,64 +52,81 @@ public:
                 }
             }
             m_distribution = std::make_shared<DiscreteDistribution2f>(data);
-        } else {
-            std::vector<std::vector<float>> data;
-            data.resize(1);
-            for (auto &row : data) {
-                row.resize(1);
-            }
-            data[0][0]     = 1;
-            m_distribution = std::make_shared<DiscreteDistribution2f>(data);
         }
     }
 
     [[nodiscard]] std::pair<DirectionSample3f, Color3f>
     sample_direction(const Intersection3f &it, const Point2f &sample, bool &active) const override {
-        auto [uv, pdf, sample_] = m_distribution->sample(sample);
-        active &= pdf > 0.0f;
+        if (is_spatial_varying()) {
+            auto [uv, pdf, sample_] = m_distribution->sample(sample);
+            active &= pdf > 0.0f;
 
-        DirectionSample3f ds;
-        ds.uv.x() = (static_cast<float>(uv.x()) + 0.5f) / static_cast<float>(m_distribution->get_cols());
-        ds.uv.y() = (static_cast<float>(uv.y()) + 0.5f) / static_cast<float>(m_distribution->get_rows());
+            DirectionSample3f ds;
+            ds.uv.x() = (static_cast<float>(uv.x()) + 0.5f) / static_cast<float>(m_distribution->get_cols());
+            ds.uv.y() = (static_cast<float>(uv.y()) + 0.5f) / static_cast<float>(m_distribution->get_rows());
 
-        float theta = ds.uv.y() * static_cast<float>(M_PI);
-        float phi   = ds.uv.x() * static_cast<float>(M_PI) * 2.0f;
+            float theta = ds.uv.y() * static_cast<float>(M_PI);
+            float phi   = ds.uv.x() * static_cast<float>(M_PI) * 2.0f;
 
-        Vector3f d({ sin(phi) * sin(theta), cos(theta), -cos(phi) * sin(theta) });
+            Vector3f d({ sin(phi) * sin(theta), cos(theta), -cos(phi) * sin(theta) });
 
-        float radius = M_MAX(m_bounding_sphere_radius, (it.p - m_bounding_sphere_center).magnitude());
-        float dist   = 2.0f * radius;
+            float radius = M_MAX(m_bounding_sphere_radius, (it.p - m_bounding_sphere_center).magnitude());
+            float dist   = 2.0f * radius;
 
-        float inv_sin_theta = 1.0f / safe_sqrt(M_MAX(d.x() * d.x() + d.z() * d.z(), static_cast<float>(M_EPSILON)));
-        d                   = m_to_world * d;
+            float inv_sin_theta = 1.0f / safe_sqrt(M_MAX(d.x() * d.x() + d.z() * d.z(), static_cast<float>(M_EPSILON)));
+            d                   = m_to_world * d;
 
-        ds.p       = it.p + d * dist;
-        ds.n       = -d;
-        ds.t       = it.t;
-        ds.pdf     = active ? pdf * inv_sin_theta * static_cast<float>(1.0f / (2.0f * M_PI * M_PI)) : 0.0f;
-        ds.delta   = false;
-        ds.emitter = std::make_shared<EnvironmentMap>(*this);
-        ds.d       = d;
-        ds.dist    = dist;
+            ds.p       = it.p + d * dist;
+            ds.n       = -d;
+            ds.t       = it.t;
+            ds.pdf     = active ? pdf * inv_sin_theta * static_cast<float>(1.0f / (2.0f * M_PI * M_PI)) : 0.0f;
+            ds.delta   = false;
+            ds.emitter = std::make_shared<EnvironmentMap>(*this);
+            ds.d       = d;
+            ds.dist    = dist;
 
-        SurfaceIntersection3f its;
-        its.uv         = ds.uv;
-        Color3f weight = m_radiance->eval(its, active);
-        return { ds, active ? weight : Color3f(0.0f) };
+            SurfaceIntersection3f its;
+            its.uv         = ds.uv;
+            Color3f weight = m_radiance->eval(its, active);
+            return { ds, active ? weight : Color3f(0.0f) };
+        } else {
+            DirectionSample3f ds;
+            float radius = M_MAX(m_bounding_sphere_radius, (it.p - m_bounding_sphere_center).magnitude());
+            float dist   = 2.0f * radius;
+
+            Vector3f d = square_to_uniform_sphere(sample);
+            ds.p       = it.p + d * dist;
+            ds.n       = -d;
+            ds.t       = it.t;
+            ds.pdf     = square_to_uniform_sphere_pdf(d);
+            ds.delta   = false;
+            ds.emitter = std::make_shared<EnvironmentMap>(*this);
+            ds.d       = d;
+            ds.dist    = dist;
+
+            SurfaceIntersection3f its;
+            Color3f weight = m_radiance->eval(its, active);
+            return { ds, active ? weight : Color3f(0.0f) };
+        }
     }
 
     [[nodiscard]] float pdf_direction(const Intersection3f &it, const DirectionSample3f &ds,
                                       bool &active) const override {
-        Vector3f d = m_to_world.inverse() * ds.d;
-        auto uv    = Point2f({ atan2(d.x(), -d.z()) * static_cast<float>(M_INV_TWOPI),
-                               safe_acos(d.y()) * static_cast<float>(M_INV_PI) });
-        int height = std::dynamic_pointer_cast<Bitmap>(m_radiance)->get_rows();
-        int width  = std::dynamic_pointer_cast<Bitmap>(m_radiance)->get_cols();
-        Point2i sample_uv({ static_cast<int>(uv.x() * static_cast<float>(width - 1)),
-                            static_cast<int>(uv.y() * static_cast<float>(height - 1)) });
-        float inv_sin_theta = 1.0f / safe_sqrt(M_MAX(d.x() * d.x() + d.z() * d.z(), static_cast<float>(M_EPSILON)));
+        if (is_spatial_varying()) {
+            Vector3f d = m_to_world.inverse() * ds.d;
+            auto uv    = Point2f({ atan2(d.x(), -d.z()) * static_cast<float>(M_INV_TWOPI),
+                                   safe_acos(d.y()) * static_cast<float>(M_INV_PI) });
+            int height = std::dynamic_pointer_cast<Bitmap>(m_radiance)->get_rows();
+            int width  = std::dynamic_pointer_cast<Bitmap>(m_radiance)->get_cols();
+            Point2i sample_uv({ static_cast<int>(uv.x() * static_cast<float>(width - 1)),
+                                static_cast<int>(uv.y() * static_cast<float>(height - 1)) });
+            float inv_sin_theta = 1.0f / safe_sqrt(M_MAX(d.x() * d.x() + d.z() * d.z(), static_cast<float>(M_EPSILON)));
 
-        return m_distribution->eval(sample_uv) * inv_sin_theta * static_cast<float>(1.0f / (2.0f * M_PI * M_PI));
+            return m_distribution->eval(sample_uv) * inv_sin_theta * static_cast<float>(1.0f / (2.0f * M_PI * M_PI));
+        } else {
+            Vector3f d = m_to_world.inverse() * ds.d;
+            return square_to_uniform_sphere_pdf(d);
+        }
     }
 
     [[nodiscard]] std::pair<PositionSample3f, float> sample_position(const Point2f &sample,
@@ -122,13 +139,19 @@ public:
     }
 
     [[nodiscard]] Color3f eval(const SurfaceIntersection3f &si, bool &active) const override {
-        Vector3f d = m_to_world.inverse() * -si.wi;
-        auto uv    = Point2f({ atan2(d.x(), -d.z()) * static_cast<float>(M_INV_TWOPI),
-                               safe_acos(d.y()) * static_cast<float>(M_INV_PI) });
-        SurfaceIntersection3f its;
-        its.uv      = uv;
-        auto result = m_radiance->eval(its, active);
-        return active ? result : Color3f(0.0f);
+        if (is_spatial_varying()) {
+            Vector3f d = m_to_world.inverse() * -si.wi;
+            auto uv    = Point2f({ atan2(d.x(), -d.z()) * static_cast<float>(M_INV_TWOPI),
+                                   safe_acos(d.y()) * static_cast<float>(M_INV_PI) });
+            SurfaceIntersection3f its;
+            its.uv      = uv;
+            auto result = m_radiance->eval(its, active);
+            return active ? result : Color3f(0.0f);
+        } else {
+            SurfaceIntersection3f its;
+            auto result = m_radiance->eval(its, active);
+            return active ? result : Color3f(0.0f);
+        }
     }
 
     [[nodiscard]] std::string to_string() const override {

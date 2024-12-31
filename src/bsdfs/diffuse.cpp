@@ -8,11 +8,6 @@
 M_NAMESPACE_BEGIN
 class Diffuse : public BSDF {
 public:
-    explicit Diffuse(const Color3f &color) {
-        m_name        = "diffuse";
-        m_reflectance = std::make_shared<Constant>(color);
-    }
-
     explicit Diffuse(const PropertyList &properties) : m_reflectance(nullptr) {
         m_name = properties.get_string("name", "diffuse");
     }
