@@ -51,7 +51,7 @@ M_NAMESPACE_BEGIN
 			auto [r_i, cos_theta_t, eta_it, eta_ti] = fresnel(cos_theta_i, m_eta);
 			float t_i = 1.0f - r_i;
 
-			BSDFSample3f bs(Vector3f(0));
+			BSDFSample3f bs(Vector3f({0, 0, 0}));
 			bool selected_r;
 			float weight = 0.0f;
 			if (has_reflection && has_transmission) {

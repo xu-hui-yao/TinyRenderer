@@ -29,18 +29,14 @@ M_NAMESPACE_BEGIN
  *                 the scale factor that must be applied to the X and Y
  *                 component of the refracted direction.
  */
-template <typename Scalar>
-std::tuple<Scalar, Scalar, Scalar, Scalar> fresnel(Scalar cos_theta_i,
-                                                   Scalar eta) {
+template <typename Scalar> std::tuple<Scalar, Scalar, Scalar, Scalar> fresnel(Scalar cos_theta_i, Scalar eta) {
     auto outside_mask = cos_theta_i >= 0.f;
 
-    Scalar rcp_eta = Scalar(1) / eta, eta_it = outside_mask ? eta : rcp_eta,
-           eta_ti = outside_mask ? rcp_eta : eta;
+    Scalar rcp_eta = Scalar(1) / eta, eta_it = outside_mask ? eta : rcp_eta, eta_ti = outside_mask ? rcp_eta : eta;
 
     /* Using Snell's law, calculate the squared sine of the
        angle between the surface normal and the transmitted ray */
-    Scalar cos_theta_t_sqr =
-        Scalar(1) - eta_ti * eta_ti * (Scalar(1) - cos_theta_i * cos_theta_i);
+    Scalar cos_theta_t_sqr = Scalar(1) - eta_ti * eta_ti * (Scalar(1) - cos_theta_i * cos_theta_i);
 
     /* Find the absolute cosines of the incident/transmitted rays */
     Scalar cos_theta_i_abs = abs(cos_theta_i);
@@ -52,10 +48,8 @@ std::tuple<Scalar, Scalar, Scalar, Scalar> fresnel(Scalar cos_theta_i,
     Scalar r_sc = index_matched ? Scalar(0) : Scalar(1);
 
     /* Amplitudes of reflected waves */
-    Scalar a_s = (cos_theta_i_abs - eta_it * cos_theta_t_abs) /
-                 (eta_it * cos_theta_t_abs + cos_theta_i_abs);
-    Scalar a_p = (cos_theta_t_abs - eta_it * cos_theta_i_abs) /
-                 (eta_it * cos_theta_i_abs + cos_theta_t_abs);
+    Scalar a_s = (cos_theta_i_abs - eta_it * cos_theta_t_abs) / (eta_it * cos_theta_t_abs + cos_theta_i_abs);
+    Scalar a_p = (cos_theta_t_abs - eta_it * cos_theta_i_abs) / (eta_it * cos_theta_i_abs + cos_theta_t_abs);
 
     Scalar r = Scalar(0.5) * (a_s * a_s + a_p * a_p);
     if (special_case) {
@@ -89,18 +83,15 @@ std::tuple<Scalar, Scalar, Scalar, Scalar> fresnel(Scalar cos_theta_i,
  *
  * \return The Fresnel reflection coefficient.
  */
-template <typename Scalar>
-Scalar fresnel_conductor(Scalar cos_theta_i, Scalar eta, Scalar k) {
-    Scalar cos_theta_i_2 = cos_theta_i * cos_theta_i,
-           sin_theta_i_2 = Scalar(1) - cos_theta_i_2,
+template <typename Scalar> Scalar fresnel_conductor(Scalar cos_theta_i, Scalar eta, Scalar k) {
+    Scalar cos_theta_i_2 = cos_theta_i * cos_theta_i, sin_theta_i_2 = Scalar(1) - cos_theta_i_2,
            sin_theta_i_4 = sin_theta_i_2 * sin_theta_i_2;
 
     auto eta_r = eta;
     auto eta_i = k;
 
     Scalar temp_1   = eta_r * eta_r - eta_i * eta_i - sin_theta_i_2,
-           a_2_pb_2 = safe_sqrt(temp_1 * temp_1 +
-                                Scalar(4) * eta_i * eta_i * eta_r * eta_r),
+           a_2_pb_2 = safe_sqrt(temp_1 * temp_1 + Scalar(4) * eta_i * eta_i * eta_r * eta_r),
            a        = safe_sqrt(Scalar(0.5) * (a_2_pb_2 + temp_1));
 
     Scalar term_1 = a_2_pb_2 + cos_theta_i_2;
@@ -117,21 +108,16 @@ Scalar fresnel_conductor(Scalar cos_theta_i, Scalar eta, Scalar k) {
 }
 
 // Reflection in local coordinates
-template <typename Scalar, DeviceType Device>
-TArray<Scalar, 3, ArrayType::Vector, Device>
-reflect(const TArray<Scalar, 3, ArrayType::Vector, Device> &wi) {
-    return TArray<Scalar, 3, ArrayType::Vector, Device>(
-        { -wi.x(), -wi.y(), wi.z() });
+template <typename Scalar>
+TArray<Scalar, 3, ArrayType::Vector> reflect(const TArray<Scalar, 3, ArrayType::Vector> &wi) {
+    return TArray<Scalar, 3, ArrayType::Vector>({ -wi.x(), -wi.y(), wi.z() });
 }
 
 // Reflect \c wi with respect to a given surface normal
-template <typename Scalar, DeviceType Device>
-TArray<Scalar, 3, ArrayType::Vector, Device>
-reflect(const TArray<Scalar, 3, ArrayType::Vector, Device> &wi,
-        const TArray<Scalar, 3, ArrayType::Normal, Device> &m) {
-    return TArray<Scalar, 3, ArrayType::Vector, Device>(m) * Scalar(2) *
-               wi.dot(m) -
-           wi;
+template <typename Scalar>
+TArray<Scalar, 3, ArrayType::Vector> reflect(const TArray<Scalar, 3, ArrayType::Vector> &wi,
+                                             const TArray<Scalar, 3, ArrayType::Normal> &m) {
+    return TArray<Scalar, 3, ArrayType::Vector>(m) * Scalar(2) * wi.dot(m) - wi;
 }
 
 /**
@@ -140,12 +126,10 @@ reflect(const TArray<Scalar, 3, ArrayType::Vector, Device> &wi,
  * The 'cos_theta_t' and 'eta_ti' parameters are given by the last two tuple
  * entries returned by the \ref fresnel and \ref fresnel_polarized functions.
  */
-template <typename Scalar, DeviceType Device>
-TArray<Scalar, 3, ArrayType::Vector, Device>
-refract(const TArray<Scalar, 3, ArrayType::Vector, Device> &wi,
-        Scalar cos_theta_t, Scalar eta_ti) {
-    return TArray<Scalar, 3, ArrayType::Vector, Device>(
-        { -eta_ti * wi.x(), -eta_ti * wi.y(), cos_theta_t });
+template <typename Scalar>
+TArray<Scalar, 3, ArrayType::Vector> refract(const TArray<Scalar, 3, ArrayType::Vector> &wi, Scalar cos_theta_t,
+                                             Scalar eta_ti) {
+    return TArray<Scalar, 3, ArrayType::Vector>({ -eta_ti * wi.x(), -eta_ti * wi.y(), cos_theta_t });
 }
 
 /**
@@ -161,11 +145,10 @@ refract(const TArray<Scalar, 3, ArrayType::Vector, Device> &wi,
  * \param eta_ti
  *     Relative index of refraction (transmitted / incident)
  */
-template <typename Scalar, DeviceType Device>
-TArray<Scalar, 3, ArrayType::Vector, Device>
-refract(const TArray<Scalar, 3, ArrayType::Vector, Device> &wi,
-        const TArray<Scalar, 3, ArrayType::Normal, Device> &m,
-        Scalar cos_theta_t, Scalar eta_ti) {
+template <typename Scalar>
+TArray<Scalar, 3, ArrayType::Vector> refract(const TArray<Scalar, 3, ArrayType::Vector> &wi,
+                                             const TArray<Scalar, 3, ArrayType::Normal> &m, Scalar cos_theta_t,
+                                             Scalar eta_ti) {
     return m * (wi.dot(m) * eta_ti + cos_theta_t) - wi * eta_ti;
 }
 
@@ -193,8 +176,7 @@ template <typename Scalar> Scalar fresnel_diffuse_reflectance(Scalar eta) {
        Max rel. error in 1.5 - 2   : 0.6%
        Max rel. error in 2.0 - 5   : 9.5%
     */
-    Scalar approx_1 =
-        0.0636f * inv_eta + (eta * (eta * -1.4399f + 0.7099f) + 0.6681f);
+    Scalar approx_1 = 0.0636f * inv_eta + (eta * (eta * -1.4399f + 0.7099f) + 0.6681f);
 
     /* Fit by d'Eon and Irving (2011)
 
@@ -202,8 +184,7 @@ template <typename Scalar> Scalar fresnel_diffuse_reflectance(Scalar eta) {
 
        Max rel. error in 1.0 - 2.0   : 0.1%
        Max rel. error in 2.0 - 10.0  : 0.2%  */
-    Scalar approx_2 = horner(inv_eta, 0.919317f, -3.4793f, 6.75335f, -7.80989f,
-                             4.98554f, -1.36881f);
+    Scalar approx_2 = horner(inv_eta, 0.919317f, -3.4793f, 6.75335f, -7.80989f, 4.98554f, -1.36881f);
 
     return eta < 1.f ? approx_1 : approx_2;
 }

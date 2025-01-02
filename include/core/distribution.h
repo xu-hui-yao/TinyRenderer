@@ -13,13 +13,13 @@ public:
     typedef Scalar_ Scalar;
     typedef Index_ Index;
 
-    M_HOST_DEVICE TDiscreteDistribution() = default;
+    TDiscreteDistribution() = default;
 
     // Initialize from a PMF (probability mass function)
-    M_HOST_DEVICE explicit TDiscreteDistribution(const std::vector<Scalar> &pmf) { initialize(pmf); }
+    explicit TDiscreteDistribution(const std::vector<Scalar> &pmf) { initialize(pmf); }
 
     // Update the distribution with a new PMF
-    M_HOST_DEVICE void initialize(const std::vector<Scalar> &pmf) {
+    void initialize(const std::vector<Scalar> &pmf) {
         if (pmf.empty())
             throw std::invalid_argument("DiscreteDistribution: PMF cannot be empty.");
 
@@ -43,19 +43,19 @@ public:
     }
 
     // Evaluate the un-normalized PMF at a given index
-    M_HOST_DEVICE Scalar eval_pmf(Index index) const { return m_pmf[index]; }
+    Scalar eval_pmf(Index index) const { return m_pmf[index]; }
 
     // Evaluate the normalized PMF at a given index
-    M_HOST_DEVICE Scalar eval_pmf_normalized(Index index) const { return m_pmf[index] * m_normalization; }
+    Scalar eval_pmf_normalized(Index index) const { return m_pmf[index] * m_normalization; }
 
     // Evaluate the CDF at a given index
-    M_HOST_DEVICE Scalar eval_cdf(Index index) const { return m_cdf[index]; }
+    Scalar eval_cdf(Index index) const { return m_cdf[index]; }
 
     // Evaluate the normalized CDF at a given index
-    M_HOST_DEVICE Scalar eval_cdf_normalized(Index index) const { return m_cdf[index] * m_normalization; }
+    Scalar eval_cdf_normalized(Index index) const { return m_cdf[index] * m_normalization; }
 
     // Sample the distribution
-    M_HOST_DEVICE Index sample(Scalar u) const {
+    Index sample(Scalar u) const {
         if (u < 0.0f || u > 1.0f)
             throw std::invalid_argument("Sample value must be in the range [0, 1].");
 
@@ -67,13 +67,13 @@ public:
     }
 
     // Sample the distribution and return the index and PMF value
-    M_HOST_DEVICE std::pair<Index, Scalar> sample_pmf(Scalar u) const {
+    std::pair<Index, Scalar> sample_pmf(Scalar u) const {
         Index index = sample(u);
         return { index, eval_pmf_normalized(index) };
     }
 
     // Sample the distribution and reuse the sample for further computations
-    M_HOST_DEVICE std::tuple<Index, Scalar> sample_reuse(Scalar u) const {
+    std::tuple<Index, Scalar> sample_reuse(Scalar u) const {
         Index index       = sample(u);
         Scalar pmf        = eval_pmf_normalized(index);
         Scalar cdf        = eval_cdf_normalized(index - 1);
@@ -83,13 +83,13 @@ public:
     }
 
     // Get the normalization factor
-    M_HOST_DEVICE Scalar normalization() const { return m_normalization; }
+    Scalar normalization() const { return m_normalization; }
 
     // Get the total sum of the PMF before normalization
-    M_HOST_DEVICE Scalar sum() const { return m_sum; }
+    Scalar sum() const { return m_sum; }
 
     // Get the size of the distribution
-    M_HOST_DEVICE [[nodiscard]] size_t size() const { return m_pmf.size(); }
+    [[nodiscard]] size_t size() const { return m_pmf.size(); }
 
 private:
     std::vector<Scalar> m_pmf;

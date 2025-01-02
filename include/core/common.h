@@ -19,75 +19,67 @@ M_NAMESPACE_BEGIN
 #define M_MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define M_MAX(a, b) (((a) > (b)) ? (a) : (b))
 
-#ifdef __CUDACC__
-#define M_HOST_DEVICE __host__ __device__
-#else
-#define M_HOST_DEVICE
-#endif
-
-enum class DeviceType { CPU, GPU };
-
 enum class ArrayType { Vector, Point, Normal };
 
-template <typename Scalar, int Rows, int Cols, DeviceType Device> class TMatrix;
-template <typename Scalar, DeviceType Device> class TTensor;
-template <typename Scalar, int Dimension, ArrayType ArrayType, DeviceType Device> class TArray;
-template <typename Scalar, int Dimension, DeviceType Device> class TRay;
-template <typename Scalar, int Dimension, DeviceType Device> class TBoundingBox;
-template <typename Scalar, DeviceType Device> class TTransform;
-template <typename Scalar, DeviceType Device> class TFrame;
-template <typename Scalar, int Dimension, DeviceType Device> class TRGBSpectrum;
-template <typename Scalar, DeviceType Device> class TIntersection;
-template <typename Scalar, DeviceType Device> class TSurfaceIntersection;
-template <typename Scalar, DeviceType Device> class TPositionSample;
-template <typename Scalar, DeviceType Device> class TDirectionSample;
-template <typename Scalar, DeviceType Device> class TBSDFSample;
+template <typename Scalar, int Rows, int Cols> class TMatrix;
+template <typename Scalar> class TTensor;
+template <typename Scalar, int Dimension, ArrayType ArrayType> class TArray;
+template <typename Scalar, int Dimension> class TRay;
+template <typename Scalar, int Dimension> class TBoundingBox;
+template <typename Scalar> class TTransform;
+template <typename Scalar> class TFrame;
+template <typename Scalar, int Dimension> class TRGBSpectrum;
+template <typename Scalar> class TIntersection;
+template <typename Scalar> class TSurfaceIntersection;
+template <typename Scalar> class TPositionSample;
+template <typename Scalar> class TDirectionSample;
+template <typename Scalar> class TBSDFSample;
 template <typename Scalar, typename Index> class TDiscreteDistribution;
 template <typename Scalar, typename Index> class TDiscreteDistribution2D;
-template <typename Scalar, DeviceType Device> class TMicrofacetDistribution;
+template <typename Scalar> class TMicrofacetDistribution;
 
-typedef TArray<float, 1, ArrayType::Vector, DeviceType::CPU> Vector1f;
-typedef TArray<float, 2, ArrayType::Vector, DeviceType::CPU> Vector2f;
-typedef TArray<float, 3, ArrayType::Vector, DeviceType::CPU> Vector3f;
-typedef TArray<float, 4, ArrayType::Vector, DeviceType::CPU> Vector4f;
-typedef TArray<int, 1, ArrayType::Vector, DeviceType::CPU> Vector1i;
-typedef TArray<int, 2, ArrayType::Vector, DeviceType::CPU> Vector2i;
-typedef TArray<int, 3, ArrayType::Vector, DeviceType::CPU> Vector3i;
-typedef TArray<int, 4, ArrayType::Vector, DeviceType::CPU> Vector4i;
-typedef TArray<float, 1, ArrayType::Point, DeviceType::CPU> Point1f;
-typedef TArray<float, 2, ArrayType::Point, DeviceType::CPU> Point2f;
-typedef TArray<float, 3, ArrayType::Point, DeviceType::CPU> Point3f;
-typedef TArray<float, 4, ArrayType::Point, DeviceType::CPU> Point4f;
-typedef TArray<int, 1, ArrayType::Point, DeviceType::CPU> Point1i;
-typedef TArray<int, 2, ArrayType::Point, DeviceType::CPU> Point2i;
-typedef TArray<int, 3, ArrayType::Point, DeviceType::CPU> Point3i;
-typedef TArray<int, 4, ArrayType::Point, DeviceType::CPU> Point4i;
-typedef TArray<float, 2, ArrayType::Normal, DeviceType::CPU> Normal2f;
-typedef TArray<float, 3, ArrayType::Normal, DeviceType::CPU> Normal3f;
-typedef TTransform<float, DeviceType::CPU> Transform4f;
-typedef TBoundingBox<float, 1, DeviceType::CPU> BoundingBox1f;
-typedef TBoundingBox<float, 2, DeviceType::CPU> BoundingBox2f;
-typedef TBoundingBox<float, 3, DeviceType::CPU> BoundingBox3f;
-typedef TBoundingBox<float, 4, DeviceType::CPU> BoundingBox4f;
-typedef TBoundingBox<int, 1, DeviceType::CPU> BoundingBox1i;
-typedef TBoundingBox<int, 2, DeviceType::CPU> BoundingBox2i;
-typedef TBoundingBox<int, 3, DeviceType::CPU> BoundingBox3i;
-typedef TBoundingBox<int, 4, DeviceType::CPU> BoundingBox4i;
-typedef TRay<float, 2, DeviceType::CPU> Ray2f;
-typedef TRay<float, 3, DeviceType::CPU> Ray3f;
-typedef TFrame<float, DeviceType::CPU> Frame3f;
-typedef TMatrix<float, 4, 4, DeviceType::CPU> Matrix4f;
-typedef TTensor<float, DeviceType::CPU> TensorXf;
-typedef TRGBSpectrum<float, 3, DeviceType::CPU> Color3f;
-typedef TRGBSpectrum<float, 4, DeviceType::CPU> Color4f;
-typedef TIntersection<float, DeviceType::CPU> Intersection3f;
-typedef TSurfaceIntersection<float, DeviceType::CPU> SurfaceIntersection3f;
-typedef TPositionSample<float, DeviceType::CPU> PositionSample3f;
-typedef TDirectionSample<float, DeviceType::CPU> DirectionSample3f;
-typedef TBSDFSample<float, DeviceType::CPU> BSDFSample3f;
+typedef TArray<float, 1, ArrayType::Vector> Vector1f;
+typedef TArray<float, 2, ArrayType::Vector> Vector2f;
+typedef TArray<float, 3, ArrayType::Vector> Vector3f;
+typedef TArray<float, 4, ArrayType::Vector> Vector4f;
+typedef TArray<int, 1, ArrayType::Vector> Vector1i;
+typedef TArray<int, 2, ArrayType::Vector> Vector2i;
+typedef TArray<int, 3, ArrayType::Vector> Vector3i;
+typedef TArray<int, 4, ArrayType::Vector> Vector4i;
+typedef TArray<float, 1, ArrayType::Point> Point1f;
+typedef TArray<float, 2, ArrayType::Point> Point2f;
+typedef TArray<float, 3, ArrayType::Point> Point3f;
+typedef TArray<float, 4, ArrayType::Point> Point4f;
+typedef TArray<int, 1, ArrayType::Point> Point1i;
+typedef TArray<int, 2, ArrayType::Point> Point2i;
+typedef TArray<int, 3, ArrayType::Point> Point3i;
+typedef TArray<int, 4, ArrayType::Point> Point4i;
+typedef TArray<float, 2, ArrayType::Normal> Normal2f;
+typedef TArray<float, 3, ArrayType::Normal> Normal3f;
+typedef TTransform<float> Transform4f;
+typedef TBoundingBox<float, 1> BoundingBox1f;
+typedef TBoundingBox<float, 2> BoundingBox2f;
+typedef TBoundingBox<float, 3> BoundingBox3f;
+typedef TBoundingBox<float, 4> BoundingBox4f;
+typedef TBoundingBox<int, 1> BoundingBox1i;
+typedef TBoundingBox<int, 2> BoundingBox2i;
+typedef TBoundingBox<int, 3> BoundingBox3i;
+typedef TBoundingBox<int, 4> BoundingBox4i;
+typedef TRay<float, 2> Ray2f;
+typedef TRay<float, 3> Ray3f;
+typedef TFrame<float> Frame3f;
+typedef TMatrix<float, 4, 4> Matrix4f;
+typedef TTensor<float> TensorXf;
+typedef TRGBSpectrum<float, 3> Color3f;
+typedef TRGBSpectrum<float, 4> Color4f;
+typedef TIntersection<float> Intersection3f;
+typedef TSurfaceIntersection<float> SurfaceIntersection3f;
+typedef TPositionSample<float> PositionSample3f;
+typedef TDirectionSample<float> DirectionSample3f;
+typedef TBSDFSample<float> BSDFSample3f;
 typedef TDiscreteDistribution<float, int> DiscreteDistribution1f;
 typedef TDiscreteDistribution2D<float, int> DiscreteDistribution2f;
-typedef TMicrofacetDistribution<float, DeviceType::CPU> MicrofacetDistribution1f;
+typedef TMicrofacetDistribution<float> MicrofacetDistribution1f;
 
 class BSDF;
 class BlockGenerator;
@@ -198,35 +190,26 @@ struct int3 {
 };
 
 // Convert radians to degrees
-template <typename Scalar> M_HOST_DEVICE Scalar rad_to_deg(Scalar value) { return value * (180.0 / M_PI); }
+template <typename Scalar> Scalar rad_to_deg(Scalar value) { return value * (180.0 / M_PI); }
 
 // Convert degrees to radians
-template <typename Scalar> M_HOST_DEVICE Scalar deg_to_rad(Scalar value) { return value * (M_PI / 180.0); }
+template <typename Scalar> Scalar deg_to_rad(Scalar value) { return value * (M_PI / 180.0); }
 
 // Linearly interpolate between two values
-template <typename Scalar> M_HOST_DEVICE Scalar interpolate(Scalar t, Scalar v1, Scalar v2) {
+template <typename Scalar> Scalar interpolate(Scalar t, Scalar v1, Scalar v2) {
     return (static_cast<Scalar>(1) - t) * v1 + t * v2;
 }
 
-template <typename Scalar> M_HOST_DEVICE Scalar sqrt(Scalar value) {
-#ifdef __CUDA_ARCH__
-    return sqrtf(value);
-#else
+template <typename Scalar> Scalar sqrt(Scalar value) {
     return std::sqrt(value);
-#endif
 }
 
-template <typename Scalar> M_HOST_DEVICE Scalar safe_sqrt(Scalar value) {
-#ifdef __CUDA_ARCH__
-    value = M_MAX(0, value);
-    return sqrtf(value);
-#else
+template <typename Scalar> Scalar safe_sqrt(Scalar value) {
     value = M_MAX(0, value);
     return std::sqrt(value);
-#endif
 }
 
-template <typename Scalar> M_HOST_DEVICE static Scalar clamp(Scalar value, Scalar min, Scalar max) {
+template <typename Scalar> static Scalar clamp(Scalar value, Scalar min, Scalar max) {
     if (value < min)
         return min;
     else if (value > max)
@@ -235,106 +218,62 @@ template <typename Scalar> M_HOST_DEVICE static Scalar clamp(Scalar value, Scala
         return value;
 }
 
-template <typename Scalar> M_HOST_DEVICE static Scalar pow(Scalar base, Scalar exponent) {
-#ifdef __CUDA_ARCH__
-    return powf(base, exponent);
-#else
+template <typename Scalar> static Scalar pow(Scalar base, Scalar exponent) {
     return std::pow(base, exponent);
-#endif
 }
 
 // Always-positive modulo operation
-template <typename Scalar> M_HOST_DEVICE int mod(Scalar a, Scalar b) {
+template <typename Scalar> int mod(Scalar a, Scalar b) {
     Scalar r = a % b;
     return r < 0 ? r + b : r;
 }
 
-template <typename Scalar> M_HOST_DEVICE Scalar cos(Scalar x) {
-#ifdef __CUDA_ARCH__
-    return cosf(x);
-#else
+template <typename Scalar> Scalar cos(Scalar x) {
     return std::cos(x);
-#endif
 }
 
-template <typename Scalar> M_HOST_DEVICE Scalar safe_acos(Scalar x) {
+template <typename Scalar> Scalar safe_acos(Scalar x) {
     x = clamp(x, Scalar(-1), Scalar(1));
-#ifdef __CUDA_ARCH__
-    return acosf(x);
-#else
     return std::acos(x);
-#endif
 }
 
-template <typename Scalar> M_HOST_DEVICE Scalar sin(Scalar x) {
-#ifdef __CUDA_ARCH__
-    return sinf(x);
-#else
+template <typename Scalar> Scalar sin(Scalar x) {
     return std::sin(x);
-#endif
 }
 
-template <typename Scalar> M_HOST_DEVICE Scalar tan(Scalar x) {
-#ifdef __CUDA_ARCH__
-    return tanf(x);
-#else
+template <typename Scalar> Scalar tan(Scalar x) {
     return std::tan(x);
-#endif
 }
 
-template <typename Scalar> M_HOST_DEVICE Scalar atan2(Scalar y, Scalar x) {
-#ifdef __CUDA_ARCH__
-    return atan2f(y, x); // CUDA device implementation
-#else
-    return std::atan2(y, x); // Standard C++ implementation
-#endif
+template <typename Scalar> Scalar atan2(Scalar y, Scalar x) {
+    return std::atan2(y, x);
 }
 
-template <typename Scalar> M_HOST_DEVICE Scalar asin(Scalar x) {
-#ifdef __CUDA_ARCH__
-    return asinf(x); // CUDA device implementation
-#else
-    return std::asin(x); // Standard C++ implementation
-#endif
+template <typename Scalar> Scalar asin(Scalar x) {
+    return std::asin(x);
 }
 
-template <typename Scalar> M_HOST_DEVICE Scalar acos(Scalar x) {
-#ifdef __CUDA_ARCH__
-    return acosf(x); // CUDA device implementation
-#else
-    return std::acos(x); // Standard C++ implementation
-#endif
+template <typename Scalar> Scalar acos(Scalar x) {
+    return std::acos(x);
 }
 
-template <typename Scalar> M_HOST_DEVICE Scalar abs(Scalar x) { return x < 0 ? -x : x; }
+template <typename Scalar> Scalar abs(Scalar x) { return x < 0 ? -x : x; }
 
-template <typename Scalar> M_HOST_DEVICE Scalar floor(Scalar x) {
-#ifdef __CUDA_ARCH__
-    return floorf(x);
-#else
+template <typename Scalar> Scalar floor(Scalar x) {
     return std::floor(x);
-#endif
 }
 
-template <typename Scalar> M_HOST_DEVICE Scalar ceil(Scalar x) {
-#ifdef __CUDA_ARCH__
-    return ceilf(x);
-#else
+template <typename Scalar> Scalar ceil(Scalar x) {
     return std::ceil(x);
-#endif
 }
 
-template <typename Scalar> M_HOST_DEVICE Scalar lerp(Scalar a, Scalar b, Scalar t) {
-    return b * t + a * (Scalar(1) - t);
-}
+template <typename Scalar> Scalar lerp(Scalar a, Scalar b, Scalar t) { return b * t + a * (Scalar(1) - t); }
 
-template <typename T> M_HOST_DEVICE T copysign(T value, T sign) {
-    return value >= T(0) == sign >= T(0) ? value : -value;
-}
+template <typename T> T copysign(T value, T sign) { return value >= T(0) == sign >= T(0) ? value : -value; }
 
-template <typename T, typename S> M_HOST_DEVICE T mulsign(T value, S sign) { return sign >= 0 ? value : -value; }
+template <typename T, typename S> T mulsign(T value, S sign) { return sign >= 0 ? value : -value; }
 
-template <typename Value, size_t n> M_HOST_DEVICE Value estrin_impl(const Value &x, const Value (&coeff)[n]) {
+template <typename Value, size_t n> Value estrin_impl(const Value &x, const Value (&coeff)[n]) {
     constexpr size_t n_rec = (n - 1) / 2, n_fma = n / 2;
 
     Value coeff_rec[n_rec + 1];
@@ -351,7 +290,7 @@ template <typename Value, size_t n> M_HOST_DEVICE Value estrin_impl(const Value 
         return estrin_impl(sqr(x), coeff_rec);
 }
 
-template <typename Value, size_t n> M_HOST_DEVICE Value horner_impl(const Value &x, const Value (&coeff)[n]) {
+template <typename Value, size_t n> Value horner_impl(const Value &x, const Value (&coeff)[n]) {
     Value accum = coeff[n - 1];
 
     for (size_t i = 1; i < n; ++i)
@@ -360,12 +299,12 @@ template <typename Value, size_t n> M_HOST_DEVICE Value horner_impl(const Value 
     return accum;
 }
 
-template <typename Value, typename... Ts> M_HOST_DEVICE Value estrin(const Value &x, Ts... ts) {
+template <typename Value, typename... Ts> Value estrin(const Value &x, Ts... ts) {
     Value coeffs[]{ Value(ts)... };
     return estrin_impl(x, coeffs);
 }
 
-template <typename Value, typename... Ts> M_HOST_DEVICE Value horner(const Value &x, Ts... ts) {
+template <typename Value, typename... Ts> Value horner(const Value &x, Ts... ts) {
     Value coeffs[]{ Value(ts)... };
     return horner_impl(x, coeffs);
 }

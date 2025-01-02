@@ -19,31 +19,25 @@ public:
 
     /// Return the number of milliseconds elapsed since the timer was last reset
     [[nodiscard]] double elapsed() const {
-        auto now = std::chrono::system_clock::now();
-        auto duration =
-            std::chrono::duration_cast<std::chrono::milliseconds>(now - start);
+        auto now      = std::chrono::system_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - start);
         return static_cast<double>(duration.count());
     }
 
     /// Like \ref elapsed(), but return a human-readable string
-    [[nodiscard]] std::string elapsed_string(bool precise = false) const {
-        return time_string(elapsed(), precise);
-    }
+    [[nodiscard]] std::string elapsed_string(bool precise = false) const { return time_string(elapsed(), precise); }
 
     /// Return the number of milliseconds elapsed since the timer was last reset
     /// and then reset it
     double lap() {
-        auto now = std::chrono::system_clock::now();
-        auto duration =
-            std::chrono::duration_cast<std::chrono::milliseconds>(now - start);
-        start = now;
+        auto now      = std::chrono::system_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - start);
+        start         = now;
         return static_cast<double>(duration.count());
     }
 
     /// Like \ref lap(), but return a human-readable string
-    std::string lap_string(bool precise = false) {
-        return time_string(lap(), precise);
-    }
+    std::string lap_string(bool precise = false) { return time_string(lap(), precise); }
 
 private:
     std::chrono::system_clock::time_point start;

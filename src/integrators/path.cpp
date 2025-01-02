@@ -19,16 +19,14 @@ public:
 
     void construct() override {
 #ifdef M_DEBUG
-        std::cout << "Construct " << class_type_name(get_class_type())
-                  << std::endl;
+        std::cout << "Construct " << class_type_name(get_class_type()) << std::endl;
 #endif
     }
 
     void add_child(const std::shared_ptr<Object> &child) override {}
 
-    [[nodiscard]] Color3f li(const std::shared_ptr<Scene> &scene,
-                             std::shared_ptr<Sampler> sampler,
-                             const Ray3f &ray_, bool &valid) const override {
+    [[nodiscard]] Color3f li(const std::shared_ptr<Scene> &scene, std::shared_ptr<Sampler> sampler, const Ray3f &ray_,
+                             bool &valid) const override {
         // Configure loop state
         Ray3f ray(ray_);
         Color3f throughput(1.0f);
@@ -46,8 +44,7 @@ public:
         for (uint32_t i = 0; i < m_max_depth && valid; i++) {
             // Ray intersect
             SurfaceIntersection3f its;
-            bool is_intersect =
-                scene->get_accel()->ray_intersect(ray, its, false);
+            bool is_intersect = scene->get_accel()->ray_intersect(ray, its, false);
 
             // ---------------------- Direct emission ----------------------
 
@@ -82,8 +79,7 @@ public:
             Vector3f wo;
 
             if (active_em) {
-                std::tie(ds, em_weight) = scene->sample_emitter_direction(
-                    its, sampler->next2d(), true, active_em);
+                std::tie(ds, em_weight) = scene->sample_emitter_direction(its, sampler->next2d(), true, active_em);
                 active_em &= ds.pdf != 0.0f;
                 wo = its.to_local(ds.d);
             }
@@ -92,10 +88,9 @@ public:
             float sample1   = sampler->next1d();
             Point2f sample2 = sampler->next2d();
 
-            auto bsdf_val = bsdf->eval(its, wo, active_next);
-            auto bsdf_pdf = bsdf->pdf(its, wo, active_next);
-            auto [bsdf_sample, bsdf_weight] =
-                bsdf->sample(its, sample1, sample2, active_next);
+            auto bsdf_val                   = bsdf->eval(its, wo, active_next);
+            auto bsdf_pdf                   = bsdf->pdf(its, wo, active_next);
+            auto [bsdf_sample, bsdf_weight] = bsdf->sample(its, sample1, sample2, active_next);
 
             // --------------- Emitter sampling contribution ----------------
             if (active_em) {
@@ -130,8 +125,7 @@ public:
     }
 
     [[nodiscard]] std::string to_string() const override {
-        return std::string("Path[\n  max_depth=") +
-               std::to_string(m_max_depth) + std::string("\n  rr_depth") +
+        return std::string("Path[\n  max_depth=") + std::to_string(m_max_depth) + std::string("\n  rr_depth") +
                std::to_string(m_rr_depth) + std::string("\n]");
     }
 

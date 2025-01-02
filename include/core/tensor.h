@@ -2,119 +2,43 @@
 
 #include <cassert>
 #include <core/common.h>
-#include <cuda_runtime.h>
 #include <string>
 
 M_NAMESPACE_BEGIN
-template <typename Scalar, DeviceType Device_> class TTensor {
+template <typename Scalar> class TTensor {
 public:
-    static constexpr DeviceType Device = Device_;
-
     // ============================== Constructor ==============================
 
     // Set matrix to value
-    M_HOST_DEVICE explicit TTensor(int rows, int cols, int channels,
-                                   Scalar value = 0)
+    explicit TTensor(int rows, int cols, int channels, Scalar value = 0)
         : m_rows(rows), m_cols(cols), m_channels(channels) {
-#ifndef __CUDA_ARCH__
-        assert(rows > 0 && cols > 0 && channels > 0 &&
-               "Rows and columns and channels must be positive integers");
-        if constexpr (Device == DeviceType::CPU) {
-            m_data = new Scalar[m_rows * m_cols * m_channels];
-            std::fill(m_data, m_data + m_rows * m_cols * m_channels, value);
-        } else {
-            auto *temp = new Scalar[m_rows * m_cols * m_channels];
-            std::fill(temp, temp + m_rows * m_cols * m_channels, value);
-            check_cuda_error(
-                cudaMemcpy(m_data, temp,
-                           m_rows * m_cols * m_channels * sizeof(Scalar),
-                           cudaMemcpyHostToDevice),
-                "Memory copy failed");
-            delete[] temp;
-        }
-#else
-        printf("Error: Can not construct Tensor on GPU by device function");
-#endif
+        assert(rows > 0 && cols > 0 && channels > 0 && "Rows and columns and channels must be positive integers");
+        m_data = new Scalar[m_rows * m_cols * m_channels];
+        std::fill(m_data, m_data + m_rows * m_cols * m_channels, value);
     }
 
     // Initialize matrix by pointer
-    M_HOST_DEVICE explicit TTensor(int rows, int cols, int channels,
-                                   Scalar *input_m_data,
-                                   DeviceType input_device)
+    explicit TTensor(int rows, int cols, int channels, Scalar *input_m_data)
         : m_rows(rows), m_cols(cols), m_channels(channels) {
-#ifndef __CUDA_ARCH__
-        assert(input_m_data != nullptr &&
-               "Input data pointer must not be null");
-        assert(rows > 0 && cols > 0 &&
-               "Rows and columns must be positive integers");
-        if constexpr (Device == DeviceType::CPU) {
-            m_data = new Scalar[m_rows * m_cols * m_channels];
-            if (input_device == DeviceType::CPU) {
-                std::copy(input_m_data,
-                          input_m_data + m_rows * m_cols * m_channels, m_data);
-            } else {
-                check_cuda_error(
-                    cudaMemcpy(m_data, input_m_data,
-                               m_rows * m_cols * m_channels * sizeof(Scalar),
-                               cudaMemcpyDeviceToHost),
-                    "Memory copy failed");
-            }
-        } else {
-            assert(input_m_data != nullptr &&
-                   "Input data pointer must not be null");
-            assert(rows > 0 && cols > 0 &&
-                   "Rows and columns must be positive integers");
-            check_cuda_error(cudaMalloc(&m_data, m_rows * m_cols * m_channels *
-                                                     sizeof(Scalar)));
-            if (input_device == DeviceType::CPU) {
-                check_cuda_error(
-                    cudaMemcpy(m_data, input_m_data,
-                               m_rows * m_cols * m_channels * sizeof(Scalar),
-                               cudaMemcpyHostToDevice),
-                    "Memory copy failed");
-            } else {
-                check_cuda_error(
-                    cudaMemcpy(m_data, input_m_data,
-                               m_rows * m_cols * m_channels * sizeof(Scalar),
-                               cudaMemcpyDeviceToDevice),
-                    "Memory copy failed");
-            }
-        }
-#else
-        printf("Error: Can not construct Tensor on GPU by device function");
-#endif
+        assert(input_m_data != nullptr && "Input data pointer must not be null");
+        assert(rows > 0 && cols > 0 && "Rows and columns must be positive integers");
+        m_data = new Scalar[m_rows * m_cols * m_channels];
+        std::copy(input_m_data, input_m_data + m_rows * m_cols * m_channels, m_data);
     }
 
     // Deep copy constructor
-    M_HOST_DEVICE TTensor(const TTensor &other) {
-#ifndef __CUDA_ARCH__
+    TTensor(const TTensor &other) {
         m_rows     = other.m_rows;
         m_cols     = other.m_cols;
         m_channels = other.m_channels;
-        if constexpr (Device == DeviceType::CPU) {
-            delete[] m_data;
-            m_data = new Scalar[m_rows * m_cols * m_channels];
-            std::copy(other.m_data, other.m_data + m_rows * m_cols * m_channels,
-                      m_data);
-        } else {
-            check_cuda_error(cudaFree(m_data), "Memory copy failed");
-            check_cuda_error(cudaMalloc(&m_data, m_rows * m_cols * m_channels *
-                                                     sizeof(Scalar)));
-            check_cuda_error(
-                cudaMemcpy(m_data, other.m_data,
-                           m_rows * m_cols * m_channels * sizeof(Scalar),
-                           cudaMemcpyDeviceToDevice),
-                "Memory copy failed");
-        }
-#else
-        printf("Error: Can not construct Tensor on GPU by device function");
-#endif
+        delete[] m_data;
+        m_data = new Scalar[m_rows * m_cols * m_channels];
+        std::copy(other.m_data, other.m_data + m_rows * m_cols * m_channels, m_data);
     }
 
     // Move constructor
-    M_HOST_DEVICE TTensor(TTensor &&other) noexcept
-        : m_rows(other.m_rows), m_cols(other.m_cols), m_data(other.m_data),
-          m_channels(other.m_channels) {
+    TTensor(TTensor &&other) noexcept
+        : m_rows(other.m_rows), m_cols(other.m_cols), m_channels(other.m_channels), m_data(other.m_data) {
         other.m_data     = nullptr;
         other.m_rows     = 0;
         other.m_cols     = 0;
@@ -122,15 +46,11 @@ public:
     }
 
     // Move assignment
-    M_HOST_DEVICE TTensor &operator=(TTensor &&other) noexcept {
+    TTensor &operator=(TTensor &&other) noexcept {
         if (this == &other)
             return *this;
 
-        if constexpr (Device == DeviceType::CPU) {
-            delete[] m_data;
-        } else {
-            check_cuda_error(cudaFree(m_data), "CUDA free failed");
-        }
+        delete[] m_data;
 
         m_data     = other.m_data;
         m_rows     = other.m_rows;
@@ -146,74 +66,53 @@ public:
     }
 
     ~TTensor() {
-        if constexpr (Device == DeviceType::GPU) {
-            check_cuda_error(cudaFree(m_data), "CUDA free failed");
-        } else {
-            delete[] m_data;
-        }
+        delete[] m_data;
         m_data = nullptr;
     }
 
     // Deep copy operator
-    M_HOST_DEVICE TTensor &operator=(const TTensor &other) {
-#ifndef __CUDA_ARCH__
+    TTensor &operator=(const TTensor &other) {
         if (this == &other) {
             return *this;
         }
 
-        if constexpr (Device == DeviceType::CPU) {
-            delete[] m_data;
-            m_data = new Scalar[m_rows * m_cols * m_channels];
-            std::copy(other.m_data, other.m_data + m_rows * m_cols * m_channels,
-                      m_data);
-        } else {
-            check_cuda_error(cudaFree(m_data), "Memory copy failed");
-            check_cuda_error(cudaMalloc(&m_data, m_rows * m_cols * m_channels *
-                                                     sizeof(Scalar)));
-            check_cuda_error(
-                cudaMemcpy(m_data, other.m_data,
-                           m_rows * m_cols * m_channels * sizeof(Scalar),
-                           cudaMemcpyDeviceToDevice),
-                "CUDA memory copy failed");
-        }
+        delete[] m_data;
+        m_data = new Scalar[m_rows * m_cols * m_channels];
+        std::copy(other.m_data, other.m_data + m_rows * m_cols * m_channels, m_data);
 
         return *this;
-#else
-        printf("Error: Can not construct Tensor on GPU by device function");
-#endif
     }
 
     // ============================== Getter and setter
     // ==============================
 
-    M_HOST_DEVICE [[nodiscard]] int get_rows() const { return m_rows; }
+    [[nodiscard]] int get_rows() const { return m_rows; }
 
-    M_HOST_DEVICE [[nodiscard]] int get_cols() const { return m_cols; }
+    [[nodiscard]] int get_cols() const { return m_cols; }
 
-    M_HOST_DEVICE [[nodiscard]] int get_channels() const { return m_channels; }
+    [[nodiscard]] int get_channels() const { return m_channels; }
 
-    M_HOST_DEVICE [[nodiscard]] Scalar *get_data() const { return m_data; }
+    [[nodiscard]] Scalar *get_data() const { return m_data; }
 
-    M_HOST_DEVICE [[nodiscard]] Scalar *&get_data() { return m_data; }
+    [[nodiscard]] Scalar *&get_data() { return m_data; }
 
-    M_HOST_DEVICE Scalar operator()(int row, int col, int channel) const {
+    Scalar operator()(int row, int col, int channel) const {
         check_range(row, col, channel);
 
         return m_data[(row * m_cols + col) * m_channels + channel];
     }
 
-    M_HOST_DEVICE Scalar &operator()(int row, int col, int channel) {
+    Scalar &operator()(int row, int col, int channel) {
         check_range(row, col, channel);
 
         return m_data[(row * m_cols + col) * m_channels + channel];
     }
 
-    M_HOST_DEVICE void set_constant(Scalar value) {
+    void set_constant(Scalar value) {
         for (int i = 0; i < m_rows; ++i) {
             for (int j = 0; j < m_cols; ++j) {
                 for (int k = 0; k < m_channels; ++k) {
-                    m_data[i * m_cols * m_channels + j * m_channels + k] =
-                        value;
+                    m_data[i * m_cols * m_channels + j * m_channels + k] = value;
                 }
             }
         }
@@ -222,7 +121,7 @@ public:
     // ============================== Function ==============================
 
     // Matrix-Scalar multiply
-    M_HOST_DEVICE TTensor operator*(Scalar scalar) const {
+    TTensor operator*(Scalar scalar) const {
         TTensor result(m_rows, m_cols, m_channels, 0);
 
         for (int i = 0; i < m_rows * m_cols * m_channels; ++i) {
@@ -231,7 +130,7 @@ public:
         return result;
     }
 
-    M_HOST_DEVICE TTensor &operator*=(Scalar scalar) {
+    TTensor &operator*=(Scalar scalar) {
         for (int i = 0; i < m_rows * m_cols * m_channels; ++i) {
             m_data[i] *= scalar;
         }
@@ -239,7 +138,7 @@ public:
     }
 
     // Matrix-Scalar division
-    M_HOST_DEVICE TTensor operator/(Scalar scalar) const {
+    TTensor operator/(Scalar scalar) const {
         bool valid = true;
         check_zero(scalar, valid);
 
@@ -250,7 +149,7 @@ public:
         return result;
     }
 
-    M_HOST_DEVICE TTensor &operator/=(Scalar scalar) {
+    TTensor &operator/=(Scalar scalar) {
         bool valid = true;
         check_zero(scalar, valid);
 
@@ -261,9 +160,8 @@ public:
     }
 
     // Matrix-Matrix add
-    M_HOST_DEVICE TTensor operator+(const TTensor &other) const {
-        assert(m_cols == other.get_cols() && m_rows == other.get_rows() &&
-               m_channels == other.get_channels() &&
+    TTensor operator+(const TTensor &other) const {
+        assert(m_cols == other.get_cols() && m_rows == other.get_rows() && m_channels == other.get_channels() &&
                "Rows and columns must be equal");
         TTensor result(m_rows, m_cols, m_channels, 0);
 
@@ -273,7 +171,7 @@ public:
         return result;
     }
 
-    M_HOST_DEVICE TTensor &operator+=(const TTensor &other) {
+    TTensor &operator+=(const TTensor &other) {
         for (int i = 0; i < m_rows * m_cols * m_channels; ++i) {
             m_data[i] += other.m_data[i];
         }
@@ -281,9 +179,8 @@ public:
     }
 
     // Matrix-Matrix sub
-    M_HOST_DEVICE TTensor operator-(const TTensor &other) const {
-        assert(m_cols == other.get_cols() && m_rows == other.get_rows() &&
-               m_channels == other.get_channels() &&
+    TTensor operator-(const TTensor &other) const {
+        assert(m_cols == other.get_cols() && m_rows == other.get_rows() && m_channels == other.get_channels() &&
                "Rows and columns and channels must be equal");
         TTensor result(m_rows, m_cols, m_channels, 0);
 
@@ -293,7 +190,7 @@ public:
         return result;
     }
 
-    M_HOST_DEVICE TTensor &operator-=(const TTensor &other) {
+    TTensor &operator-=(const TTensor &other) {
         for (int i = 0; i < m_rows * m_cols * m_channels; ++i) {
             m_data[i] -= other.m_data[i];
         }
@@ -301,7 +198,7 @@ public:
     }
 
     // Matrix-Scalar add
-    M_HOST_DEVICE TTensor operator+(Scalar scalar) const {
+    TTensor operator+(Scalar scalar) const {
         TTensor result(m_rows, m_cols, m_channels, 0);
 
         for (int i = 0; i < m_rows * m_cols * m_channels; ++i) {
@@ -310,7 +207,7 @@ public:
         return result;
     }
 
-    M_HOST_DEVICE TTensor &operator+=(Scalar scalar) {
+    TTensor &operator+=(Scalar scalar) {
         for (int i = 0; i < m_rows * m_cols * m_channels; ++i) {
             m_data[i] += scalar;
         }
@@ -318,7 +215,7 @@ public:
     }
 
     // Matrix-Scalar sub
-    M_HOST_DEVICE TTensor operator-(Scalar scalar) const {
+    TTensor operator-(Scalar scalar) const {
         TTensor result(m_rows, m_cols, m_channels, 0);
 
         for (int i = 0; i < m_rows * m_cols * m_channels; ++i) {
@@ -327,7 +224,7 @@ public:
         return result;
     }
 
-    M_HOST_DEVICE TTensor &operator-=(Scalar scalar) {
+    TTensor &operator-=(Scalar scalar) {
         for (int i = 0; i < m_rows * m_cols * m_channels; ++i) {
             m_data[i] -= scalar;
         }
@@ -335,7 +232,7 @@ public:
     }
 
     // Operator -
-    M_HOST_DEVICE TTensor operator-() const {
+    TTensor operator-() const {
         TTensor result(m_rows, m_cols, m_channels, 0);
 
         for (int i = 0; i < m_rows * m_cols * m_channels; ++i) {
@@ -345,23 +242,8 @@ public:
     }
 
     [[nodiscard]] std::string to_string() const {
-        if (m_rows == 0 || m_cols == 0 || m_channels == 0 ||
-            m_data == nullptr) {
+        if (m_rows == 0 || m_cols == 0 || m_channels == 0 || m_data == nullptr) {
             return "[]";
-        }
-
-        std::unique_ptr<Scalar[]> temp(
-            new Scalar[m_rows * m_cols * m_channels]);
-        if constexpr (Device == DeviceType::GPU) {
-            check_cuda_error(
-                cudaMemcpy(temp.get(), m_data,
-                           m_rows * m_cols * m_channels * sizeof(Scalar),
-                           cudaMemcpyDeviceToHost),
-                "Failed to copy tensor data from GPU to host");
-            cudaDeviceSynchronize();
-        } else {
-            std::copy(m_data, m_data + m_rows * m_cols * m_channels,
-                      temp.get());
         }
 
         std::ostringstream oss;
@@ -372,7 +254,7 @@ public:
             for (int j = 0; j < m_cols; ++j) {
                 oss << "[";
                 for (int k = 0; k < m_channels; ++k) {
-                    oss << temp[i * m_cols * m_channels + j * m_channels + k];
+                    oss << m_data[i * m_cols * m_channels + j * m_channels + k];
                     if (k < m_channels - 1) {
                         oss << ", ";
                     }
@@ -397,23 +279,13 @@ private:
 
     // ============================== Check ==============================
 
-    M_HOST_DEVICE static void check_cuda_error(cudaError_t err,
-                                               const char *message) {
+    static void check_range(int row, int col, int channel) {
 #ifdef M_DEBUG
-        if (err != cudaSuccess) {
-            assert(false && message);
-        }
+        assert(row < m_rows && col < m_cols && channel < m_channels && "Index out of range");
 #endif
     }
 
-    M_HOST_DEVICE void check_range(int row, int col, int channel) const {
-#ifdef M_DEBUG
-        assert(row < m_rows && col < m_cols && channel < m_channels &&
-               "Index out of range");
-#endif
-    }
-
-    M_HOST_DEVICE static void check_zero(Scalar &scalar, bool &valid) {
+    static void check_zero(Scalar &scalar, bool &valid) {
         if (scalar == static_cast<Scalar>(0)) {
             scalar += static_cast<Scalar>(M_EPSILON);
             valid &= false;

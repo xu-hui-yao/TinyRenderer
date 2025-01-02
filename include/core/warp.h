@@ -19,7 +19,7 @@ M_NAMESPACE_BEGIN
  * - A point in 2D space (x, y) on a unit disk. The coordinates are also in the
  * range [-1, 1].
  */
-M_HOST_DEVICE Point2f square_to_uniform_disk_concentric(const Point2f &sample);
+Point2f square_to_uniform_disk_concentric(const Point2f &sample);
 
 /**
  * Inverse of the mapping square_to_uniform_disk_concentric
@@ -34,7 +34,7 @@ M_HOST_DEVICE Point2f square_to_uniform_disk_concentric(const Point2f &sample);
  * - A point (x, y) in the square, where both coordinates are in the range [0,
  * 1].
  */
-M_HOST_DEVICE Point2f uniform_disk_to_square_concentric(const Point2f &p);
+Point2f uniform_disk_to_square_concentric(const Point2f &p);
 
 /**
  * Low-distortion warping technique based on concentric disk mapping for
@@ -50,7 +50,7 @@ M_HOST_DEVICE Point2f uniform_disk_to_square_concentric(const Point2f &p);
  * \return
  * - A 3D vector (x, y, z) on the hemisphere with cosine-weighted distribution.
  */
-M_HOST_DEVICE Vector3f square_to_cosine_hemisphere(const Point2f &sample);
+Vector3f square_to_cosine_hemisphere(const Point2f &sample);
 
 /**
  * Inverse of the mapping square_to_cosine_hemisphere
@@ -64,7 +64,7 @@ M_HOST_DEVICE Vector3f square_to_cosine_hemisphere(const Point2f &sample);
  * \return
  * A point (x, y) in the square, where each coordinate is in the range [0, 1].
  */
-M_HOST_DEVICE Point2f cosine_hemisphere_to_square(const Vector3f &v);
+Point2f cosine_hemisphere_to_square(const Vector3f &v);
 
 /**
  * Density of square_to_cosine_hemisphere() with respect to solid angles
@@ -78,7 +78,7 @@ M_HOST_DEVICE Point2f cosine_hemisphere_to_square(const Vector3f &v);
  * \return
  * - The probability density of the sampled vector with respect to solid angles.
  */
-M_HOST_DEVICE float square_to_cosine_hemisphere_pdf(const Vector3f &v);
+float square_to_cosine_hemisphere_pdf(const Vector3f &v);
 
 /**
  * Uniformly sample a vector on the unit hemisphere with respect to solid angles
@@ -93,7 +93,7 @@ M_HOST_DEVICE float square_to_cosine_hemisphere_pdf(const Vector3f &v);
  * \return
  * - A 3D vector (x, y, z) on the unit hemisphere, with a uniform distribution.
  */
-M_HOST_DEVICE Vector3f square_to_uniform_hemisphere(const Point2f &sample);
+Vector3f square_to_uniform_hemisphere(const Point2f &sample);
 
 /**
  * Inverse of the mapping square_to_uniform_hemisphere
@@ -107,7 +107,7 @@ M_HOST_DEVICE Vector3f square_to_uniform_hemisphere(const Point2f &sample);
  * \return
  * - A point (x, y) in the square, where each coordinate is in the range [0, 1].
  */
-M_HOST_DEVICE Point2f uniform_hemisphere_to_square(const Vector3f &v);
+Point2f uniform_hemisphere_to_square(const Vector3f &v);
 
 /**
  * Density of square_to_uniform_hemisphere() with respect to solid angles
@@ -121,18 +121,18 @@ M_HOST_DEVICE Point2f uniform_hemisphere_to_square(const Vector3f &v);
  * \return
  * - The probability density of the sampled vector with respect to solid angles.
  */
-M_HOST_DEVICE float square_to_uniform_hemisphere_pdf(const Vector3f &v);
+float square_to_uniform_hemisphere_pdf(const Vector3f &v);
 
-M_HOST_DEVICE Point2f square_to_uniform_triangle(const Point2f &sample);
+Point2f square_to_uniform_triangle(const Point2f &sample);
 
-M_HOST_DEVICE Point2f uniform_triangle_to_square(const Point2f &p);
+Point2f uniform_triangle_to_square(const Point2f &p);
 
-M_HOST_DEVICE float square_to_uniform_triangle_pdf(const Point2f &p);
+float square_to_uniform_triangle_pdf(const Point2f &p);
 
-M_HOST_DEVICE Vector3f square_to_uniform_sphere(const Point2f &sample);
+Vector3f square_to_uniform_sphere(const Point2f &sample);
 
-M_HOST_DEVICE Point2f uniform_sphere_to_square(const Vector3f &p);
+Point2f uniform_sphere_to_square(const Vector3f &p);
 
-M_HOST_DEVICE float square_to_uniform_sphere_pdf(const Vector3f &v);
+float square_to_uniform_sphere_pdf(const Vector3f &v);
 
 M_NAMESPACE_END

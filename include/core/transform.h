@@ -5,99 +5,82 @@
 #include <iostream>
 
 M_NAMESPACE_BEGIN
-template <typename Scalar_, DeviceType Device_> class TTransform {
-    static constexpr DeviceType Device = Device_;
-
+template <typename Scalar_> class TTransform {
     typedef Scalar_ Scalar;
-    typedef TMatrix<Scalar, 4, 4, Device> Matrix4;
-    typedef TMatrix<Scalar, 3, 3, Device> Matrix3;
-    typedef TArray<Scalar, 3, ArrayType::Vector, Device> VectorType3;
-    typedef TArray<Scalar, 4, ArrayType::Vector, Device> VectorType4;
-    typedef TArray<Scalar, 3, ArrayType::Point, Device> PointType3;
-    typedef TArray<Scalar, 3, ArrayType::Normal, Device> NormalType3;
+    typedef TMatrix<Scalar, 4, 4> Matrix4;
+    typedef TMatrix<Scalar, 3, 3> Matrix3;
+    typedef TArray<Scalar, 3, ArrayType::Vector> VectorType3;
+    typedef TArray<Scalar, 4, ArrayType::Vector> VectorType4;
+    typedef TArray<Scalar, 3, ArrayType::Point> PointType3;
+    typedef TArray<Scalar, 3, ArrayType::Normal> NormalType3;
 
 public:
     // ============================== Constructor ==============================
 
     // Create the identity transform
-    M_HOST_DEVICE TTransform()
-        : transform(Matrix4::identity()), inv(Matrix4::identity()) {}
+    TTransform() : transform(Matrix4::identity()), inv(Matrix4::identity()) {}
 
     // Create a new transform instance for the given matrix
-    M_HOST_DEVICE explicit TTransform(const Matrix4 &transform)
-        : transform(transform) {
+    explicit TTransform(const Matrix4 &transform) : transform(transform) {
         bool valid = true;
         inv        = transform.inverse(valid);
     }
 
     // Create a new transform instance for the given matrix and its inverse
-    M_HOST_DEVICE TTransform(Matrix4 transform, Matrix4 inv)
-        : transform(transform), inv(inv) {}
+    TTransform(Matrix4 transform, Matrix4 inv) : transform(transform), inv(inv) {}
 
     // ============================== Function ==============================
 
     // Return the underlying matrix
-    M_HOST_DEVICE [[nodiscard]] Matrix4 get_transform() const {
-        return transform;
-    }
+    [[nodiscard]] Matrix4 get_transform() const { return transform; }
 
-    M_HOST_DEVICE [[nodiscard]] Matrix4 &get_transform() { return transform; }
+    [[nodiscard]] Matrix4 &get_transform() { return transform; }
 
     // Return the inverse of the underlying matrix
-    M_HOST_DEVICE [[nodiscard]] Matrix4 get_inverse() const { return inv; }
+    [[nodiscard]] Matrix4 get_inverse() const { return inv; }
 
-    M_HOST_DEVICE [[nodiscard]] Matrix4 &get_inverse() { return inv; }
+    [[nodiscard]] Matrix4 &get_inverse() { return inv; }
 
     // Return the inverse transformation
-    M_HOST_DEVICE [[nodiscard]] TTransform inverse() const {
-        return { inv, transform };
-    }
+    [[nodiscard]] TTransform inverse() const { return { inv, transform }; }
 
     // Concatenate with another transform
-    M_HOST_DEVICE TTransform operator*(const TTransform &t) const {
-        return { transform * t.transform, t.inv * inv };
-    }
+    TTransform operator*(const TTransform &t) const { return { transform * t.transform, t.inv * inv }; }
 
     // Apply the homogeneous transformation to a 3D vector
-    M_HOST_DEVICE VectorType3 operator*(const VectorType3 &v) const {
-        TMatrix<Scalar, 3, 3, Device> sub_matrix =
-            transform.template view<3, 3>(0, 0);
+    VectorType3 operator*(const VectorType3 &v) const {
+        TMatrix<Scalar, 3, 3> sub_matrix = transform.template view<3, 3>(0, 0);
         return sub_matrix * v;
     }
 
     // Apply the homogeneous transformation to a 3D normal
-    M_HOST_DEVICE NormalType3 operator*(const NormalType3 &n) const {
-        TMatrix<Scalar, 3, 3, Device> sub_matrix =
-            inv.template view<3, 3>(0, 0);
+    NormalType3 operator*(const NormalType3 &n) const {
+        TMatrix<Scalar, 3, 3> sub_matrix = inv.template view<3, 3>(0, 0);
         return sub_matrix.transpose() * n;
     }
 
     // Transform a point by an arbitrary matrix in homogeneous coordinates
-    M_HOST_DEVICE PointType3 operator*(const PointType3 &p) const {
-        VectorType4 homo_vector =
-            VectorType4(p(0), p(1), p(2), static_cast<Scalar>(1));
-        VectorType4 result     = transform * homo_vector;
-        VectorType3 sub_vector = result.template view<3>(0) / result(3);
+    PointType3 operator*(const PointType3 &p) const {
+        VectorType4 homo_vector = VectorType4(p(0), p(1), p(2), static_cast<Scalar>(1));
+        VectorType4 result      = transform * homo_vector;
+        VectorType3 sub_vector  = result.template view<3>(0) / result(3);
         return PointType3(sub_vector(0), sub_vector(1), sub_vector(2));
     }
 
     // Apply the homogeneous transformation to a ray
-    M_HOST_DEVICE TRay<Scalar, 3, Device>
-    operator*(const TRay<Scalar, 3, Device> &r) const {
+    TRay<Scalar, 3> operator*(const TRay<Scalar, 3> &r) const {
         bool valid = true;
-        return { operator*(r.o()), operator*(r.d()), r.min_t(), r.max_t(),
-                 valid };
+        return { operator*(r.o()), operator*(r.d()), r.min_t(), r.max_t(), valid };
     }
 
     // Return a human-readable string summary of this frame
     [[nodiscard]] std::string to_string() {
-        static_assert(Device == DeviceType::CPU, "Device is not on CPU");
         std::ostringstream oss;
         oss << "Transform[\n" << transform.to_string() << "]\n";
         return oss.str();
     }
 
-    M_HOST_DEVICE static TTransform translate(Scalar x, Scalar y, Scalar z) {
+    static TTransform translate(Scalar x, Scalar y, Scalar z) {
         Matrix4 transform_matrix = Matrix4::identity();
         transform_matrix(0, 3)   = x;
         transform_matrix(1, 3)   = y;
@@ -109,7 +92,7 @@ public:
         return { transform_matrix, inverse_matrix };
     }
 
-    M_HOST_DEVICE static TTransform translate(VectorType3 vector) {
+    static TTransform translate(VectorType3 vector) {
         Matrix4 transform_matrix = Matrix4::identity();
         transform_matrix(0, 3)   = vector(0);
         transform_matrix(1, 3)   = vector(1);
@@ -121,8 +104,7 @@ public:
         return { transform_matrix, inverse_matrix };
     }
 
-    M_HOST_DEVICE static TTransform scale(Scalar x, Scalar y, Scalar z,
-                                          bool &valid) {
+    static TTransform scale(Scalar x, Scalar y, Scalar z, bool &valid) {
         check_zero(x, valid);
         check_zero(y, valid);
         check_zero(z, valid);
@@ -137,7 +119,7 @@ public:
         return { transform_matrix, inverse_matrix };
     }
 
-    M_HOST_DEVICE static TTransform scale(VectorType3 vector, bool &valid) {
+    static TTransform scale(VectorType3 vector, bool &valid) {
         check_zero(vector(0), valid);
         check_zero(vector(1), valid);
         check_zero(vector(2), valid);
@@ -152,8 +134,7 @@ public:
         return { transform_matrix, inverse_matrix };
     }
 
-    M_HOST_DEVICE static TTransform rotate(Scalar radiance, VectorType3 axis,
-                                           bool &valid) {
+    static TTransform rotate(Scalar radiance, VectorType3 axis, bool &valid) {
         axis                       = axis.norm(valid);
         Scalar cos_theta           = cos(radiance);
         Scalar sin_theta           = sin(radiance);
@@ -175,8 +156,7 @@ public:
         k(2, 1)   = x;
         k(2, 2)   = 0;
 
-        Matrix3 rotate_matrix =
-            Matrix3::identity() + k * sin_theta + k * k * one_minus_cos_theta;
+        Matrix3 rotate_matrix = Matrix3::identity() + k * sin_theta + k * k * one_minus_cos_theta;
 
         // Construct rotation matrix using Rodrigues' formula
         Matrix4 transform_matrix = Matrix4::identity();
@@ -196,9 +176,7 @@ public:
         return { transform_matrix, inverse_matrix };
     }
 
-    M_HOST_DEVICE static TTransform look_at(VectorType3 origin,
-                                            VectorType3 target, VectorType3 up,
-                                            bool &valid) {
+    static TTransform look_at(VectorType3 origin, VectorType3 target, VectorType3 up, bool &valid) {
         // Calculate the forward direction (camera looks towards -Z by default
         // in right-handed coordinate system)
         VectorType3 forward = (target - origin).norm(valid);
@@ -241,8 +219,7 @@ public:
 
     [[nodiscard]] std::string to_string() const {
         std::ostringstream oss;
-        oss << "Transform[\n  matrix = " << indent(transform.to_string())
-            << ",\n]";
+        oss << "Transform[\n  matrix = " << indent(transform.to_string()) << ",\n]";
         return oss.str();
     }
 
@@ -251,7 +228,7 @@ protected:
     Matrix4 inv;
 
 private:
-    M_HOST_DEVICE static void check_zero(Scalar &scalar, bool &valid) {
+    static void check_zero(Scalar &scalar, bool &valid) {
         if (scalar == static_cast<Scalar>(0)) {
             scalar += static_cast<Scalar>(M_EPSILON);
             valid &= false;

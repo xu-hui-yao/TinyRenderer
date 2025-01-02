@@ -8,8 +8,7 @@
 
 M_NAMESPACE_BEGIN
 
-template <typename Scalar>
-std::pair<Scalar, Scalar> legendre_pd(int l, Scalar x) {
+template <typename Scalar> std::pair<Scalar, Scalar> legendre_pd(int l, Scalar x) {
     Scalar l_cur = Scalar(0), d_cur = Scalar(0);
 
     if (l > 1) {
@@ -63,8 +62,7 @@ std::pair<Scalar, Scalar> legendre_pd(int l, Scalar x) {
  *     A tuple (nodes, weights) storing the nodes and weights of the
  *     quadrature rule.
  */
-template <typename Scalar>
-std::pair<std::vector<Scalar>, std::vector<Scalar>> gauss_legendre(int n) {
+template <typename Scalar> std::pair<std::vector<Scalar>, std::vector<Scalar>> gauss_legendre(int n) {
     if (n < 1) {
         throw std::invalid_argument("gauss_legendre: n must be >= 1");
     }
@@ -83,14 +81,12 @@ std::pair<std::vector<Scalar>, std::vector<Scalar>> gauss_legendre(int n) {
     } else {
         int m = (n + 1) / 2;
         for (int i = 0; i < m; ++i) {
-            Scalar x =
-                -std::cos(Scalar(2 * i + 1) / Scalar(2 * n + 2) * Scalar(M_PI));
-            int it = 0;
+            Scalar x = -std::cos(Scalar(2 * i + 1) / Scalar(2 * n + 2) * Scalar(M_PI));
+            int it   = 0;
 
             while (true) {
                 if (++it > 20) {
-                    throw std::runtime_error(
-                        "gauss_legendre: did not converge after 20 iterations");
+                    throw std::runtime_error("gauss_legendre: did not converge after 20 iterations");
                 }
 
                 auto [l_val, l_der] = legendre_pd(n + 1, x);
@@ -103,10 +99,9 @@ std::pair<std::vector<Scalar>, std::vector<Scalar>> gauss_legendre(int n) {
             }
 
             auto [l_val, l_der] = legendre_pd(n + 1, x);
-            weights[i]          = weights[n - i] =
-                Scalar(2) / ((Scalar(1) - x * x) * (l_der * l_der));
-            nodes[i]     = x;
-            nodes[n - i] = -x;
+            weights[i] = weights[n - i] = Scalar(2) / ((Scalar(1) - x * x) * (l_der * l_der));
+            nodes[i]                    = x;
+            nodes[n - i]                = -x;
         }
 
         if (n % 2 == 0) {

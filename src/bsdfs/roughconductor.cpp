@@ -56,7 +56,7 @@ public:
     [[nodiscard]] std::pair<BSDFSample3f, Color3f> sample(const SurfaceIntersection3f &si, float /* sample1 */,
                                                           const Point2f &sample2, bool active) const override {
         float cos_theta_i = Frame3f::cos_theta(si.wi, active);
-        BSDFSample3f bs(Vector3f(0));
+        BSDFSample3f bs(Vector3f({0, 0, 0}));
         active &= cos_theta_i > 0.f;
 
         if (!active) {

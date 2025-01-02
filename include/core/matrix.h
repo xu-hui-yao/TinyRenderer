@@ -2,158 +2,48 @@
 
 #include <cassert>
 #include <core/common.h>
-#include <cuda_runtime.h>
 #include <string>
 
 M_NAMESPACE_BEGIN
-template <typename Scalar, int Rows_, int Cols_, DeviceType Device_>
-class TMatrix {
+template <typename Scalar, int Rows_, int Cols_> class TMatrix {
 public:
-    static constexpr DeviceType Device = Device_;
     static constexpr int Rows          = Rows_;
     static constexpr int Cols          = Cols_;
 
     // ============================== Constructor ==============================
 
     // Set matrix to value
-    M_HOST_DEVICE explicit TMatrix(Scalar value = 0) {
-#ifndef __CUDA_ARCH__
-        if constexpr (Device == DeviceType::CPU) {
-            std::fill(m_data, m_data + Rows * Cols, value);
-        } else {
-            auto *temp = new Scalar[Rows * Cols];
-            for (auto &i : temp) {
-                i = value;
-            }
-            check_cuda_error(cudaMemcpyAsync(m_data, temp,
-                                             Rows * Cols * sizeof(Scalar),
-                                             cudaMemcpyHostToDevice),
-                             "Memory copy failed");
-            delete[] temp;
-        }
-#else
-        if constexpr (Device == DeviceType::CPU) {
-            printf("Error: Can not construct Matrix on CPU by device function");
-        } else {
-            for (int i = 0; i < Rows * Cols; i++) {
-                m_data[i] = value;
-            }
-        }
-#endif
-    }
-
-    // Initialize matrix by pointer
-    M_HOST_DEVICE explicit TMatrix(Scalar *input_m_data,
-                                   DeviceType input_device) {
-#ifndef __CUDA_ARCH__
-        if constexpr (Device == DeviceType::CPU) {
-            if (input_device == DeviceType::CPU) {
-                std::copy(input_m_data, input_m_data + Rows * Cols, m_data);
-            } else {
-                check_cuda_error(cudaMemcpyAsync(m_data, input_m_data,
-                                                 Rows * Cols * sizeof(Scalar),
-                                                 cudaMemcpyDeviceToHost),
-                                 "Memory copy failed");
-            }
-        } else {
-            if (input_device == DeviceType::CPU) {
-                check_cuda_error(cudaMemcpyAsync(m_data, input_m_data,
-                                                 Rows * Cols * sizeof(Scalar),
-                                                 cudaMemcpyHostToDevice),
-                                 "Memory copy failed");
-            } else {
-                check_cuda_error(cudaMemcpyAsync(m_data, input_m_data,
-                                                 Rows * Cols * sizeof(Scalar),
-                                                 cudaMemcpyDeviceToDevice),
-                                 "Memory copy failed");
-            }
-        }
-#else
-        if constexpr (Device == DeviceType::CPU) {
-            printf("Error: Can not construct Matrix on CPU by device function");
-        } else {
-            if (input_device == DeviceType::CPU) {
-                printf("Error: Can not construct Matrix on GPU by device "
-                       "function through a CPU m_data");
-            } else {
-                for (int i = 0; i < Rows * Cols; i++) {
-                    m_data[i] = input_m_data[i];
-                }
-            }
-        }
-#endif
-    }
+    explicit TMatrix(Scalar value = 0) { std::fill(m_data, m_data + Rows * Cols, value); }
 
     // Deep copy constructor
-    M_HOST_DEVICE TMatrix(const TMatrix &other) {
-#ifndef __CUDA_ARCH__
-        if constexpr (Device == DeviceType::CPU) {
-            std::copy(other.m_data, other.m_data + Rows * Cols, m_data);
-        } else {
-            assert(false &&
-                   "Error: Can not construct Matrix on GPU by host function");
-        }
-#else
-        if (Device == DeviceType::CPU) {
-            printf("Error: Can not construct Matrix on CPU by device function");
-        } else {
-            for (int i = 0; i < Rows * Cols; i++) {
-                m_data[i] = other.m_data[i];
-            }
-        }
-#endif
-    }
+    TMatrix(const TMatrix &other) { std::copy(other.m_data, other.m_data + Rows * Cols, m_data); }
 
     // Deep copy operator
-    M_HOST_DEVICE TMatrix &operator=(const TMatrix &other) {
-#ifndef __CUDA_ARCH__
+    TMatrix &operator=(const TMatrix &other) {
         if (this == &other) {
             return *this;
         }
 
-        if constexpr (Device == DeviceType::CPU) {
-            std::copy(other.m_data, other.m_data + Rows * Cols, m_data);
-        } else {
-            check_cuda_error(cudaMemcpyAsync(m_data, other.m_data,
-                                             Rows * Cols * sizeof(Scalar),
-                                             cudaMemcpyDeviceToDevice),
-                             "CUDA memory copy failed");
-        }
+        std::copy(other.m_data, other.m_data + Rows * Cols, m_data);
 
         return *this;
-#else
-        if (this == &other) {
-            return *this;
-        }
-
-        if (Device == DeviceType::CPU) {
-            printf("Error: Can not construct Matrix on CPU by device function");
-        } else {
-            for (int i = 0; i < Rows * Cols; i++) {
-                m_data[i] = other.m_data[i];
-            }
-        }
-
-        return *this;
-#endif
     }
 
-    // ============================== Getter and setter
-    // ==============================
+    // ============================== Getter and setter ==============================
 
-    M_HOST_DEVICE Scalar operator()(int row, int col) const {
+    Scalar operator()(int row, int col) const {
         check_range(row, col);
 
         return m_data[row * Cols + col];
     }
 
-    M_HOST_DEVICE Scalar &operator()(int row, int col) {
+    Scalar &operator()(int row, int col) {
         check_range(row, col);
 
         return m_data[row * Cols + col];
     }
 
-    M_HOST_DEVICE void set_constant(Scalar value) {
+    void set_constant(Scalar value) {
         for (int i = 0; i < Rows; ++i) {
             for (int j = 0; j < Cols; ++j) {
                 m_data[i * Cols + j] = value;
@@ -161,21 +51,20 @@ public:
         }
     }
 
-    M_HOST_DEVICE void set_identity() {
+    void set_identity() {
         check_square();
 
         for (int i = 0; i < Rows; ++i) {
             for (int j = 0; j < Cols; ++j) {
-                m_data[i * Cols + j] =
-                    i == j ? static_cast<Scalar>(1) : static_cast<Scalar>(0);
+                m_data[i * Cols + j] = i == j ? static_cast<Scalar>(1) : static_cast<Scalar>(0);
             }
         }
     }
 
-    M_HOST_DEVICE TMatrix<Scalar, Rows, 1, Device> get_diagonal() {
+    TMatrix<Scalar, Rows, 1> get_diagonal() {
         check_square();
 
-        TMatrix<Scalar, Rows, 1, Device> result;
+        TMatrix<Scalar, Rows, 1> result;
         for (int i = 0; i < Rows; ++i) {
             result(i) = m_data[i * Cols + i];
         }
@@ -184,8 +73,8 @@ public:
 
     // ============================== Function ==============================
 
-    M_HOST_DEVICE TMatrix<Scalar, Cols, Rows, Device> transpose() const {
-        TMatrix<Scalar, Cols, Rows, Device> result;
+    TMatrix<Scalar, Cols, Rows> transpose() const {
+        TMatrix<Scalar, Cols, Rows> result;
 
         for (int i = 0; i < Rows; ++i) {
             for (int j = 0; j < Cols; ++j) {
@@ -195,7 +84,7 @@ public:
         return result;
     }
 
-    M_HOST_DEVICE TMatrix inverse(bool &valid) const {
+    TMatrix inverse(bool &valid) const {
         check_square();
 
         TMatrix result;
@@ -206,8 +95,7 @@ public:
         // Initialize L as an identity matrix
         for (int i = 0; i < Rows; ++i) {
             for (int j = 0; j < Cols; ++j) {
-                L(i, j) =
-                    i == j ? static_cast<Scalar>(1) : static_cast<Scalar>(0);
+                L(i, j) = i == j ? static_cast<Scalar>(1) : static_cast<Scalar>(0);
                 U(i, j) = 0;
             }
         }
@@ -308,11 +196,10 @@ public:
     }
 
     template <int ViewRow, int ViewCol>
-    M_HOST_DEVICE TMatrix<Scalar, ViewRow, ViewCol, Device>
-    view(int start_row, int start_col) const {
+    TMatrix<Scalar, ViewRow, ViewCol> view(int start_row, int start_col) const {
         check_range(start_row + ViewRow - 1, start_col + ViewCol - 1);
 
-        TMatrix<Scalar, ViewRow, ViewCol, Device> sub_matrix;
+        TMatrix<Scalar, ViewRow, ViewCol> sub_matrix;
 
         for (int i = 0; i < ViewRow; ++i) {
             for (int j = 0; j < ViewCol; ++j) {
@@ -322,7 +209,7 @@ public:
         return sub_matrix;
     }
 
-    M_HOST_DEVICE TMatrix wise_inverse(bool &valid) const {
+    TMatrix wise_inverse(bool &valid) const {
         TMatrix result;
 
         for (int i = 0; i < Rows * Cols; ++i) {
@@ -333,7 +220,7 @@ public:
         return result;
     }
 
-    M_HOST_DEVICE TMatrix wise_min(const TMatrix &other) const {
+    TMatrix wise_min(const TMatrix &other) const {
         TMatrix result;
 
         for (int i = 0; i < Rows * Cols; ++i) {
@@ -342,7 +229,7 @@ public:
         return result;
     }
 
-    M_HOST_DEVICE TMatrix wise_max(const TMatrix &other) const {
+    TMatrix wise_max(const TMatrix &other) const {
         TMatrix result;
 
         for (int i = 0; i < Rows * Cols; ++i) {
@@ -353,9 +240,8 @@ public:
 
     // Matrix-Matrix multiply
     template <int OtherCols>
-    M_HOST_DEVICE TMatrix<Scalar, Rows, OtherCols, Device>
-    operator*(const TMatrix<Scalar, Cols, OtherCols, Device> &other) const {
-        TMatrix<Scalar, Rows, OtherCols, Device> result;
+    TMatrix<Scalar, Rows, OtherCols> operator*(const TMatrix<Scalar, Cols, OtherCols> &other) const {
+        TMatrix<Scalar, Rows, OtherCols> result;
 
         for (int i = 0; i < Rows; ++i) {
             for (int j = 0; j < OtherCols; ++j) {
@@ -370,17 +256,16 @@ public:
     }
 
     template <int OtherCols>
-    M_HOST_DEVICE TMatrix<Scalar, Rows, OtherCols, Device> &
-    operator*=(const TMatrix<Scalar, Cols, OtherCols, Device> &other) {
+    TMatrix<Scalar, Rows, OtherCols> &operator*=(const TMatrix<Scalar, Cols, OtherCols> &other) {
         *this = *this * other;
         return *this;
     }
 
     // Matrix-Vector multiply
     template <ArrayType OtherArrayType>
-    M_HOST_DEVICE TArray<Scalar, Rows, OtherArrayType, Device> operator*(
-        const TArray<Scalar, Cols, OtherArrayType, Device> &vector) const {
-        TArray<Scalar, Rows, OtherArrayType, Device> result;
+    TArray<Scalar, Rows, OtherArrayType>
+    operator*(const TArray<Scalar, Cols, OtherArrayType> &vector) const {
+        TArray<Scalar, Rows, OtherArrayType> result;
 
         for (int i = 0; i < Rows; ++i) {
             Scalar sum = 0;
@@ -393,14 +278,14 @@ public:
     }
 
     template <ArrayType OtherArrayType>
-    M_HOST_DEVICE TArray<Scalar, Rows, OtherArrayType, Device> &
-    operator*=(const TArray<Scalar, Cols, OtherArrayType, Device> &vector) {
+    TArray<Scalar, Rows, OtherArrayType> &
+    operator*=(const TArray<Scalar, Cols, OtherArrayType> &vector) {
         *this = *this * vector;
         return *this;
     }
 
     // Matrix-Scalar multiply
-    M_HOST_DEVICE TMatrix operator*(Scalar scalar) const {
+    TMatrix operator*(Scalar scalar) const {
         TMatrix result;
 
         for (int i = 0; i < Rows * Cols; ++i) {
@@ -409,7 +294,7 @@ public:
         return result;
     }
 
-    M_HOST_DEVICE TMatrix &operator*=(Scalar scalar) {
+    TMatrix &operator*=(Scalar scalar) {
         for (int i = 0; i < Rows * Cols; ++i) {
             m_data[i] *= scalar;
         }
@@ -417,7 +302,7 @@ public:
     }
 
     // Matrix-Scalar division
-    M_HOST_DEVICE TMatrix operator/(Scalar scalar) const {
+    TMatrix operator/(Scalar scalar) const {
         bool valid = true;
         check_zero(scalar, valid);
 
@@ -428,7 +313,7 @@ public:
         return result;
     }
 
-    M_HOST_DEVICE TMatrix &operator/=(Scalar scalar) {
+    TMatrix &operator/=(Scalar scalar) {
         bool valid = true;
         check_zero(scalar, valid);
 
@@ -439,7 +324,7 @@ public:
     }
 
     // Matrix-Matrix add
-    M_HOST_DEVICE TMatrix operator+(const TMatrix &other) const {
+    TMatrix operator+(const TMatrix &other) const {
         TMatrix result;
 
         for (int i = 0; i < Rows * Cols; ++i) {
@@ -448,7 +333,7 @@ public:
         return result;
     }
 
-    M_HOST_DEVICE TMatrix &operator+=(const TMatrix &other) {
+    TMatrix &operator+=(const TMatrix &other) {
         for (int i = 0; i < Rows * Cols; ++i) {
             m_data[i] += other.m_data[i];
         }
@@ -456,7 +341,7 @@ public:
     }
 
     // Matrix-Matrix sub
-    M_HOST_DEVICE TMatrix operator-(const TMatrix &other) const {
+    TMatrix operator-(const TMatrix &other) const {
         TMatrix result;
 
         for (int i = 0; i < Rows * Cols; ++i) {
@@ -465,7 +350,7 @@ public:
         return result;
     }
 
-    M_HOST_DEVICE TMatrix &operator-=(const TMatrix &other) {
+    TMatrix &operator-=(const TMatrix &other) {
         for (int i = 0; i < Rows * Cols; ++i) {
             m_data[i] -= other.m_data[i];
         }
@@ -473,7 +358,7 @@ public:
     }
 
     // Matrix-Scalar add
-    M_HOST_DEVICE TMatrix operator+(Scalar scalar) const {
+    TMatrix operator+(Scalar scalar) const {
         TMatrix result;
 
         for (int i = 0; i < Rows * Cols; ++i) {
@@ -482,7 +367,7 @@ public:
         return result;
     }
 
-    M_HOST_DEVICE TMatrix &operator+=(Scalar scalar) {
+    TMatrix &operator+=(Scalar scalar) {
         for (int i = 0; i < Rows * Cols; ++i) {
             m_data[i] += scalar;
         }
@@ -490,7 +375,7 @@ public:
     }
 
     // Matrix-Scalar sub
-    M_HOST_DEVICE TMatrix operator-(Scalar scalar) const {
+    TMatrix operator-(Scalar scalar) const {
         TMatrix result;
 
         for (int i = 0; i < Rows * Cols; ++i) {
@@ -499,7 +384,7 @@ public:
         return result;
     }
 
-    M_HOST_DEVICE TMatrix &operator-=(Scalar scalar) {
+    TMatrix &operator-=(Scalar scalar) {
         for (int i = 0; i < Rows * Cols; ++i) {
             m_data[i] -= scalar;
         }
@@ -507,7 +392,7 @@ public:
     }
 
     // Operator -
-    M_HOST_DEVICE TMatrix operator-() const {
+    TMatrix operator-() const {
         TMatrix result;
 
         for (int i = 0; i < Rows * Cols; ++i) {
@@ -517,9 +402,8 @@ public:
     }
 
     // Comparator
-    M_HOST_DEVICE TMatrix<int, Rows, Cols, Device>
-    operator<(const TMatrix &other) const {
-        TMatrix<int, Rows, Cols, Device> result;
+    TMatrix<int, Rows, Cols> operator<(const TMatrix &other) const {
+        TMatrix<int, Rows, Cols> result;
 
         for (int i = 0; i < Rows; ++i) {
             for (int j = 0; j < Cols; ++j) {
@@ -529,9 +413,8 @@ public:
         return result;
     }
 
-    M_HOST_DEVICE TMatrix<int, Rows, Cols, Device>
-    operator<=(const TMatrix &other) const {
-        TMatrix<int, Rows, Cols, Device> result;
+    TMatrix<int, Rows, Cols> operator<=(const TMatrix &other) const {
+        TMatrix<int, Rows, Cols> result;
 
         for (int i = 0; i < Rows; ++i) {
             for (int j = 0; j < Cols; ++j) {
@@ -541,9 +424,8 @@ public:
         return result;
     }
 
-    M_HOST_DEVICE TMatrix<int, Rows, Cols, Device>
-    operator>(const TMatrix &other) const {
-        TMatrix<int, Rows, Cols, Device> result;
+    TMatrix<int, Rows, Cols> operator>(const TMatrix &other) const {
+        TMatrix<int, Rows, Cols> result;
 
         for (int i = 0; i < Rows; ++i) {
             for (int j = 0; j < Cols; ++j) {
@@ -553,9 +435,8 @@ public:
         return result;
     }
 
-    M_HOST_DEVICE TMatrix<int, Rows, Cols, Device>
-    operator>=(const TMatrix &other) const {
-        TMatrix<int, Rows, Cols, Device> result;
+    TMatrix<int, Rows, Cols> operator>=(const TMatrix &other) const {
+        TMatrix<int, Rows, Cols> result;
 
         for (int i = 0; i < Rows; ++i) {
             for (int j = 0; j < Cols; ++j) {
@@ -565,34 +446,30 @@ public:
         return result;
     }
 
-    M_HOST_DEVICE TMatrix<int, Rows, Cols, Device>
-    operator==(const TMatrix &other) const {
-        TMatrix<int, Rows, Cols, Device> result;
+    TMatrix<int, Rows, Cols> operator==(const TMatrix &other) const {
+        TMatrix<int, Rows, Cols> result;
 
         for (int i = 0; i < Rows; ++i) {
             for (int j = 0; j < Cols; ++j) {
-                result(i, j) =
-                    abs(m_data[i * Cols + j] - other(i, j)) < M_EPSILON;
+                result(i, j) = abs(m_data[i * Cols + j] - other(i, j)) < M_EPSILON;
             }
         }
         return result;
     }
 
-    M_HOST_DEVICE TMatrix<int, Rows, Cols, Device>
-    operator!=(const TMatrix &other) const {
-        TMatrix<int, Rows, Cols, Device> result;
+    TMatrix<int, Rows, Cols> operator!=(const TMatrix &other) const {
+        TMatrix<int, Rows, Cols> result;
 
         for (int i = 0; i < Rows; ++i) {
             for (int j = 0; j < Cols; ++j) {
-                result(i, j) = abs(m_data[i * Cols + j] -
-                                   other.m_data[i * Cols + j]) >= M_EPSILON;
+                result(i, j) = abs(m_data[i * Cols + j] - other.m_data[i * Cols + j]) >= M_EPSILON;
             }
         }
         return result;
     }
 
     // Element reduce
-    M_HOST_DEVICE Scalar prod() const {
+    Scalar prod() const {
         Scalar product = 1;
 
         for (int i = 0; i < Rows * Cols; ++i) {
@@ -601,7 +478,7 @@ public:
         return product;
     }
 
-    M_HOST_DEVICE Scalar add() const {
+    Scalar add() const {
         Scalar sum = 0;
 
         for (int i = 0; i < Rows * Cols; ++i) {
@@ -610,7 +487,7 @@ public:
         return sum;
     }
 
-    M_HOST_DEVICE [[nodiscard]] bool all() const {
+    [[nodiscard]] bool all() const {
         bool result = true;
         for (int i = 0; i < Rows * Cols; ++i) {
             result &= m_data[i] != static_cast<Scalar>(0);
@@ -618,7 +495,7 @@ public:
         return result;
     }
 
-    M_HOST_DEVICE [[nodiscard]] bool any() const {
+    [[nodiscard]] bool any() const {
         bool result = false;
         for (int i = 0; i < Rows * Cols; ++i) {
             result |= m_data[i] != static_cast<Scalar>(0);
@@ -626,7 +503,7 @@ public:
         return result;
     }
 
-    M_HOST_DEVICE Scalar square_distance(const TMatrix &other) const {
+    Scalar square_distance(const TMatrix &other) const {
         Scalar distance = 0;
 
         for (int i = 0; i < Rows * Cols; ++i) {
@@ -637,32 +514,21 @@ public:
     }
 
     [[nodiscard]] std::string to_string() const {
-        Scalar temp[Rows * Cols];
-        if constexpr (Device == DeviceType::GPU) {
-            check_cuda_error(cudaMemcpyAsync(temp, m_data,
-                                             Rows * Cols * sizeof(Scalar),
-                                             cudaMemcpyDeviceToHost));
-            cudaDeviceSynchronize();
-        } else {
-            std::copy(m_data, m_data + Rows * Cols, temp);
-        }
-
         std::string matrix;
         matrix += "[\n";
         for (int i = 0; i < Rows; ++i) {
             matrix += "  [";
             for (int j = 0; j < Cols - 1; ++j) {
-                matrix += std::to_string(temp[i * Cols + j]) + ", ";
+                matrix += std::to_string(m_data[i * Cols + j]) + ", ";
             }
-            matrix += std::to_string(temp[i * Cols + Cols - 1]) + "]\n";
+            matrix += std::to_string(m_data[i * Cols + Cols - 1]) + "]\n";
         }
         matrix += "]";
         return matrix;
     }
 
     static constexpr TMatrix identity() {
-        static_assert(Rows == Cols,
-                      "Matrix identity requires a square matrix.");
+        static_assert(Rows == Cols, "Matrix identity requires a square matrix.");
 
         TMatrix result(0);
         for (int i = 0; i < Rows; ++i) {
@@ -676,10 +542,8 @@ public:
         return result;
     }
 
-    template <ArrayType ArrayType_>
-    static TMatrix translate(TArray<Scalar, Rows, ArrayType_, Device> vector) {
-        static_assert(Rows == Cols,
-                      "Matrix translate requires a square matrix.");
+    template <ArrayType ArrayType_> static TMatrix translate(TArray<Scalar, Rows, ArrayType_> vector) {
+        static_assert(Rows == Cols, "Matrix translate requires a square matrix.");
 
         TMatrix result = identity();
         for (int i = 0; i < Rows; ++i) {
@@ -688,8 +552,7 @@ public:
         return result;
     }
 
-    template <ArrayType ArrayType_>
-    static TMatrix scale(TArray<Scalar, Rows, ArrayType_, Device> vector) {
+    template <ArrayType ArrayType_> static TMatrix scale(TArray<Scalar, Rows, ArrayType_> vector) {
         static_assert(Rows == Cols, "Matrix scale requires a square matrix.");
 
         TMatrix result = identity();
@@ -703,35 +566,19 @@ private:
     Scalar m_data[Rows * Cols];
 
     // ============================== Check ==============================
-
-    M_HOST_DEVICE static void check_cuda_error(cudaError_t err,
-                                               const char *message) {
-#ifdef M_DEBUG
-        if (err != cudaSuccess) {
-            assert(false && message);
-        }
-#endif
-    }
-
-    M_HOST_DEVICE static void check_range(int row, int col) {
+    static void check_range(int row, int col) {
 #ifdef M_DEBUG
         assert(row < Rows && col < Cols && "Index out of range");
 #endif
     }
 
-    M_HOST_DEVICE static void check_square() {
+    static void check_square() {
 #ifdef M_DEBUG
-#ifdef __CUDA_ARCH__
-        if (Rows != Cols) {
-            printf("Matrix must be square");
-        }
-#else
         static_assert(Rows == Cols && "Matrix must be square");
-#endif
 #endif
     }
 
-    M_HOST_DEVICE static void check_zero(Scalar &scalar, bool &valid) {
+    static void check_zero(Scalar &scalar, bool &valid) {
         if (scalar == static_cast<Scalar>(0)) {
             scalar += static_cast<Scalar>(M_EPSILON);
             valid &= false;

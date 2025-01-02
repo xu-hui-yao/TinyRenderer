@@ -1,6 +1,6 @@
 #include <array>
-#include <components/mesh.h>
 #include <components/bsdf.h>
+#include <components/mesh.h>
 #include <core/transform.h>
 
 M_NAMESPACE_BEGIN

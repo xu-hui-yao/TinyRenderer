@@ -11,12 +11,9 @@ M_NAMESPACE_BEGIN
 #define PCG32_MULT 0x5851f42d4c957f2dULL
 
 struct pcg32 {
-    M_HOST_DEVICE pcg32()
-        : state(PCG32_DEFAULT_STATE), inc(PCG32_DEFAULT_STREAM) {}
+    pcg32() : state(PCG32_DEFAULT_STATE), inc(PCG32_DEFAULT_STREAM) {}
 
-    M_HOST_DEVICE explicit pcg32(uint64_t init_state, uint64_t init_seq = 1u) {
-        seed(init_state, init_seq);
-    }
+    explicit pcg32(uint64_t init_state, uint64_t init_seq = 1u) { seed(init_state, init_seq); }
 
     /**
      * \brief Seed the pseudorandom number generator
@@ -24,7 +21,7 @@ struct pcg32 {
      * Specified in two parts: a state initializer and a sequence selection
      * constant (a.k.a. stream id)
      */
-    M_HOST_DEVICE void seed(uint64_t init_state, uint64_t init_seq = 1) {
+    void seed(uint64_t init_state, uint64_t init_seq = 1) {
         state = 0U;
         inc   = (init_seq << 1u) | 1u;
         next_uint();
@@ -33,17 +30,16 @@ struct pcg32 {
     }
 
     // Generate a uniformly distributed unsigned 32-bit random number
-    M_HOST_DEVICE uint32_t next_uint() {
+    uint32_t next_uint() {
         uint64_t old_state = state;
         state              = old_state * PCG32_MULT + inc;
-        auto xor_shifted =
-            static_cast<uint32_t>((old_state >> 18u ^ old_state) >> 27u);
-        auto rot = static_cast<uint32_t>(old_state >> 59u);
+        auto xor_shifted   = static_cast<uint32_t>((old_state >> 18u ^ old_state) >> 27u);
+        auto rot           = static_cast<uint32_t>(old_state >> 59u);
         return xor_shifted >> rot | xor_shifted << (~rot + 1u & 31);
     }
 
     // Generate a uniformly distributed number, r, where 0 <= r < bound
-    M_HOST_DEVICE uint32_t next_uint(uint32_t bound) {
+    uint32_t next_uint(uint32_t bound) {
         // To avoid bias, we need to make the range of the RNG a multiple of
         // bound, which we do by dropping output less than a threshold.
         // A naive scheme to calculate the threshold would be to do
@@ -75,7 +71,7 @@ struct pcg32 {
     }
 
     // Generate a single precision floating point value on the interval [0, 1)
-    M_HOST_DEVICE float next_float() {
+    float next_float() {
         /* Trick from MTGP: generate a uniformly distributed
            single precision number in [1,2) and subtract 1. */
         union {
@@ -114,9 +110,8 @@ struct pcg32 {
      * Society (Nov. 1994). The algorithm is very similar to fast
      * exponentiation.
      */
-    M_HOST_DEVICE void advance(int64_t delta_) {
-        uint64_t cur_mult = PCG32_MULT, cur_plus = inc, acc_mult = 1u,
-                 acc_plus = 0u;
+    void advance(int64_t delta_) {
+        uint64_t cur_mult = PCG32_MULT, cur_plus = inc, acc_mult = 1u, acc_plus = 0u;
 
         /* Even though delta is an unsigned integer, we can pass a signed
            integer to go backwards, it just goes "the long way round". */
@@ -140,19 +135,16 @@ struct pcg32 {
      *
      * From: Knuth, TAoCP Vol. 2 (3rd 3d), Section 3.4.2
      */
-    template <typename Iterator>
-    M_HOST_DEVICE void shuffle(Iterator begin, Iterator end) {
+    template <typename Iterator> void shuffle(Iterator begin, Iterator end) {
         for (Iterator it = end - 1; it > begin; --it)
-            std::iter_swap(
-                it, begin + next_uint(static_cast<uint32_t>(it - begin + 1)));
+            std::iter_swap(it, begin + next_uint(static_cast<uint32_t>(it - begin + 1)));
     }
 
     /// Compute the distance between two PCG32 pseudorandom number generators
-    M_HOST_DEVICE int64_t operator-(const pcg32 &other) const {
+    int64_t operator-(const pcg32 &other) const {
         assert(inc == other.inc);
 
-        uint64_t cur_mult = PCG32_MULT, cur_plus = inc, cur_state = other.state,
-                 the_bit = 1u, distance = 0u;
+        uint64_t cur_mult = PCG32_MULT, cur_plus = inc, cur_state = other.state, the_bit = 1u, distance = 0u;
 
         while (state != cur_state) {
             if ((state & the_bit) != (cur_state & the_bit)) {
@@ -169,14 +161,10 @@ struct pcg32 {
     }
 
     // Equality operator
-    M_HOST_DEVICE bool operator==(const pcg32 &other) const {
-        return state == other.state && inc == other.inc;
-    }
+    bool operator==(const pcg32 &other) const { return state == other.state && inc == other.inc; }
 
     // Inequality operator
-    M_HOST_DEVICE bool operator!=(const pcg32 &other) const {
-        return state != other.state || inc != other.inc;
-    }
+    bool operator!=(const pcg32 &other) const { return state != other.state || inc != other.inc; }
 
     uint64_t state{}; // RNG state.  All values are possible.
     uint64_t inc{};   // Controls which RNG sequence (stream) is selected. Must
