@@ -44,13 +44,16 @@ public:
         for (uint32_t i = 0; i < m_max_depth && valid; i++) {
             // Ray intersect
             SurfaceIntersection3f its;
-            bool is_intersect = scene->get_accel()->ray_intersect(ray, its, false);
+            bool is_intersect = scene->ray_intersect(ray, its, false);
 
             // ---------------------- Direct emission ----------------------
 
             // If intersect an emitter
-            if (is_intersect && its.mesh->is_emitter()) {
+            if (is_intersect && (!its.mesh || its.mesh->is_emitter())) {
                 DirectionSample3f ds(its, prev_si);
+                if (!its.mesh) {
+                    ds.emitter = scene->get_environment();
+                }
                 float em_pdf = 0.0f;
 
                 if (!prev_bsdf_delta) {
@@ -63,7 +66,7 @@ public:
             }
 
             // Continue tracing the path at this point?
-            bool active_next = depth + 1 < m_max_depth && is_intersect;
+            bool active_next = depth + 1 < m_max_depth && is_intersect && its.mesh;
 
             if (!active_next) {
                 break;
@@ -72,7 +75,7 @@ public:
             std::shared_ptr<BSDF> bsdf = its.mesh->get_bsdf();
 
             // ---------------------- Emitter sampling ----------------------
-            bool active_em = active_next;
+            bool active_em = active_next; // TODO smooth
 
             DirectionSample3f ds;
             Color3f em_weight;
@@ -104,11 +107,11 @@ public:
             // ------ Update loop variables based on current interaction ------
             throughput *= bsdf_weight;
             eta *= bsdf_sample.eta;
-            valid_ray |= valid && its.is_valid();
+            valid_ray |= valid && its.is_valid(); // TODO
 
             // Information about the current vertex needed by the next iteration
             prev_si         = its;
-            prev_bsdf_pdf   = bsdf_pdf;
+            prev_bsdf_pdf   = bsdf_sample.pdf;
             prev_bsdf_delta = bsdf_sample.delta;
 
             // -------------------- Stopping criterion ---------------------
@@ -117,6 +120,10 @@ public:
             float rr_prob        = M_MIN(throughput_max * eta * eta, 0.95f);
             bool rr_active       = depth >= m_rr_depth;
             bool rr_continue     = sampler->next1d() < rr_prob;
+
+            if (rr_active) {
+                throughput *= 1.0f / rr_prob;
+            }
 
             valid = (!rr_active || rr_continue) && throughput_max != 0.0f;
         }

@@ -5,7 +5,7 @@
 #include <parse/property_list.h>
 
 M_NAMESPACE_BEGIN
-class Object {
+class Object : public std::enable_shared_from_this<Object> {
 public:
     enum EClassType {
         EScene = 0,

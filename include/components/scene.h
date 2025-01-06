@@ -29,6 +29,8 @@ public:
 
     [[nodiscard]] const std::shared_ptr<Sampler> &get_sampler() const { return m_sampler; }
 
+    [[nodiscard]] const std::shared_ptr<Emitter> &get_environment() const { return m_environment; }
+
     void construct() override;
 
     void add_child(const std::shared_ptr<Object> &obj) override;
@@ -36,6 +38,8 @@ public:
     [[nodiscard]] std::string to_string() const override;
 
     [[nodiscard]] EClassType get_class_type() const override { return EScene; }
+
+    bool ray_intersect(const Ray3f &ray, SurfaceIntersection3f &its, bool shadow_ray) const;
 
     /**
      * \brief Direct illumination sampling routine
@@ -137,6 +141,7 @@ private:
     std::shared_ptr<Accel> m_accel;
     std::shared_ptr<Integrator> m_integrator;
     std::shared_ptr<Sampler> m_sampler;
+    std::shared_ptr<Emitter> m_environment;
 
     uint32_t m_num_emitters;
     float m_emitter_pmf;

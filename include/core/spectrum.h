@@ -2,7 +2,6 @@
 
 #include <cassert>
 #include <core/common.h>
-#include <cuda_runtime.h>
 #include <string>
 
 M_NAMESPACE_BEGIN

@@ -279,7 +279,7 @@ private:
 
     // ============================== Check ==============================
 
-    static void check_range(int row, int col, int channel) {
+    void check_range(int row, int col, int channel) const {
 #ifdef M_DEBUG
         assert(row < m_rows && col < m_cols && channel < m_channels && "Index out of range");
 #endif

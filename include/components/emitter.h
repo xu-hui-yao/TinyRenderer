@@ -1,6 +1,7 @@
 #pragma once
 
 #include <components/object.h>
+#include <components/scene.h>
 
 M_NAMESPACE_BEGIN
 class Emitter : public Object {
@@ -8,6 +9,9 @@ public:
     void add_child(const std::shared_ptr<Object> &child) override = 0;
 
     void construct() override = 0;
+
+    virtual void set_scene(const std::shared_ptr<Scene> &scene) = 0;
+
     // =============================================================
     //! @{ \name Direction sampling interface
     // =============================================================
@@ -23,7 +27,7 @@ public:
      * along with a spectral importance weight.
      */
     [[nodiscard]] virtual std::pair<DirectionSample3f, Color3f>
-    sample_direction(const Intersection3f &ref, const Point2f &sample, bool &active) const = 0;
+    sample_direction(const Intersection3f &ref, const Point2f &sample, bool &active) = 0;
 
     /**
      * \brief Evaluate the probability density of the \a direct sampling

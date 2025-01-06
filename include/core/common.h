@@ -36,6 +36,7 @@ template <typename Scalar> class TDirectionSample;
 template <typename Scalar> class TBSDFSample;
 template <typename Scalar, typename Index> class TDiscreteDistribution;
 template <typename Scalar, typename Index> class TDiscreteDistribution2D;
+template <typename Scalar, typename Index> class THierarchicalDistribution2D;
 template <typename Scalar> class TMicrofacetDistribution;
 
 typedef TArray<float, 1, ArrayType::Vector> Vector1f;
@@ -79,6 +80,7 @@ typedef TDirectionSample<float> DirectionSample3f;
 typedef TBSDFSample<float> BSDFSample3f;
 typedef TDiscreteDistribution<float, int> DiscreteDistribution1f;
 typedef TDiscreteDistribution2D<float, int> DiscreteDistribution2f;
+typedef THierarchicalDistribution2D<float, int> HierarchicalDistribution2f;
 typedef TMicrofacetDistribution<float> MicrofacetDistribution1f;
 
 class BSDF;
@@ -200,9 +202,7 @@ template <typename Scalar> Scalar interpolate(Scalar t, Scalar v1, Scalar v2) {
     return (static_cast<Scalar>(1) - t) * v1 + t * v2;
 }
 
-template <typename Scalar> Scalar sqrt(Scalar value) {
-    return std::sqrt(value);
-}
+template <typename Scalar> Scalar sqrt(Scalar value) { return std::sqrt(value); }
 
 template <typename Scalar> Scalar safe_sqrt(Scalar value) {
     value = M_MAX(0, value);
@@ -218,9 +218,7 @@ template <typename Scalar> static Scalar clamp(Scalar value, Scalar min, Scalar 
         return value;
 }
 
-template <typename Scalar> static Scalar pow(Scalar base, Scalar exponent) {
-    return std::pow(base, exponent);
-}
+template <typename Scalar> static Scalar pow(Scalar base, Scalar exponent) { return std::pow(base, exponent); }
 
 // Always-positive modulo operation
 template <typename Scalar> int mod(Scalar a, Scalar b) {
@@ -228,44 +226,30 @@ template <typename Scalar> int mod(Scalar a, Scalar b) {
     return r < 0 ? r + b : r;
 }
 
-template <typename Scalar> Scalar cos(Scalar x) {
-    return std::cos(x);
-}
+template <typename Scalar> Scalar log2(Scalar x) { return std::log2(x); }
+
+template <typename Scalar> Scalar cos(Scalar x) { return std::cos(x); }
 
 template <typename Scalar> Scalar safe_acos(Scalar x) {
     x = clamp(x, Scalar(-1), Scalar(1));
     return std::acos(x);
 }
 
-template <typename Scalar> Scalar sin(Scalar x) {
-    return std::sin(x);
-}
+template <typename Scalar> Scalar sin(Scalar x) { return std::sin(x); }
 
-template <typename Scalar> Scalar tan(Scalar x) {
-    return std::tan(x);
-}
+template <typename Scalar> Scalar tan(Scalar x) { return std::tan(x); }
 
-template <typename Scalar> Scalar atan2(Scalar y, Scalar x) {
-    return std::atan2(y, x);
-}
+template <typename Scalar> Scalar atan2(Scalar y, Scalar x) { return std::atan2(y, x); }
 
-template <typename Scalar> Scalar asin(Scalar x) {
-    return std::asin(x);
-}
+template <typename Scalar> Scalar asin(Scalar x) { return std::asin(x); }
 
-template <typename Scalar> Scalar acos(Scalar x) {
-    return std::acos(x);
-}
+template <typename Scalar> Scalar acos(Scalar x) { return std::acos(x); }
 
 template <typename Scalar> Scalar abs(Scalar x) { return x < 0 ? -x : x; }
 
-template <typename Scalar> Scalar floor(Scalar x) {
-    return std::floor(x);
-}
+template <typename Scalar> Scalar floor(Scalar x) { return std::floor(x); }
 
-template <typename Scalar> Scalar ceil(Scalar x) {
-    return std::ceil(x);
-}
+template <typename Scalar> Scalar ceil(Scalar x) { return std::ceil(x); }
 
 template <typename Scalar> Scalar lerp(Scalar a, Scalar b, Scalar t) { return b * t + a * (Scalar(1) - t); }
 

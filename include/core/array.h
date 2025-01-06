@@ -259,6 +259,13 @@ public:
         return *this;
     }
 
+    TArray &operator-=(const TArray &other) {
+        for (int i = 0; i < Dimension; ++i) {
+            m_data[i] -= other.m_data[i];
+        }
+        return *this;
+    }
+
     TArray operator*(Scalar scalar) const {
         TArray result;
 

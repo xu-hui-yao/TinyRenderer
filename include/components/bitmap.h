@@ -31,6 +31,8 @@ public:
 
     void load_image(const std::string &filename);
 
+    void load_hdr(const std::string &filename);
+
     [[nodiscard]] int get_rows() const;
 
     [[nodiscard]] int get_cols() const;

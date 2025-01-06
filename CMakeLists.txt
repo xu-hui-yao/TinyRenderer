@@ -14,10 +14,10 @@ set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 #    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /fsanitize=address")
 #endif ()
 
-set(CUDA_TOOLKIT_ROOT_DIR "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.6")
-set(CUDA_INCLUDE_DIRS "${CUDA_TOOLKIT_ROOT_DIR}/include")
-set(CUDA_LIBRARIES "${CUDA_TOOLKIT_ROOT_DIR}/lib/x64/cudart.lib")
-set(CUBLAS_LIBRARIES "${CUDA_TOOLKIT_ROOT_DIR}/lib/x64/cublas.lib")
+#set(CUDA_TOOLKIT_ROOT_DIR "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.6")
+#set(CUDA_INCLUDE_DIRS "${CUDA_TOOLKIT_ROOT_DIR}/include")
+#set(CUDA_LIBRARIES "${CUDA_TOOLKIT_ROOT_DIR}/lib/x64/cudart.lib")
+#set(CUBLAS_LIBRARIES "${CUDA_TOOLKIT_ROOT_DIR}/lib/x64/cublas.lib")
 
 add_subdirectory(src)
 add_subdirectory(ext)
@@ -28,10 +28,10 @@ target_link_libraries(tiny-renderer PRIVATE Threads::Threads)
 
 target_include_directories(tiny-renderer PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
-target_include_directories(tiny-renderer PRIVATE ${CUDA_INCLUDE_DIRS})
-target_link_libraries(tiny-renderer PRIVATE ${CUDA_LIBRARIES} ${CUBLAS_LIBRARIES})
+#target_include_directories(tiny-renderer PRIVATE ${CUDA_INCLUDE_DIRS})
+#target_link_libraries(tiny-renderer PRIVATE ${CUDA_LIBRARIES} ${CUBLAS_LIBRARIES})
 
-set_target_properties(tiny-renderer PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+#set_target_properties(tiny-renderer PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
 # Define M_DEBUG only for Debug builds
 target_compile_definitions(tiny-renderer PRIVATE
@@ -40,7 +40,7 @@ target_compile_definitions(tiny-renderer PRIVATE
 )
 
 # OpenMP
-find_package(OpenMP REQUIRED)
-if(OpenMP_CXX_FOUND)
-    target_link_libraries(tiny-renderer PRIVATE OpenMP::OpenMP_CXX)
-endif()
+#find_package(OpenMP REQUIRED)
+#if(OpenMP_CXX_FOUND)
+#    target_link_libraries(tiny-renderer PRIVATE OpenMP::OpenMP_CXX)
+#endif()

@@ -23,7 +23,7 @@ struct pcg32 {
      */
     void seed(uint64_t init_state, uint64_t init_seq = 1) {
         state = 0U;
-        inc   = (init_seq << 1u) | 1u;
+        inc   = init_seq << 1u | 1u;
         next_uint();
         state += init_state;
         next_uint();

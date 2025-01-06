@@ -38,13 +38,15 @@ public:
 #endif
     }
 
-    [[nodiscard]] std::pair<DirectionSample3f, Color3f>
-    sample_direction(const Intersection3f &it, const Point2f &sample, bool &active) const override {
+    void set_scene(const std::shared_ptr<Scene> &scene) override {}
+
+    [[nodiscard]] std::pair<DirectionSample3f, Color3f> sample_direction(const Intersection3f &it,
+                                                                         const Point2f &sample, bool &active) override {
         DirectionSample3f ds = std::dynamic_pointer_cast<Mesh>(parent)->sample_direction(it, sample, active);
         active &= ds.d.dot(ds.n) < 0.f && ds.pdf != 0.f;
         SurfaceIntersection3f si = SurfaceIntersection3f(ds);
         auto spec                = m_radiance->eval(si, active) / ds.pdf;
-        ds.emitter               = std::dynamic_pointer_cast<Emitter>(std::make_shared<Area>(*this));
+        ds.emitter               = std::dynamic_pointer_cast<Emitter>(shared_from_this());
 
         return { ds, active ? spec : Color3f(0.0f) };
     }

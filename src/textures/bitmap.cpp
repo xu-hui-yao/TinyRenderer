@@ -29,6 +29,8 @@ Bitmap::Bitmap(const PropertyList &properties) : Texture(true) {
         load_exr(filename.str());
     } else if (ext == "png" || ext == "jpg" || ext == "jpeg" || ext == "bmp" || ext == "tga") {
         load_image(filename.str());
+    } else if (ext == "hdr") {
+        load_hdr(filename.str());
     } else {
         throw std::runtime_error("Unsupported image format: " + ext);
     }
@@ -208,6 +210,29 @@ void Bitmap::load_image(const std::string &filename) {
         }
     }
     stbi_image_free(img_data);
+}
+
+void Bitmap::load_hdr(const std::string &filename) {
+    int width, height, channels;
+
+    float *hdr_data = stbi_loadf(filename.c_str(), &width, &height, &channels, 0);
+    if (!hdr_data) {
+        throw std::runtime_error(
+            "Failed to load HDR file: " + filename + ", reason: " + std::string(stbi_failure_reason())
+        );
+    }
+
+    m_data = std::make_shared<TensorXf>(height, width, channels, 0.0f);
+
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            for (int c = 0; c < channels; ++c) {
+                m_data->operator()(y, x, c) = hdr_data[(y * width + x) * channels + c];
+            }
+        }
+    }
+
+    stbi_image_free(hdr_data);
 }
 
 int Bitmap::get_cols() const { return m_data->get_cols(); }

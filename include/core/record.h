@@ -107,7 +107,7 @@ public:
         VectorType rel = si.p - ref.p;
         dist           = rel.magnitude();
         d              = si.is_valid() ? rel / dist : -si.wi;
-        emitter        = si.mesh->get_emitter();
+        emitter        = si.mesh ? si.mesh->get_emitter() : nullptr;
     }
 
     explicit TDirectionSample(const Point3f &p, const Normal3f &n, const Point2f &uv, const Scalar &t,

@@ -153,7 +153,6 @@ private:
                 uint32_t idx2 = face[its.primitive_index](2);
 
                 Point3f p0 = v[idx0], p1 = v[idx1], p2 = v[idx2];
-                Point2f uv0 = uv[idx0], uv1 = uv[idx1], uv2 = uv[idx2];
 
                 /* Compute the intersection position accurately
                    using barycentric coordinates */
@@ -161,6 +160,7 @@ private:
 
                 /* Compute proper texture coordinates if provided by the mesh */
                 if (!uv.empty()) {
+                    Point2f uv0 = uv[idx0], uv1 = uv[idx1], uv2 = uv[idx2];
                     its.uv = uv0 * bary.x() + uv1 * bary.y() + uv2 * bary.z();
                     // Compute UV deltas
                     Vector2f duv1 = uv1 - uv0;

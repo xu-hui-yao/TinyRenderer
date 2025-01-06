@@ -35,6 +35,12 @@ void Scene::construct() {
         m_accel->add_mesh(mesh);
     }
 
+    if (m_environment) {
+        m_emitters.emplace_back(m_environment);
+        m_environment->construct();
+        m_num_emitters += 1;
+    }
+
     if (m_num_emitters == 0) {
         throw std::runtime_error("No emitter was specified!");
     }
@@ -45,6 +51,10 @@ void Scene::construct() {
     m_camera->construct();
     m_integrator->construct();
     m_sampler->construct();
+
+    for (const auto &emitter : m_emitters) {
+        emitter->set_scene(std::dynamic_pointer_cast<Scene>(shared_from_this()));
+    }
 
 #ifdef M_DEBUG
     std::cout << std::endl;
@@ -88,10 +98,38 @@ void Scene::add_child(const std::shared_ptr<Object> &obj) {
             m_accel = std::dynamic_pointer_cast<Accel>(obj);
             break;
 
+        case EEmitter:
+            if (m_environment) {
+                throw std::runtime_error("There can only be one Environment map per scene!");
+            }
+            m_environment = std::dynamic_pointer_cast<Emitter>(obj);
+            break;
+
         default:
             throw std::runtime_error("Scene::add_child(<" + class_type_name(obj->get_class_type()) +
                                      ">) is not supported!");
     }
+}
+
+bool Scene::ray_intersect(const Ray3f &ray, SurfaceIntersection3f &its, bool shadow_ray) const {
+    if (m_accel->ray_intersect(ray, its, shadow_ray)) {
+        return true;
+    }
+
+    if (m_environment) {
+        its.t             = M_MAX_FLOAT;
+        its.p             = ray.o() + ray.d() * its.t;
+        its.n             = -ray.d();
+        its.shading_frame = its.geometric_frame = Frame3f(its.n);
+        its.dp_du = its.dp_dv = Vector3f({ 0, 0, 0 });
+        its.mesh              = nullptr;
+        its.primitive_index   = -1;
+        its.wi                = -ray.d();
+        its.uv                = Point2f({ 0, 0 });
+        return true;
+    }
+
+    return false;
 }
 
 std::string Scene::to_string() const {

@@ -1,9 +1,8 @@
 #pragma once
 
 M_NAMESPACE_BEGIN
-template <typename Scalar, int Dimension_>
-class TBoundingBox {
-    static constexpr int Dimension     = Dimension_;
+template <typename Scalar, int Dimension_> class TBoundingBox {
+    static constexpr int Dimension = Dimension_;
     typedef TArray<Scalar, Dimension, ArrayType::Point> Point;
     typedef TArray<Scalar, Dimension, ArrayType::Vector> Vector;
 
@@ -15,14 +14,11 @@ public:
         m_max_p.set_constant(-M_MAX_FLOAT);
     }
 
-    explicit TBoundingBox(const Point &p)
-        : m_min_p(p), m_max_p(p) {}
+    explicit TBoundingBox(const Point &p) : m_min_p(p), m_max_p(p) {}
 
-    TBoundingBox(const Point &min, const Point &max)
-        : m_min_p(min), m_max_p(max) {}
+    TBoundingBox(const Point &min, const Point &max) : m_min_p(min), m_max_p(max) {}
 
-    // ============================== Getter and setter
-    // ==============================
+    // ============================== Getter and setter ==============================
 
     Point &get_min() { return m_min_p; }
 
@@ -35,17 +31,12 @@ public:
     // ============================== Function ==============================
 
     bool operator==(const TBoundingBox &bounding_box) const {
-        return m_min_p == bounding_box.m_min_p &&
-               m_max_p == bounding_box.m_max_p;
+        return m_min_p == bounding_box.m_min_p && m_max_p == bounding_box.m_max_p;
     }
 
-    bool operator!=(const TBoundingBox &bbox) const {
-        return m_min_p != bbox.m_min_p || m_max_p != bbox.m_max_p;
-    }
+    bool operator!=(const TBoundingBox &bbox) const { return m_min_p != bbox.m_min_p || m_max_p != bbox.m_max_p; }
 
-    Scalar get_volume() const {
-        return (m_max_p - m_min_p).prod();
-    }
+    Scalar get_volume() const { return (m_max_p - m_min_p).prod(); }
 
     [[nodiscard]] Scalar get_surface_area() const {
         Vector d    = m_max_p - m_min_p;
@@ -62,12 +53,9 @@ public:
         return static_cast<Scalar>(2) * result;
     }
 
-    Point get_center() const {
-        return (m_max_p + m_min_p) * static_cast<Scalar>(0.5);
-    }
+    Point get_center() const { return (m_max_p + m_min_p) * static_cast<Scalar>(0.5); }
 
-    template <bool Strict = false>
-    bool contains(const Point &p) const {
+    template <bool Strict = false> bool contains(const Point &p) const {
         if constexpr (Strict) {
             return (p > m_min_p).all() && (p < m_max_p).all();
         } else {
@@ -75,25 +63,19 @@ public:
         }
     }
 
-    template <bool Strict = false>
-    bool contains(const TBoundingBox &bbox) const {
+    template <bool Strict = false> bool contains(const TBoundingBox &bbox) const {
         if constexpr (Strict) {
-            return (bbox.m_min_p > m_min_p).all() &&
-                   (bbox.m_max_p < m_max_p).all();
+            return (bbox.m_min_p > m_min_p).all() && (bbox.m_max_p < m_max_p).all();
         } else {
-            return (bbox.m_min_p >= m_min_p).all() &&
-                   (bbox.m_max_p <= m_max_p).all();
+            return (bbox.m_min_p >= m_min_p).all() && (bbox.m_max_p <= m_max_p).all();
         }
     }
 
-    template <bool Strict = false>
-    bool overlaps(const TBoundingBox &bbox) const {
+    template <bool Strict = false> bool overlaps(const TBoundingBox &bbox) const {
         if constexpr (Strict) {
-            return (bbox.m_min_p < m_max_p).all() &&
-                   (bbox.m_max_p > m_min_p).all();
+            return (bbox.m_min_p < m_max_p).all() && (bbox.m_max_p > m_min_p).all();
         } else {
-            return (bbox.m_min_p <= m_max_p).all() &&
-                   (bbox.m_max_p >= m_min_p).all();
+            return (bbox.m_min_p <= m_max_p).all() && (bbox.m_max_p >= m_min_p).all();
         }
     }
 
@@ -112,9 +94,7 @@ public:
         return result;
     }
 
-    Scalar distance_to(const Point &p) const {
-        return sqrt(squared_distance_to(p));
-    }
+    Scalar distance_to(const Point &p) const { return sqrt(squared_distance_to(p)); }
 
     Scalar squared_distance_to(const TBoundingBox &bbox) const {
         Scalar result = 0;
@@ -131,21 +111,13 @@ public:
         return result;
     }
 
-    Scalar distance_to(const TBoundingBox &bbox) const {
-        return sqrt(squared_distance_to(bbox));
-    }
+    Scalar distance_to(const TBoundingBox &bbox) const { return sqrt(squared_distance_to(bbox)); }
 
-    [[nodiscard]] bool is_valid() const {
-        return (m_max_p >= m_min_p).all();
-    }
+    [[nodiscard]] bool is_valid() const { return (m_max_p >= m_min_p).all(); }
 
-    [[nodiscard]] bool is_point() const {
-        return (m_max_p == m_min_p).all();
-    }
+    [[nodiscard]] bool is_point() const { return (m_max_p == m_min_p).all(); }
 
-    [[nodiscard]] bool has_volume() const {
-        return (m_max_p > m_min_p).all();
-    }
+    [[nodiscard]] bool has_volume() const { return (m_max_p > m_min_p).all(); }
 
     [[nodiscard]] int get_major_axis() const {
         Vector d    = m_max_p - m_min_p;
@@ -182,10 +154,8 @@ public:
         m_max_p = m_max_p.wise_max(bbox.m_max_p);
     }
 
-    static TBoundingBox merge(const TBoundingBox &bbox1,
-                                            const TBoundingBox &bbox2) {
-        return TBoundingBox(bbox1.m_min_p.wise_min(bbox2.m_min_p),
-                            bbox1.m_max_p.wise_max(bbox2.m_max_p));
+    static TBoundingBox merge(const TBoundingBox &bbox1, const TBoundingBox &bbox2) {
+        return TBoundingBox(bbox1.m_min_p.wise_min(bbox2.m_min_p), bbox1.m_max_p.wise_max(bbox2.m_max_p));
     }
 
     Point get_corner(int index) const {
@@ -223,8 +193,7 @@ public:
         return ray.min_t() <= far_t && near_t <= ray.max_t();
     }
 
-    bool ray_intersect(const Ray3f &ray, Scalar &near_t,
-                                     Scalar &far_t) const {
+    bool ray_intersect(const Ray3f &ray, Scalar &near_t, Scalar &far_t) const {
         near_t = -M_MAX_FLOAT;
         far_t  = M_MAX_FLOAT;
 
