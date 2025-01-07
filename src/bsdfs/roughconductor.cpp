@@ -28,6 +28,8 @@ public:
         if (!m_alpha) {
             throw std::runtime_error("Rough conductor: alpha does not exist");
         }
+
+        m_flags = EGlossyReflection;
     }
 
     void add_child(const std::shared_ptr<Object> &child) override {

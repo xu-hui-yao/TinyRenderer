@@ -1,0 +1,92 @@
+<scene>
+    <sampler type="independent">
+        <integer name="sample_count" value="2048"/>
+    </sampler>
+
+    <accelerate type="bvh">
+        <integer name="leaf_max" value="5"/>
+        <integer name="max_depth" value="100"/>
+    </accelerate>
+
+    <integrator type="path">
+        <integer name="max_depth" value="5"/>
+        <integer name="rr_depth" value="5"/>
+    </integrator>
+
+    <camera type="perspective">
+        <rfilter type="tent">
+            <float name="radius" value="0.5"/>
+        </rfilter>
+
+        <transform name="to_world">
+            <matrix value="-0.00550949 -0.342144 -0.939631 23.895 1.07844e-005 0.939646 -0.342149 11.2207 0.999985 -0.00189103 -0.00519335 0.0400773 0 0 0 1"/>
+        </transform>
+
+        <float name="fov" value="35"/>
+        <integer name="width" value="1280"/>
+        <integer name="height" value="720"/>
+    </camera>
+
+    <mesh type="rectangle">
+        <string name="name" value="floor"/>
+        <boolean name="flip_normal" value="true"/>
+        <transform name="to_world">
+            <matrix value="-39.9766 39.9766 -1.74743e-006 0 4.94249e-006 2.47125e-006 -56.5355 0 -39.9766 -39.9766 -5.2423e-006 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="checkerboard">
+                    <color name="color0" value="0.325, 0.31, 0.25"/>
+                    <color name="color1" value="0.725, 0.71, 0.68"/>
+                    <float name="scale_u" value="10.0"/>
+                    <float name="scale_v" value="10.0"/>
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+
+    <mesh type="obj">
+        <string name="name" value="material_0001"/>
+        <string name="filename" value="models/Mesh001.obj"/>
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="plastic">
+                <float name="int_ior" value="1.5"/>
+                <float name="ext_ior" value="1"/>
+                <boolean name="nonlinear" value="true"/>
+                <texture type="constant">
+                    <color name="color" value="0.9, 0.9, 0.9"/>
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+
+    <mesh type="obj">
+        <string name="name" value="material_0002"/>
+        <string name="filename" value="models/Mesh000.obj"/>
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="plastic">
+                <float name="int_ior" value="1.5"/>
+                <float name="ext_ior" value="1"/>
+                <boolean name="nonlinear" value="true"/>
+                <texture type="constant">
+                    <color name="color" value="0.9, 0.9, 0.9"/>
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+
+    <emitter type="envmap">
+        <transform name="to_world">
+            <matrix value="-0.922278 0 0.386527 0 0 1 0 0 -0.386527 0 -0.922278 1.17369 0 0 0 1"/>
+        </transform>
+        <texture type="bitmap">
+            <string name="filename" value="textures/envmap.hdr"/>
+        </texture>
+    </emitter>
+</scene>

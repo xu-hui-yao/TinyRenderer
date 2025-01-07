@@ -75,7 +75,7 @@ public:
             std::shared_ptr<BSDF> bsdf = its.mesh->get_bsdf();
 
             // ---------------------- Emitter sampling ----------------------
-            bool active_em = active_next; // TODO smooth
+            bool active_em = bsdf->has_flag(ESmooth);
 
             DirectionSample3f ds;
             Color3f em_weight;
@@ -107,7 +107,7 @@ public:
             // ------ Update loop variables based on current interaction ------
             throughput *= bsdf_weight;
             eta *= bsdf_sample.eta;
-            valid_ray |= valid && its.is_valid(); // TODO
+            valid_ray |= valid && its.is_valid();
 
             // Information about the current vertex needed by the next iteration
             prev_si         = its;

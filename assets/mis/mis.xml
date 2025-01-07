@@ -1,0 +1,203 @@
+<scene>
+    <sampler type="independent">
+        <integer name="sample_count" value="1024"/>
+    </sampler>
+
+    <accelerate type="bvh">
+        <integer name="leaf_max" value="5"/>
+        <integer name="max_depth" value="10"/>
+    </accelerate>
+
+    <integrator type="path">
+        <integer name="max_depth" value="5"/>
+        <integer name="rr_depth" value="5"/>
+    </integrator>
+
+    <camera type="perspective">
+        <rfilter type="tent">
+            <float name="radius" value="0.5"/>
+        </rfilter>
+        <transform name="to_world">
+            <matrix value="-4.37113e-008 0 -1 28.2792 0 1 0 3.5 1 0 -4.37113e-008 1.23612e-006 0 0 0 1"/>
+        </transform>
+        <float name="fov" value="35"/>
+        <integer name="width" value="1280"/>
+        <integer name="height" value="720"/>
+<!--        <integer name="width" value="256"/>-->
+<!--        <integer name="height" value="144"/>-->
+    </camera>
+
+    <mesh type="cube">
+        <string name="name" value="smooth"/>
+        <transform name="to_world">
+            <matrix value="0.805757 0.0961775 0 0.264069 -0.673242 0.115108 0 4.09801 0 0 4 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughconductor">
+                <texture type="constant">
+                    <color name="color" value="0.200438, 0.924033, 1.10221"/>
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="3.91295, 2.45285, 2.14219"/>
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="0.01, 0.01, 0.01"/>
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="0.3, 0.3, 0.3"/>
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+
+    <mesh type="cube">
+        <string name="name" value="glossy"/>
+        <transform name="to_world">
+            <matrix value="0.972057 0.0567134 0 3.06163 -0.396994 0.138865 0 2.71702 0 0 4 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughconductor">
+                <texture type="constant">
+                    <color name="color" value="0.200438, 0.924033, 1.10221"/>
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="3.91295, 2.45285, 2.14219"/>
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="0.05, 0.05, 0.05"/>
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="0.3, 0.3, 0.3"/>
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+
+    <mesh type="cube">
+        <string name="name" value="rough"/>
+        <transform name="to_world">
+            <matrix value="1.03191 0.0277252 0 7.09981 -0.194077 0.147415 0 1.81891 0 0 4 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughconductor">
+                <texture type="constant">
+                    <color name="color" value="0.200438, 0.924033, 1.10221"/>
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="3.91295, 2.45285, 2.14219"/>
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="0.1, 0.1, 0.1"/>
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="0.3, 0.3, 0.3"/>
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+
+    <mesh type="cube">
+        <string name="name" value="super_rough"/>
+        <transform name="to_world">
+            <matrix value="1.04217 0.0182831 0 10.6769 -0.127982 0.148882 0 1.23376 0 0 4 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughconductor">
+                <texture type="constant">
+                    <color name="color" value="0.200438, 0.924033, 1.10221"/>
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="3.91295, 2.45285, 2.14219"/>
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="0.3, 0.3, 0.3"/>
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="0.3, 0.3, 0.3"/>
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+
+    <mesh type="rectangle">
+        <string name="name" value="diffuse_0001"/>
+        <transform name="to_world">
+            <matrix value="9.9 0 0 4.9 0 -4.32743e-007 9.9 0 0 -23.76 -1.03858e-006 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.5, 0.5, 0.5"/>
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+
+    <mesh type="rectangle">
+        <string name="name" value="diffuse_0002"/>
+        <transform name="to_world">
+            <matrix value="-4.32743e-007 -4.32743e-007 9.9 -5 -9.9 1.89158e-014 -4.32743e-007 9.9 0 -23.76 -1.03858e-006 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.5, 0.5, 0.5"/>
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+
+    <mesh type="sphere">
+        <string name="name" value="null_0001"/>
+        <float name="radius" value="1"/>
+        <point name="center" value="0, 6.5, -2.8"/>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0, 0, 0"/>
+                </texture>
+            </bsdf>
+        </bsdf>
+        <emitter type="area">
+            <texture type="constant">
+                <color name="color" value="7.59909, 7.59909, 7.59909"/>
+            </texture>
+        </emitter>
+    </mesh>
+
+    <mesh type="sphere">
+        <string name="name" value="null_0002"/>
+        <float name="radius" value="0.5"/>
+        <point name="center" value="0, 6.5, 0"/>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0, 0, 0"/>
+                </texture>
+            </bsdf>
+        </bsdf>
+        <emitter type="area">
+            <texture type="constant">
+                <color name="color" value="30.3964, 30.3964, 30.3964"/>
+            </texture>
+        </emitter>
+    </mesh>
+
+    <mesh type="sphere">
+        <string name="name" value="null_0003"/>
+        <float name="radius" value="0.05"/>
+        <point name="center" value="0, 6.5, 2.7"/>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0, 0, 0"/>
+                </texture>
+            </bsdf>
+        </bsdf>
+        <emitter type="area">
+            <texture type="constant">
+                <color name="color" value="3039.64, 3039.64, 3039.64"/>
+            </texture>
+        </emitter>
+    </mesh>
+</scene>

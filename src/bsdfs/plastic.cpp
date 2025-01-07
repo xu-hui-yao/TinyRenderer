@@ -31,6 +31,9 @@ public:
         if (!m_diffuse_reflectance) {
             throw std::runtime_error("Rough plastic requires diffuse reflectance");
         }
+
+        m_flags =
+            static_cast<BSDFFlags>(static_cast<uint32_t>(EDeltaReflection) | static_cast<uint32_t>(EDiffuseReflection));
     }
 
     void add_child(const std::shared_ptr<Object> &child) override {
@@ -58,7 +61,7 @@ public:
         float cos_theta_i = Frame3f::cos_theta(si.wi, active);
         active &= cos_theta_i > 0.f;
 
-        BSDFSample3f bs(Vector3f({0, 0, 0}));
+        BSDFSample3f bs(Vector3f({ 0, 0, 0 }));
         Color3f result(0.f);
 
         // Early exit if the sample is invalid

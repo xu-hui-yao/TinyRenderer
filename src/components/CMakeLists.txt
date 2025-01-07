@@ -5,4 +5,5 @@ target_sources(tiny-renderer
         scene.cpp
         camera.cpp
         emitter.cpp
+        bsdf.cpp
 )

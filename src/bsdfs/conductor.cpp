@@ -23,6 +23,8 @@ public:
         if (!m_k) {
             throw std::runtime_error("Rough conductor: k does not exist");
         }
+
+        m_flags = EDeltaReflection;
     }
 
     void add_child(const std::shared_ptr<Object> &child) override {

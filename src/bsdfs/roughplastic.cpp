@@ -68,6 +68,9 @@ public:
         }
 
         m_internal_reflectance = m_internal_reflectance * 2.0f / static_cast<float>(m_rough_transmittance_res);
+
+        m_flags =
+            static_cast<BSDFFlags>(static_cast<uint32_t>(EGlossyReflection) | static_cast<uint32_t>(EDiffuseReflection));
     }
 
     void add_child(const std::shared_ptr<Object> &child) override {
@@ -169,7 +172,7 @@ public:
         float t_o       = lerp_gather(m_external_transmittance, cos_theta_o, m_rough_transmittance_res);
         Color3f diffuse = m_diffuse_reflectance->eval(si, active);
         diffuse /= Color3f(1.0f) - (m_nonlinear ? diffuse * m_internal_reflectance : Color3f(m_internal_reflectance));
-        value += diffuse * (static_cast<float>(M_PI) * m_inv_eta_2 * cos_theta_o * t_i * t_o);
+        value += diffuse * (static_cast<float>(M_INV_PI) * m_inv_eta_2 * cos_theta_o * t_i * t_o);
 
         return active ? value : Color3f(0.f);
     }

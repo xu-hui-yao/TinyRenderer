@@ -3,6 +3,56 @@
 #include <components/object.h>
 
 M_NAMESPACE_BEGIN
+
+enum BSDFFlags : uint32_t {
+    // BSDF lobe types
+    // No flags set (default value)
+    EEmpty = 0x00000,
+
+    // 'null' scattering event, i.e. particles do not undergo deflection
+    ENull = 0x00001,
+
+    // Ideally diffuse reflection
+    EDiffuseReflection = 0x00002,
+
+    // Ideally diffuse transmission
+    EDiffuseTransmission = 0x00004,
+
+    // Glossy reflection
+    EGlossyReflection = 0x00008,
+
+    // Glossy transmission
+    EGlossyTransmission = 0x00010,
+
+    // Reflection into a discrete set of directions
+    EDeltaReflection = 0x00020,
+
+    // Transmission into a discrete set of directions
+    EDeltaTransmission = 0x00040,
+
+    // Compound lobe attributes
+    // Any reflection component (scattering into discrete, 1D, or 2D set of directions)
+    EReflection = EDiffuseReflection | EDeltaReflection | EGlossyReflection,
+
+    // Any transmission component (scattering into discrete, 1D, or 2D set of directions)
+    ETransmission = EDiffuseTransmission | EDeltaTransmission | EGlossyTransmission | ENull,
+
+    // Diffuse scattering into a 2D set of directions
+    EDiffuse = EDiffuseReflection | EDiffuseTransmission,
+
+    // Non-diffuse scattering into a 2D set of directions
+    EGlossy = EGlossyReflection | EGlossyTransmission,
+
+    // Scattering into a 2D set of directions
+    ESmooth = EDiffuse | EGlossy,
+
+    // Scattering into a discrete set of directions
+    EDelta = ENull | EDeltaReflection | EDeltaTransmission,
+
+    // Any kind of scattering
+    EAll = EDiffuse | EGlossy | EDelta
+};
+
 class BSDF : public Object {
 public:
     /**
@@ -105,14 +155,16 @@ public:
 
     void construct() override = 0;
 
-    /**
-     * \brief Return the type of object (i.e. Mesh/BSDF/etc.)
-     * provided by this instance
-     */
-    [[nodiscard]] EClassType get_class_type() const override { return EBSDF; }
+    [[nodiscard]] EClassType get_class_type() const override;
 
-    // Return a human-readable summary of this instance
+    bool has_flag(BSDFFlags bsdf_flags) const;
+
+    [[nodiscard]] BSDFFlags get_flag() const;
+
     [[nodiscard]] std::string to_string() const override = 0;
+
+protected:
+    BSDFFlags m_flags = EEmpty;
 };
 
 M_NAMESPACE_END

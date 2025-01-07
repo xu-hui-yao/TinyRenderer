@@ -27,6 +27,9 @@ public:
         if (!m_alpha) {
             throw std::runtime_error("Rough conductor: alpha does not exist");
         }
+
+        m_flags =
+            static_cast<BSDFFlags>(static_cast<uint32_t>(EGlossyReflection) | static_cast<uint32_t>(EGlossyTransmission));
     }
 
     void add_child(const std::shared_ptr<Object> &child) override {
@@ -53,7 +56,7 @@ public:
     [[nodiscard]] std::pair<BSDFSample3f, Color3f> sample(const SurfaceIntersection3f &si, float sample1,
                                                           const Point2f &sample2, bool active) const override {
         float cos_theta_i = Frame3f::cos_theta(si.wi, active);
-        BSDFSample3f bs(Vector3f({0, 0, 0}));
+        BSDFSample3f bs(Vector3f({ 0, 0, 0 }));
         active &= cos_theta_i != 0.f;
 
         MicrofacetDistribution1f distribution(m_alpha->eval(si, active)(0));

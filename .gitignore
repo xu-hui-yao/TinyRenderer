@@ -1,5 +1,10 @@
 cmake-build-debug
 cmake-build-release
 build
-assets
+assets/bidir/models
+assets/livingroom/models
+assets/livingroom/textures
+assets/teapot/models
+assets/teapot/textures
 .idea
+readme.pdf

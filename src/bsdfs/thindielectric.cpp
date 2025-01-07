@@ -22,6 +22,8 @@ public:
 #ifdef M_DEBUG
         std::cout << "Construct " << class_type_name(get_class_type()) << std::endl;
 #endif
+        m_flags =
+            static_cast<BSDFFlags>(static_cast<uint32_t>(EDeltaReflection) | static_cast<uint32_t>(ENull));
     }
 
     void add_child(const std::shared_ptr<Object> &child) override {

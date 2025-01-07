@@ -20,6 +20,8 @@ public:
         if (!m_reflectance) {
             throw std::runtime_error("Diffuse: No reflection provided");
         }
+
+        m_flags = EDiffuseReflection;
     }
 
     void add_child(const std::shared_ptr<Object> &child) override {

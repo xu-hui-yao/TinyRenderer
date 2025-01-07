@@ -1,0 +1,271 @@
+<scene>
+    <sampler type="independent">
+        <integer name="sample_count" value="8192"/>
+    </sampler>
+
+    <accelerate type="bvh">
+        <integer name="leaf_max" value="5"/>
+        <integer name="max_depth" value="10"/>
+    </accelerate>
+
+    <integrator type="path">
+        <integer name="max_depth" value="65"/>
+        <integer name="rr_depth" value="5"/>
+    </integrator>
+
+    <camera type="perspective">
+        <rfilter type="tent">
+            <float name="radius" value="0.5"/>
+        </rfilter>
+
+        <transform name="to_world">
+            <matrix value="-0.00500708 -0.00467005 -0.999977 16.2155 0 0.999989 -0.00467011 4.05167 0.999987 -2.34659e-005 -0.00502464 0.0114864 0 0 0 1"/>
+        </transform>
+
+        <float name="fov" value="35"/>
+        <integer name="width" value="1280"/>
+        <integer name="height" value="1280"/>
+    </camera>
+
+    <mesh type="obj">
+        <string name="name" value="Lamp_0001"/>
+        <string name="filename" value="models/Mesh007.obj"/>
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughconductor">
+                <texture type="constant">
+                    <color name="color" value="2.8656, 2.11918, 1.94008"/>
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="3.03233, 2.05611, 1.61629"/>
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="0.25, 0.25, 0.25"/>
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="1, 1, 1"/>
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+
+    <mesh type="obj">
+        <string name="name" value="Diffuse_0001"/>
+        <string name="filename" value="models/Mesh004.obj"/>
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.5, 0.5, 0.5"/>
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+
+    <mesh type="rectangle">
+        <string name="name" value="Diffuse_0002"/>
+        <transform name="to_world">
+            <matrix value="-1.20536e-008 0.275755 1.20536e-008 -2.48161 0 -6.64767e-009 0.152081 6 0.275754 1.20536e-008 5.2688e-016 2.5894 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.5, 0.5, 0.5"/>
+                </texture>
+            </bsdf>
+        </bsdf>
+        <emitter type="area">
+            <texture type="constant">
+                <color name="color" value="523.258, 523.258, 523.258"/>
+            </texture>
+        </emitter>
+    </mesh>
+
+    <mesh type="rectangle">
+        <string name="name" value="Diffuse_0003"/>
+        <transform name="to_world">
+            <matrix value="-0.0101082 0.067068 0.00138972 -2.69082 -0.0610016 -0.0070995 -0.00842772 5.10417 -0.0282857 -0.00865658 0.0176788 -3.77057 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.5, 0.5, 0.5"/>
+                </texture>
+            </bsdf>
+        </bsdf>
+        <emitter type="area">
+            <texture type="constant">
+                <color name="color" value="12048.2, 8605.84, 6196.21"/>
+            </texture>
+        </emitter>
+    </mesh>
+
+    <mesh type="obj">
+        <string name="name" value="Lamp_0002"/>
+        <string name="filename" value="models/Mesh001.obj"/>
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughconductor">
+                <texture type="constant">
+                    <color name="color" value="2.8656, 2.11918, 1.94008"/>
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="3.03233, 2.05611, 1.61629"/>
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="0.25, 0.25, 0.25"/>
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="1, 1, 1"/>
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+
+    <mesh type="obj">
+        <string name="name" value="Lamp_0003"/>
+        <string name="filename" value="models/Mesh005.obj"/>
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughconductor">
+                <texture type="constant">
+                    <color name="color" value="2.8656, 2.11918, 1.94008"/>
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="3.03233, 2.05611, 1.61629"/>
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="0.25, 0.25, 0.25"/>
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="1, 1, 1"/>
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+
+    <mesh type="obj">
+        <string name="name" value="Diffuse_0004"/>
+        <string name="filename" value="models/Mesh008.obj"/>
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.5, 0.5, 0.5"/>
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+
+    <mesh type="obj">
+        <string name="name" value="Glass"/>
+        <string name="filename" value="models/Mesh002.obj"/>
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="dielectric">
+            <float name="int_ior" value="1.5"/>
+            <float name="ext_ior" value="1"/>
+        </bsdf>
+    </mesh>
+
+    <mesh type="obj">
+        <string name="name" value="Diffuse_0005"/>
+        <string name="filename" value="models/Mesh011.obj"/>
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.5, 0.5, 0.5"/>
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+
+    <mesh type="obj">
+        <string name="name" value="Diffuse_0006"/>
+        <string name="filename" value="models/Mesh003.obj"/>
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.5, 0.5, 0.5"/>
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+
+    <mesh type="obj">
+        <string name="name" value="Diffuse_0007"/>
+        <string name="filename" value="models/Mesh009.obj"/>
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.5, 0.5, 0.5"/>
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+
+    <mesh type="obj">
+        <string name="name" value="Diffuse_0008"/>
+        <string name="filename" value="models/Mesh006.obj"/>
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.5, 0.5, 0.5"/>
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+
+    <mesh type="obj">
+        <string name="name" value="Wood"/>
+        <string name="filename" value="models/Mesh000.obj"/>
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.32963, 0.257976, 0.150292"/>
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+
+    <mesh type="obj">
+        <string name="name" value="Diffuse_0009"/>
+        <string name="filename" value="models/Mesh010.obj"/>
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.5, 0.5, 0.5"/>
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+</scene>

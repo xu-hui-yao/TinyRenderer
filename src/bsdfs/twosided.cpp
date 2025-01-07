@@ -23,9 +23,16 @@ public:
             throw std::runtime_error("TwoSided: Front BSDF is not provided.");
         }
 
+        m_front_bsdf->construct();
+
         if (!m_back_bsdf) {
             m_back_bsdf = m_front_bsdf; // Use the same BSDF for both sides if not explicitly provided
+        } else {
+            m_back_bsdf->construct();
         }
+
+        m_flags = static_cast<BSDFFlags>(static_cast<uint32_t>(m_front_bsdf->get_flag()) |
+                                         static_cast<uint32_t>(m_back_bsdf->get_flag())); // TODO: front and back
     }
 
     void add_child(const std::shared_ptr<Object> &child) override {

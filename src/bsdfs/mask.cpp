@@ -20,6 +20,8 @@ public:
             throw std::runtime_error("Mask: Opacity texture is not provided.");
         if (!m_nested_bsdf)
             throw std::runtime_error("Mask: Nested BSDF is not provided.");
+
+        m_flags = m_nested_bsdf->get_flag();
     }
 
     void add_child(const std::shared_ptr<Object> &child) override {
