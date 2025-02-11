@@ -8,3 +8,4 @@ assets/teapot/models
 assets/teapot/textures
 .idea
 readme.pdf
+.DS_store

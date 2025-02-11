@@ -4,7 +4,7 @@
 
 ## 介绍
 
-这是一个用 C++ 实现的路径追踪渲染器，设计遵循 [PBRT](https://pbr-book.org/3ed-2018/contents) 标准，并支持多线程渲染。部分设计参考了 [Mitsuba 3](http://www.mitsuba-renderer.org/)。
+这是一个用 C++ 实现的路径追踪渲染器，设计遵循 [PBRT](https://pbr-book.org/3ed-2018/contents) 标准，并支持多线程渲染。项目结构参考 [Mitsuba 3](http://www.mitsuba-renderer.org/)。
 
 该渲染器接受描述场景的 XML 文件作为输入，生成图像并保存至指定路径。
 
@@ -133,7 +133,7 @@ $$
 
 
 
-### 实现
+### 主循环实现
 
 实现位于`src/integrator/path.cpp`的`li`函数，流程如下：
 
@@ -284,17 +284,23 @@ $$
 
 
 
+### 光源的主动采样策略
+
+对于场景多光源的情况，首先以均匀分布随机采样一个多面体光源。在多面体光源上，将三角形面积与三角形三顶点平均luminance之积作为概率密度函数进行重要性采样，从而对场景中的光源进行重要性采样。具体实现见`scene.cpp`的`sample_emitter_direction`函数与`area.cpp`的实现。
+
+
+
 ## 结果展示
 
-<img src="./assets/box/box.png" alt="box" style="zoom:50%;" />
+<img src="./assets/box/box.png" alt="box"/>
 
-<img src="./assets/mis/mis.png" alt="mis" style="zoom:50%;" />
+<img src="./assets/mis/mis.png" alt="mis"/>
 
-<img src="./assets/livingroom/livingroom.png" alt="livingroom" style="zoom:50%;" />
+<img src="./assets/livingroom/livingroom.png" alt="livingroom"/>
 
-<img src="./assets/teapot/teapot.png" alt="teapot" style="zoom:50%;" />
+<img src="./assets/teapot/teapot.png" alt="teapot"/>
 
-<img src="./assets/bidir/bidir.png" alt="bidir" style="zoom:50%;" />
+<img src="./assets/bidir/bidir.png" alt="bidir"/>
 
 
 
@@ -305,8 +311,8 @@ $$
 3. 更多积分器：双向路径追踪、Metropolis Light Transport
 4. 更多材质：法向贴图、BSSRDF（[Position-Free Monte Carlo Simulation for Arbitrary Layered BSDFs](https://shuangz.com/projects/layered-sa18/)）、毛发等
 5. 更多类型的几何体，曲面曲线的实现
-6. 可交互GUI以及一个简易光栅器作为实时渲染界面
-7. 基于GBuffer的光线追踪降噪
+6. 可交互GUI
+7. 光线追踪降噪
 
 
 
@@ -314,4 +320,3 @@ $$
 
 1. 图像分辨率不是$2^x$时保存图像会出错。
 2. 双层材质`Smooth`标签的识别。
-3. Clang 编译器下报错。
