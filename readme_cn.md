@@ -81,7 +81,7 @@ tiny-renderer 'xml relative path of the root directory' -t 'thread count'
 ```cmd
 cmake -DCMAKE_BUILD_TYPE=Release -S . -B build
 cd build
-make -j{proc}
+make -j${proc}
 ```
 
 可执行文件生成于`build/src/`，运行可执行文件：

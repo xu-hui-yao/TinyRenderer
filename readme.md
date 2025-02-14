@@ -79,7 +79,7 @@ Navigate to the project root directory and run the following commands in the ter
 ```bash
 cmake -DCMAKE_BUILD_TYPE=Release -S . -B build
 cd build
-make -j{proc}
+make -j${proc}
 ```
 
 The executable will be generated in `build/src/`. Run the executable:
