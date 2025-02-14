@@ -18,6 +18,7 @@
 
 #if defined(__linux)
 #include <linux/limits.h>
+#include <cstring>
 #endif
 
 NAMESPACE_BEGIN(filesystem)
@@ -391,7 +392,7 @@ inline bool create_directories(const path &p) {
 #if defined(_WIN32)
     return SHCreateDirectory(nullptr, p.make_absolute().wstr().c_str()) == ERROR_SUCCESS;
 #else
-    if (create_directory(p.str().c_str()))
+    if (create_directory(p))
         return true;
 
     if (p.empty())

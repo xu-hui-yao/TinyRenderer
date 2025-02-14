@@ -2,6 +2,8 @@
 
 #include <filesystem/resolver.h>
 #include <vector>
+#include <memory>
+#include <cmath>
 
 #define M_NAMESPACE_BEGIN namespace tiny_renderer {
 #define M_NAMESPACE_END }

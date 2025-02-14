@@ -145,9 +145,6 @@ public:
                "  dist = "
             << dist
             << "\n"
-               "  emitter = "
-            << indent(emitter ? emitter->to_string() : "null")
-            << "\n"
                "]\n";
         return oss.str();
     }

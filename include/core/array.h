@@ -10,7 +10,7 @@ public:
     template <typename, int, ArrayType> friend class TArray;
 
     static constexpr int Dimension       = Dimension_;
-    static constexpr ArrayType ArrayType = ArrayType_;
+    static constexpr ArrayType CurrentArrayType = ArrayType_;
     typedef Scalar_ Scalar;
 
     // ============================== Constructor ==============================
@@ -103,10 +103,10 @@ public:
         return result;
     }
 
-    template <int ViewDimension> TArray<Scalar, ViewDimension, ArrayType> view(int start_index) const {
+    template <int ViewDimension> TArray<Scalar, ViewDimension, CurrentArrayType> view(int start_index) const {
         check_range(start_index + ViewDimension - 1);
 
-        TArray<Scalar, ViewDimension, ArrayType> sub_vector;
+        TArray<Scalar, ViewDimension, CurrentArrayType> sub_vector;
 
         for (int i = 0; i < ViewDimension; ++i) {
             sub_vector(i) = m_data[start_index + i];
@@ -368,7 +368,7 @@ public:
     [[nodiscard]] std::string to_string() const {
 
         std::ostringstream oss;
-        switch (ArrayType) {
+        switch (CurrentArrayType) {
             case ArrayType::Vector:
                 oss << "Vector";
                 break;

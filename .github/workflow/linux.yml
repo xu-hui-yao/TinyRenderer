@@ -1,0 +1,23 @@
+name: Linux CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install CMake and Build Tools
+        run: sudo apt-get install -y cmake build-essential
+      - name: Configure and Build
+        run: |
+          cmake -DCMAKE_BUILD_TYPE=Release -S . -B build
+          cd build
+          make -j$(nproc)
