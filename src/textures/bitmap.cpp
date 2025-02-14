@@ -101,7 +101,7 @@ void Bitmap::save_exr(const std::string &filename) const {
     header.num_channels = 3;
     header.channels     = static_cast<EXRChannelInfo *>(malloc(sizeof(EXRChannelInfo) * header.num_channels));
     // Must be (A)BGR order, since most of EXR viewers expect this channel order.
-#if defined(_WIN32) || defined(_WIN64) || defined(__APPLE__)
+#if defined(_WIN32) || defined(_WIN64)
     strncpy_s(header.channels[0].name, "B", 255);
     header.channels[0].name[strlen("B")] = '\0';
     strncpy_s(header.channels[1].name, "G", 255);
