@@ -6,6 +6,20 @@ assets/livingroom/models
 assets/livingroom/textures
 assets/teapot/models
 assets/teapot/textures
+assets/ball/models
+assets/bathroom2/models
+assets/bathroom2/textures
 .idea
 readme.pdf
-.DS_store
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+**/.DS_Store
+*.DS_Store
+._*
+**/.Spotlight-V100
+**/.Trashes
+**/.VolumeIcon.icns
+**/.fseventsd

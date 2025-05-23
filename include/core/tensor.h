@@ -281,6 +281,15 @@ private:
 
     void check_range(int row, int col, int channel) const {
 #ifdef M_DEBUG
+        if (row >= m_rows) {
+            std::cout << "Index out of range, row: " << row << ", m_row: " << m_rows << std::endl;
+        }
+        if (col >= m_cols) {
+            std::cout << "Index out of range, col: " << col << ", m_col: " << m_cols << std::endl;
+        }
+        if (channel >= m_channels) {
+            std::cout << "Index out of range, channel: " << channel << ", m_channels: " << m_channels << std::endl;
+        }
         assert(row < m_rows && col < m_cols && channel < m_channels && "Index out of range");
 #endif
     }

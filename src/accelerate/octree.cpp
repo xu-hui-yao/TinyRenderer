@@ -162,7 +162,7 @@ private:
                     if (shadow_ray) {
                         return true; // Early exit for shadow ray
                     }
-                    ray.max_t() = its.t = t;
+                    ray.max_t() = its.t = t; // Ensure it is the closet
                     its.uv              = Point2f(u, v);
                     its.mesh            = prim.first;
                     its.primitive_index = prim.second;

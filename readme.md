@@ -330,7 +330,11 @@ In the case of multiple light sources in a scene, a polygonal light source is fi
 
 <img src="./assets/box/box.png" alt="box"/>
 
+<img src="./assets/ball/ball.png" alt="box"/>
+
 <img src="./assets/mis/mis.png" alt="mis"/>
+
+<img src="./assets/bathroom2/bathroom2.png" alt="box"/>
 
 <img src="./assets/livingroom/livingroom.png" alt="livingroom"/>
 

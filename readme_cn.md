@@ -136,9 +136,7 @@ tiny-renderer 'xml relative path of the root directory' -t 'thread count'
 $$
 L_o(p,\omega_o)=L_e(p,\omega_o)+\int_\Omega f_r(p,\omega_i,\omega_o)L_i(p,\omega_i)|\cos\theta_i|\mathrm{d}\omega_i
 $$
-路径追踪使用蒙特卡洛积分来采样光路并计算积
-
-分。即对于积分$\displaystyle\int f(x)\mathrm{d}\mu(x)$，在积分空间下按照概率分布$X\sim p(x)$采样样本$x_1\cdots x_n$，并通过公式$\displaystyle{\frac{1}{n}\sum_{i=1}^n\frac{f(x_i)}{p(x_i)}}$来近似积分结果。这样计算积分的方差为：$\displaystyle{\frac{1}{n}\left[\int\frac{f(x)^2}{p(x)}\mathrm{d}\mu(x)-(\displaystyle\int f(x)\mathrm{d}\mu(x))^2\right]}$，因此$p(x)$越接近归一化的$f(x)$，$p(x)$方差越小。
+路径追踪使用蒙特卡洛积分来采样光路并计算积分。即对于积分$\displaystyle\int f(x)\mathrm{d}\mu(x)$，在积分空间下按照概率分布$X\sim p(x)$采样样本$x_1\cdots x_n$，并通过公式$\displaystyle{\frac{1}{n}\sum_{i=1}^n\frac{f(x_i)}{p(x_i)}}$来近似积分结果。这样计算积分的方差为：$\displaystyle{\frac{1}{n}\left[\int\frac{f(x)^2}{p(x)}\mathrm{d}\mu(x)-(\displaystyle\int f(x)\mathrm{d}\mu(x))^2\right]}$，因此$p(x)$越接近归一化的$f(x)$，$p(x)$方差越小。
 
 然而我们很难得到$f(x)$的解析解，此时有两种采样策略：一种是根据 BSDF 采样，一种是根据光源分布采样，一种常见的做法是将漫反射和光源采样分开：
 $$
@@ -339,7 +337,11 @@ $$
 
 <img src="./assets/box/box.png" alt="box"/>
 
-<img src="./assets/mis/mis.png" alt="mis"/>
+<img src="./assets/ball.png" alt="box"/>
+
+<img src="./assets/mis.png" alt="mis"/>
+
+<img src="./assets/bathroom2.png" alt="box"/>
 
 <img src="./assets/livingroom/livingroom.png" alt="livingroom"/>
 

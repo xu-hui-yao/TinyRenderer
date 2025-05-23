@@ -374,8 +374,8 @@ Color3f Bitmap::mean() {
         return Color3f(sum);
     } else {
         Color3f sum(0.0f);
-        for (int i = 0; i < m_data->get_cols(); i++) {
-            for (int j = 0; j < m_data->get_rows(); j++) {
+        for (int i = 0; i < m_data->get_rows(); i++) {
+            for (int j = 0; j < m_data->get_cols(); j++) {
                 sum(0) += m_data->operator()(i, j, 0);
                 sum(1) += m_data->operator()(i, j, 1);
                 sum(2) += m_data->operator()(i, j, 2);
