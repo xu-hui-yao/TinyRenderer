@@ -102,12 +102,21 @@ public:
      *
      * \param ref
      *     Reference position
+     *
+     * \param hit_emitter
+     *     The emitter associated with the mesh referenced by si.mesh_id, or
+     *     nullptr if si.mesh_id is invalid (i.e. the ray escaped into the
+     *     environment). Resolving this from mesh_id is the caller's
+     *     responsibility (see Scene::get_mesh), since this record type no
+     *     longer stores a direct Mesh reference.
      */
-    explicit TDirectionSample(const TSurfaceIntersection<Scalar> &si, const TIntersection<Scalar> &ref) : Base(si) {
+    explicit TDirectionSample(const TSurfaceIntersection<Scalar> &si, const TIntersection<Scalar> &ref,
+                              const std::shared_ptr<Emitter> &hit_emitter = nullptr)
+        : Base(si) {
         VectorType rel = si.p - ref.p;
         dist           = rel.magnitude();
         d              = si.is_valid() ? rel / dist : -si.wi;
-        emitter        = si.mesh ? si.mesh->get_emitter() : nullptr;
+        emitter        = hit_emitter;
     }
 
     explicit TDirectionSample(const Point3f &p, const Normal3f &n, const Point2f &uv, const Scalar &t,

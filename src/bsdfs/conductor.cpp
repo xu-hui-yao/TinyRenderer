@@ -49,7 +49,7 @@ public:
 
     [[nodiscard]] std::pair<BSDFSample3f, Color3f> sample(const SurfaceIntersection3f &si, float /* sample1 */,
                                                           const Point2f &sample2, bool active) const override {
-        float cos_theta_i = Frame3f::cos_theta(si.wi, active);
+        float cos_theta_i = Frame3f::cos_theta(si.wi);
         active &= cos_theta_i > 0.f;
 
         BSDFSample3f bs(Vector3f({0, 0, 0}));
@@ -84,6 +84,24 @@ public:
         return 0.0f;
     }
 
+    // Denoising feature only (see BSDF::albedo). A conductor's reflectance is
+    // dominated by the Fresnel term, which is view-dependent and therefore not
+    // a valid demodulation factor; the optional specular_reflectance tint is,
+    // so use it when present and fall back to the neutral 1 otherwise.
+    [[nodiscard]] Color3f albedo(const SurfaceIntersection3f &si, bool active) const override {
+        return m_specular_reflectance ? m_specular_reflectance->eval(si, active) : Color3f(1.f);
+    }
+
+    [[nodiscard]] GPUMaterial to_gpu_material(GPUSceneBuilder &builder) const override {
+        GPUMaterial mat;
+        mat.type                     = GPUMaterialType::Conductor;
+        mat.flags                    = static_cast<uint32_t>(m_flags);
+        mat.tex_eta                  = builder.add_texture(m_eta);
+        mat.tex_k                    = builder.add_texture(m_k);
+        mat.tex_specular_reflectance = builder.add_texture(m_specular_reflectance);
+        return mat;
+    }
+
     // Return a human-readable summary
     [[nodiscard]] std::string to_string() const override {
         return "Conductor[\n"
@@ -94,7 +112,7 @@ public:
                indent(m_k->to_string(), 2) +
                "\n"
                "  specular_reflectance = " +
-               indent(m_specular_reflectance->to_string(), 2) +
+               (m_specular_reflectance ? indent(m_specular_reflectance->to_string(), 2) : "null") +
                "\n"
                "]";
     }

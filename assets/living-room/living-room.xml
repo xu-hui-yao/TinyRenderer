@@ -1,0 +1,1059 @@
+<scene>
+    <sampler type="independent">
+        <integer name="sample_count" value="1024" />
+    </sampler>
+    <accelerate type="bvh">
+        <integer name="leaf_max" value="8" />
+        <integer name="max_depth" value="64" />
+    </accelerate>
+    <integrator type="path">
+        <integer name="max_depth" value="65" />
+    </integrator>
+    <camera type="perspective">
+        <rfilter type="tent">
+            <float name="radius" value="1.0" />
+        </rfilter>
+        <float name="fov" value="90" />
+        <transform name="to_world">
+            <matrix value="0.264209 0.071763 -0.961792 5.10518 -2.81996e-008 0.997228 0.074407 0.731065 0.964465 -0.019659 0.263476 -2.31789 0 0 0 1" />
+        </transform>
+        <integer name="width" value="1280" />
+        <integer name="height" value="720" />
+    </camera>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh038.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughplastic">
+                <float name="int_ior" value="1.5" />
+                <float name="ext_ior" value="1" />
+                <boolean name="nonlinear" value="true" />
+                <float name="alpha" value="0.2" />
+                <texture type="constant">
+                    <color name="color" value="0.8, 0.8, 0.8" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh036.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <boolean name="face_normals" value="true" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.9, 0.9, 0.9" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh035.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <boolean name="face_normals" value="true" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.578596, 0.578596, 0.578596" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh041.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughconductor">
+                <texture type="constant">
+                    <color name="color" value="1.65746, 0.880369, 0.521229" />
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="9.22387, 6.26952, 4.837" />
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="0.02, 0.02, 0.02" />
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="0.578596, 0.578596, 0.578596" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh040.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <boolean name="face_normals" value="true" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.9, 0.9, 0.9" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh028.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <boolean name="face_normals" value="true" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.578596, 0.578596, 0.578596" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh022.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughconductor">
+                <texture type="constant">
+                    <color name="color" value="1.65746, 0.880369, 0.521229" />
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="9.22387, 6.26952, 4.837" />
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="0.02, 0.02, 0.02" />
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="0.578596, 0.578596, 0.578596" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh020.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.1, 0.1, 0.1" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh026.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.098504, 0.045968, 0.035887" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh018.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.160444, 0.0824142, 0.0199178" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh025.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="mask">
+            <texture type="bitmap">
+                <string name="filename" value="textures/leaf_mask.png" />
+                <string name="filter_type" value="bilinear" />
+            </texture>
+            <bsdf type="two_sided">
+                <bsdf type="diffuse">
+                    <texture type="bitmap">
+                        <string name="filename" value="textures/leaf.png" />
+                        <string name="filter_type" value="bilinear" />
+                    </texture>
+                </bsdf>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh060.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.160444, 0.0824142, 0.0199178" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh032.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="mask">
+            <texture type="bitmap">
+                <string name="filename" value="textures/leaf_mask.png" />
+                <string name="filter_type" value="bilinear" />
+            </texture>
+            <bsdf type="two_sided">
+                <bsdf type="diffuse">
+                    <texture type="bitmap">
+                        <string name="filename" value="textures/leaf.png" />
+                        <string name="filter_type" value="bilinear" />
+                    </texture>
+                </bsdf>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh016.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughconductor">
+                <texture type="constant">
+                    <color name="color" value="1.65746, 0.880369, 0.521229" />
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="9.22387, 6.26952, 4.837" />
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="0.02, 0.02, 0.02" />
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="0.578596, 0.578596, 0.578596" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh015.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughconductor">
+                <texture type="constant">
+                    <color name="color" value="1.65746, 0.880369, 0.521229" />
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="9.22387, 6.26952, 4.837" />
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="0.02, 0.02, 0.02" />
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="0.578596, 0.578596, 0.578596" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh029.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <boolean name="face_normals" value="true" />
+        <bsdf type="two_sided">
+            <bsdf type="roughplastic">
+                <float name="int_ior" value="1.5" />
+                <float name="ext_ior" value="1" />
+                <boolean name="nonlinear" value="true" />
+                <float name="alpha" value="0.2" />
+                <texture type="constant">
+                    <color name="color" value="0.8, 0.8, 0.8" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh043.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughplastic">
+                <float name="int_ior" value="1.5" />
+                <float name="ext_ior" value="1" />
+                <boolean name="nonlinear" value="true" />
+                <float name="alpha" value="0.2" />
+                <texture type="constant">
+                    <color name="color" value="0.8, 0.8, 0.8" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh033.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <boolean name="face_normals" value="true" />
+        <bsdf type="two_sided">
+            <bsdf type="roughplastic">
+                <float name="int_ior" value="1.5" />
+                <float name="ext_ior" value="1" />
+                <boolean name="nonlinear" value="true" />
+                <float name="alpha" value="0.2" />
+                <texture type="constant">
+                    <color name="color" value="0.8, 0.8, 0.8" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh046.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <boolean name="face_normals" value="true" />
+        <bsdf type="two_sided">
+            <bsdf type="roughplastic">
+                <float name="int_ior" value="1.5" />
+                <float name="ext_ior" value="1" />
+                <boolean name="nonlinear" value="true" />
+                <float name="alpha" value="0.2" />
+                <texture type="constant">
+                    <color name="color" value="0.8, 0.8, 0.8" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh049.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughconductor">
+                <texture type="constant">
+                    <color name="color" value="1.65746, 0.880369, 0.521229" />
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="9.22387, 6.26952, 4.837" />
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="0.02, 0.02, 0.02" />
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="0.578596, 0.578596, 0.578596" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh039.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <boolean name="face_normals" value="true" />
+        <bsdf type="two_sided">
+            <bsdf type="roughplastic">
+                <float name="int_ior" value="1.5" />
+                <float name="ext_ior" value="1" />
+                <boolean name="nonlinear" value="true" />
+                <float name="alpha" value="0.2" />
+                <texture type="constant">
+                    <color name="color" value="0.8, 0.8, 0.8" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh027.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughplastic">
+                <float name="int_ior" value="1.5" />
+                <float name="ext_ior" value="1" />
+                <boolean name="nonlinear" value="true" />
+                <float name="alpha" value="0.2" />
+                <texture type="constant">
+                    <color name="color" value="0.8, 0.8, 0.8" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh050.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughplastic">
+                <float name="int_ior" value="1.5" />
+                <float name="ext_ior" value="1" />
+                <boolean name="nonlinear" value="true" />
+                <float name="alpha" value="0.2" />
+                <texture type="constant">
+                    <color name="color" value="0.8, 0.8, 0.8" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh052.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughconductor">
+                <texture type="constant">
+                    <color name="color" value="1.65746, 0.880369, 0.521229" />
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="9.22387, 6.26952, 4.837" />
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="0.02, 0.02, 0.02" />
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="0.578596, 0.578596, 0.578596" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh048.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughplastic">
+                <float name="int_ior" value="1.5" />
+                <float name="ext_ior" value="1" />
+                <boolean name="nonlinear" value="true" />
+                <float name="alpha" value="0.2" />
+                <texture type="constant">
+                    <color name="color" value="0.8, 0.8, 0.8" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh024.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughplastic">
+                <float name="int_ior" value="1.5" />
+                <float name="ext_ior" value="1" />
+                <boolean name="nonlinear" value="true" />
+                <float name="alpha" value="0.2" />
+                <texture type="constant">
+                    <color name="color" value="0.8, 0.8, 0.8" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh054.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.1, 0.1, 0.1" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh055.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughplastic">
+                <float name="int_ior" value="1.5" />
+                <float name="ext_ior" value="1" />
+                <boolean name="nonlinear" value="true" />
+                <float name="alpha" value="0.2" />
+                <texture type="constant">
+                    <color name="color" value="0.8, 0.8, 0.8" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh056.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <boolean name="face_normals" value="true" />
+        <bsdf type="two_sided">
+            <bsdf type="roughplastic">
+                <float name="int_ior" value="1.5" />
+                <float name="ext_ior" value="1" />
+                <boolean name="nonlinear" value="true" />
+                <float name="alpha" value="0.001" />
+                <texture type="constant">
+                    <color name="color" value="0.01, 0.01, 0.01" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh045.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <boolean name="face_normals" value="true" />
+        <bsdf type="two_sided">
+            <bsdf type="conductor">
+                <texture type="constant">
+                    <color name="color" value="0, 0, 0" />
+                </texture>
+                <texture type="constant">
+                    <color name="color" value="1, 1, 1" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh063.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <boolean name="face_normals" value="true" />
+        <bsdf type="two_sided">
+            <bsdf type="roughplastic">
+                <float name="int_ior" value="1.5" />
+                <float name="ext_ior" value="1" />
+                <boolean name="nonlinear" value="true" />
+                <float name="alpha" value="0.2" />
+                <texture type="constant">
+                    <color name="color" value="0.8, 0.8, 0.8" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh057.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.578596, 0.578596, 0.578596" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh019.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughplastic">
+                <float name="int_ior" value="1.5" />
+                <float name="ext_ior" value="1" />
+                <boolean name="nonlinear" value="true" />
+                <float name="alpha" value="0.15" />
+                <texture type="bitmap">
+                    <string name="filename" value="textures/wood.jpg" />
+                    <string name="filter_type" value="bilinear" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh059.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.1, 0.1, 0.1" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh042.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.578596, 0.578596, 0.578596" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh051.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <boolean name="face_normals" value="true" />
+        <bsdf type="two_sided">
+            <bsdf type="roughplastic">
+                <float name="int_ior" value="1.5" />
+                <float name="ext_ior" value="1" />
+                <boolean name="nonlinear" value="true" />
+                <float name="alpha" value="0.2" />
+                <texture type="constant">
+                    <color name="color" value="0.8, 0.8, 0.8" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh061.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughplastic">
+                <float name="int_ior" value="1.5" />
+                <float name="ext_ior" value="1" />
+                <boolean name="nonlinear" value="true" />
+                <float name="alpha" value="0.2" />
+                <texture type="constant">
+                    <color name="color" value="0.8, 0.8, 0.8" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh047.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="1, 1, 1" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh062.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="1, 1, 1" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh064.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="1, 1, 1" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh014.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="1, 1, 1" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh013.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="1, 1, 1" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh034.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="1, 1, 1" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh021.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.1, 0.1, 0.1" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh012.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.578596, 0.578596, 0.578596" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh011.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.578596, 0.578596, 0.578596" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh053.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.578596, 0.578596, 0.578596" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh010.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.1, 0.1, 0.1" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh009.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.098504, 0.045968, 0.035887" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh017.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.160444, 0.0824142, 0.0199178" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh058.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="mask">
+            <texture type="bitmap">
+                <string name="filename" value="textures/leaf_mask.png" />
+                <string name="filter_type" value="bilinear" />
+            </texture>
+            <bsdf type="two_sided">
+                <bsdf type="diffuse">
+                    <texture type="bitmap">
+                        <string name="filename" value="textures/leaf.png" />
+                        <string name="filter_type" value="bilinear" />
+                    </texture>
+                </bsdf>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh008.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.160444, 0.0824142, 0.0199178" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh007.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="mask">
+            <texture type="bitmap">
+                <string name="filename" value="textures/leaf_mask.png" />
+                <string name="filter_type" value="bilinear" />
+            </texture>
+            <bsdf type="two_sided">
+                <bsdf type="diffuse">
+                    <texture type="bitmap">
+                        <string name="filename" value="textures/leaf.png" />
+                        <string name="filter_type" value="bilinear" />
+                    </texture>
+                </bsdf>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh023.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <boolean name="face_normals" value="true" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="bitmap">
+                    <string name="filename" value="textures/picture8.jpg" />
+                    <string name="filter_type" value="bilinear" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh006.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <boolean name="face_normals" value="true" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.578596, 0.578596, 0.578596" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh005.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <boolean name="face_normals" value="true" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.26, 0.25, 0.14" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh004.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <boolean name="face_normals" value="true" />
+        <bsdf type="two_sided">
+            <bsdf type="roughplastic">
+                <float name="int_ior" value="1.5" />
+                <float name="ext_ior" value="1" />
+                <boolean name="nonlinear" value="true" />
+                <float name="alpha" value="0.05" />
+                <texture type="bitmap">
+                    <string name="filename" value="textures/wood5.jpg" />
+                    <string name="filter_type" value="bilinear" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh003.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughplastic">
+                <float name="int_ior" value="1.5" />
+                <float name="ext_ior" value="1" />
+                <boolean name="nonlinear" value="true" />
+                <float name="alpha" value="0.05" />
+                <texture type="bitmap">
+                    <string name="filename" value="textures/wood5.jpg" />
+                    <string name="filter_type" value="bilinear" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh002.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0.634815 0 1 0 0 0 0 1 -0.151441 0 0 0 1" />
+        </transform>
+        <bsdf type="dielectric">
+            <float name="int_ior" value="1.5" />
+            <float name="ext_ior" value="1" />
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh001.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0.634815 0 1 0 0 0 0 1 -0.151441 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.456263, 0, 0" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh030.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0.634815 0 1 0 0 0 0 1 -0.195609 0 0 0 1" />
+        </transform>
+        <bsdf type="dielectric">
+            <float name="int_ior" value="1.5" />
+            <float name="ext_ior" value="1" />
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh044.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0.634815 0 1 0 0 0 0 1 -0.195609 0 0 0 1" />
+        </transform>
+        <bsdf type="dielectric">
+            <float name="int_ior" value="1.5" />
+            <float name="ext_ior" value="1" />
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh000.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0.634815 0 1 0 0 0 0 1 -0.195609 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughplastic">
+                <float name="int_ior" value="1.5" />
+                <float name="ext_ior" value="1" />
+                <boolean name="nonlinear" value="true" />
+                <float name="alpha" value="0.05" />
+                <texture type="bitmap">
+                    <string name="filename" value="textures/wood5.jpg" />
+                    <string name="filter_type" value="bilinear" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh037.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0.634815 0 1 0 0 0 0 1 -0.195609 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughplastic">
+                <float name="int_ior" value="1.5" />
+                <float name="ext_ior" value="1" />
+                <boolean name="nonlinear" value="true" />
+                <float name="alpha" value="0.05" />
+                <texture type="bitmap">
+                    <string name="filename" value="textures/wood5.jpg" />
+                    <string name="filter_type" value="bilinear" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh031.obj" />
+        <transform name="to_world">
+            <matrix value="1 0 0 0.634815 0 1 0 0 0 0 1 -0.195609 0 0 0 1" />
+        </transform>
+        <bsdf type="two_sided">
+            <bsdf type="roughplastic">
+                <float name="int_ior" value="1.5" />
+                <float name="ext_ior" value="1" />
+                <boolean name="nonlinear" value="true" />
+                <float name="alpha" value="0.05" />
+                <texture type="bitmap">
+                    <string name="filename" value="textures/wood5.jpg" />
+                    <string name="filter_type" value="bilinear" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <emitter type="envmap">
+        <transform name="to_world">
+            <matrix value="-4.37114e-008 0 1 0 0 1 0 0 -1 0 -4.37114e-008 0 0 0 0 1" />
+        </transform>
+        <texture type="bitmap">
+            <string name="filename" value="textures/Sky 19.exr" />
+        </texture>
+    </emitter>
+</scene>

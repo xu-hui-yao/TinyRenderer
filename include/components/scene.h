@@ -1,9 +1,11 @@
 #pragma once
 
 #include <components/accelerate.h>
+#include <components/denoiser.h>
 #include <components/integrator.h>
 #include <components/object.h>
 #include <components/sampler.h>
+#include <core/gpu_scene.h>
 
 M_NAMESPACE_BEGIN
 /**
@@ -23,6 +25,10 @@ public:
 
     [[nodiscard]] const std::vector<std::shared_ptr<Mesh>> &get_meshes() const { return m_meshes; }
 
+    // Resolve a TSurfaceIntersection::mesh_id (as produced by any Accel implementation)
+    // back to the owning Mesh. mesh_id must not be M_INVALID_INDEX.
+    [[nodiscard]] const std::shared_ptr<Mesh> &get_mesh(uint32_t mesh_id) const { return m_meshes[mesh_id]; }
+
     [[nodiscard]] const std::shared_ptr<Accel> &get_accel() const { return m_accel; }
 
     [[nodiscard]] const std::shared_ptr<Integrator> &get_integrator() const { return m_integrator; }
@@ -30,6 +36,22 @@ public:
     [[nodiscard]] const std::shared_ptr<Sampler> &get_sampler() const { return m_sampler; }
 
     [[nodiscard]] const std::shared_ptr<Emitter> &get_environment() const { return m_environment; }
+
+    /**
+     * \brief The configured single-frame denoiser, or null if the scene does
+     * not ask for denoising.
+     *
+     * Null is the default and means the render is written out exactly as the
+     * integrator produced it. When non-null, the render loop additionally
+     * accumulates the auxiliary feature/half buffers the denoiser needs (see
+     * ImageBlock's `with_aov` constructor flag), which costs a little memory
+     * and a little time - hence the strictly opt-in design.
+     */
+    [[nodiscard]] const std::shared_ptr<Denoiser> &get_denoiser() const { return m_denoiser; }
+
+    /// Install a denoiser programmatically, overriding whatever the XML set up
+    /// (used by the `--denoise=` command line flag).
+    void set_denoiser(const std::shared_ptr<Denoiser> &denoiser) { m_denoiser = denoiser; }
 
     void construct() override;
 
@@ -85,7 +107,7 @@ public:
     [[nodiscard]] std::pair<DirectionSample3f, Color3f> sample_emitter_direction(const SurfaceIntersection3f &its,
                                                                                  const Point2f &sample,
                                                                                  bool test_visibility,
-                                                                                 bool &active) const;
+                                                                                 bool active) const;
 
     /**
      * \brief Evaluate the PDF of direct illumination sampling
@@ -109,7 +131,7 @@ public:
      *    The solid angle density of the sample
      */
     [[nodiscard]] float pdf_emitter_direction(const Intersection3f &it, const DirectionSample3f &ds,
-                                              bool &active) const;
+                                              bool active) const;
 
     /**
      * \brief Sample one emitter in the scene and rescale the input sample
@@ -127,12 +149,27 @@ public:
      *    The index of the chosen emitter along with the sampling weight (equal
      *    to the inverse PDF), and the transformed random sample for reuse.
      */
-    std::tuple<uint32_t, float, float> sample_emitter(float sample, bool &active) const;
+    std::tuple<uint32_t, float, float> sample_emitter(float sample, bool active) const;
 
     /**
      * \brief Evaluate the discrete probability of the \ref sample_emitter() technique for the given emitter index.
      */
-    float pdf_emitter(uint32_t index, bool &active) const;
+    float pdf_emitter(uint32_t index, bool active) const;
+
+    /**
+     * \brief Build a flattened, GPU-uploadable snapshot of this scene (Stage 0
+     * of the CPU -> GPU port; see core/gpu_scene.h).
+     *
+     * This walks all meshes, concatenating their geometry into global vertex
+     * / index buffers, and recursively exports each referenced material,
+     * texture and light (area lights + the environment emitter, if any) via
+     * their to_gpu_*() methods, de-duplicating shared_ptr identity into flat
+     * indices along the way. This is a read-only, purely additive query: it
+     * does not affect the existing virtual-dispatch rendering path, which
+     * remains the ground-truth reference used to validate the eventual GPU
+     * renderer's output against.
+     */
+    [[nodiscard]] GPUScene build_gpu_scene() const;
 
 private:
     std::vector<std::shared_ptr<Mesh>> m_meshes;
@@ -142,6 +179,7 @@ private:
     std::shared_ptr<Integrator> m_integrator;
     std::shared_ptr<Sampler> m_sampler;
     std::shared_ptr<Emitter> m_environment;
+    std::shared_ptr<Denoiser> m_denoiser;
 
     uint32_t m_num_emitters;
     float m_emitter_pmf;

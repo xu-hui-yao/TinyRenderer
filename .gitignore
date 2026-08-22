@@ -1,6 +1,8 @@
 cmake-build-debug
 cmake-build-release
 build
+build_gpu
+build_debug
 assets/bidir/models
 assets/livingroom/models
 assets/livingroom/textures
@@ -11,6 +13,7 @@ assets/bathroom2/models
 assets/bathroom2/textures
 .idea
 readme.pdf
+.cache
 
 # macOS
 .DS_Store

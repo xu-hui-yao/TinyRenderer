@@ -55,7 +55,7 @@ public:
         auto [bs, value] = m_nested_bsdf->sample(perturbed_si, sample1, sample2, active);
         active &= (value != 0.0f).any();
         Vector3f perturbed_wo = perturbed_si.to_world(bs.wo);
-        active &= Frame3f::cos_theta(perturbed_wo, active) * Frame3f::cos_theta(bs.wo, active) > 0;
+        active &= Frame3f::cos_theta(perturbed_wo) * Frame3f::cos_theta(bs.wo) > 0;
         bs.wo = perturbed_wo;
 
         return { bs, active ? value : Color3f(0.0f) };
@@ -67,7 +67,7 @@ public:
         perturbed_si.wi                    = perturbed_si.to_local(si.wi);
         Vector3f perturbed_wo              = perturbed_si.to_local(wo);
 
-        active &= Frame3f::cos_theta(perturbed_wo, active) * Frame3f::cos_theta(wo, active) > 0;
+        active &= Frame3f::cos_theta(perturbed_wo) * Frame3f::cos_theta(wo) > 0;
 
         return active ? m_nested_bsdf->eval(perturbed_si, perturbed_wo, active) : Color3f(0.0f);
     }
@@ -78,9 +78,26 @@ public:
         perturbed_si.wi                    = perturbed_si.to_local(si.wi);
         Vector3f perturbed_wo              = perturbed_si.to_local(wo);
 
-        active &= Frame3f::cos_theta(perturbed_wo, active) * Frame3f::cos_theta(wo, active) > 0;
+        active &= Frame3f::cos_theta(perturbed_wo) * Frame3f::cos_theta(wo) > 0;
 
         return m_nested_bsdf->pdf(perturbed_si, perturbed_wo, active);
+    }
+
+    // Denoising feature only (see BSDF::albedo). A bump map only perturbs the
+    // shading frame, it does not tint the surface, so forward the nested
+    // BSDF's albedo as-is.
+    [[nodiscard]] Color3f albedo(const SurfaceIntersection3f &si, bool active) const override {
+        return m_nested_bsdf ? m_nested_bsdf->albedo(si, active) : Color3f(1.f);
+    }
+
+    [[nodiscard]] GPUMaterial to_gpu_material(GPUSceneBuilder &builder) const override {
+        GPUMaterial mat;
+        mat.type        = GPUMaterialType::BumpMap;
+        mat.flags       = static_cast<uint32_t>(m_flags);
+        mat.scale       = m_scale;
+        mat.tex_bump    = builder.add_texture(m_nested_texture);
+        mat.nested_bsdf = builder.add_material(m_nested_bsdf);
+        return mat;
     }
 
     [[nodiscard]] std::string to_string() const override {
@@ -98,7 +115,11 @@ public:
     [[nodiscard]] EClassType get_class_type() const override { return EBSDF; }
 
 private:
-    [[nodiscard]] Frame3f frame(const SurfaceIntersection3f &si, bool &active) const {
+    // `active` is taken by value: it only gates this computation and any
+    // degeneracy detected by norm()'s check_zero chain is local to it (the
+    // caller's own `active` is a by-value parameter as well, so nothing here
+    // can leak out and disable an unrelated part of the render loop).
+    [[nodiscard]] Frame3f frame(const SurfaceIntersection3f &si, bool active) const {
         // Evaluate texture gradient
         Vector2f grad_uv = m_nested_texture->eval_1_grad(si, active) * m_scale;
 

@@ -67,29 +67,34 @@ public:
     }
 
     /** \brief Assuming that the given direction is in the local coordinate
-     * system, return the cosine of the angle between the normal and v */
-    static Scalar cos_theta(const VectorType &v, bool &valid) { return v.z(); }
+     * system, return the cosine of the angle between the normal and v
+     *
+     * Note: this family of accessors (cos_theta / sin_theta / sin_theta2 /
+     * tan_theta / tan_theta2) is a pure projection of `v` and cannot fail, so
+     * they take no validity flag. Only the phi-related accessors below can
+     * divide by zero and therefore still report through `bool &valid`. */
+    static Scalar cos_theta(const VectorType &v) { return v.z(); }
 
-    static Scalar cos_theta(const NormalType &v, bool &valid) { return v.z(); }
+    static Scalar cos_theta(const NormalType &v) { return v.z(); }
 
     /** \brief Assuming that the given direction is in the local coordinate
      * system, return the sine of the angle between the normal and v */
-    static Scalar sin_theta(const VectorType &v, bool &valid) { return safe_sqrt(sin_theta2(v, valid)); }
+    static Scalar sin_theta(const VectorType &v) { return safe_sqrt(sin_theta2(v)); }
 
     /** \brief Assuming that the given direction is in the local coordinate
      * system, return the squared sine of the angle between the normal and v */
-    static Scalar sin_theta2(const VectorType &v, bool &valid) { return v.x() * v.x() + v.y() * v.y(); }
+    static Scalar sin_theta2(const VectorType &v) { return v.x() * v.x() + v.y() * v.y(); }
 
     /** \brief Assuming that the given direction is in the local coordinate
      * system, return the tangent of the angle between the normal and v */
-    static Scalar tan_theta(const VectorType &v, bool &valid) {
+    static Scalar tan_theta(const VectorType &v) {
         Scalar temp = static_cast<Scalar>(1) - v.z() * v.z();
         return safe_sqrt(temp) / v.z();
     }
 
     /** \brief Assuming that the given direction is in the local coordinate
      * system, return the tangent of the angle between the normal and v */
-    static Scalar tan_theta2(const VectorType &v, bool &valid) {
+    static Scalar tan_theta2(const VectorType &v) {
         Scalar temp = static_cast<Scalar>(1) - v.z() * v.z();
         return M_MAX(Scalar(0), temp) / (v.z() * v.z());
     }
@@ -97,7 +102,7 @@ public:
     /** \brief Assuming that the given direction is in the local coordinate
      * system, return the sine of the phi parameter in spherical coordinates */
     static Scalar sin_phi(const VectorType &v, bool &valid) {
-        Scalar sin_theta = TFrame::sin_theta(v, valid);
+        Scalar sin_theta = TFrame::sin_theta(v);
         check_zero(sin_theta, valid);
         return clamp(v.y() / sin_theta, static_cast<Scalar>(-1), static_cast<Scalar>(1));
     }
@@ -106,7 +111,7 @@ public:
      * system, return the cosine of the phi parameter in spherical coordinates
      */
     static Scalar cos_phi(const VectorType &v, bool &valid) {
-        Scalar sin_theta = TFrame::sin_theta(v, valid);
+        Scalar sin_theta = TFrame::sin_theta(v);
         check_zero(sin_theta, valid);
         return clamp(v.x() / sin_theta, static_cast<Scalar>(-1), static_cast<Scalar>(1));
     }
@@ -116,7 +121,7 @@ public:
      * coordinates */
     static Scalar sin_phi2(const VectorType &v, bool &valid) {
         auto norm_v        = v.norm(valid);
-        auto sin_theta_2_v = sin_theta2(norm_v, valid);
+        auto sin_theta_2_v = sin_theta2(norm_v);
         check_zero(sin_theta_2_v, valid);
         return clamp(norm_v.y() * norm_v.y() / sin_theta_2_v, static_cast<Scalar>(0), static_cast<Scalar>(1));
     }
@@ -126,7 +131,7 @@ public:
      * coordinates */
     static Scalar cos_phi2(const VectorType &v, bool &valid) {
         auto norm_v        = v.norm(valid);
-        auto sin_theta_2_v = sin_theta2(norm_v, valid);
+        auto sin_theta_2_v = sin_theta2(norm_v);
         check_zero(sin_theta_2_v, valid);
         return clamp(norm_v.x() * norm_v.x() / sin_theta_2_v, static_cast<Scalar>(0), static_cast<Scalar>(1));
     }
@@ -136,8 +141,7 @@ public:
      * Frame description)
      */
     static std::pair<Scalar, Scalar> sincos_phi(const VectorType &v) {
-        bool valid           = true;
-        Scalar sin_theta_2   = sin_theta2(v, valid);
+        Scalar sin_theta_2   = sin_theta2(v);
         Scalar inv_sin_theta = Scalar(1) / sqrt(sin_theta_2);
 
         VectorType2 result = VectorType2({ v.x(), v.y() }) * inv_sin_theta;

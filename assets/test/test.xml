@@ -5,7 +5,7 @@
 
     <accelerate type="bvh">
         <integer name="leaf_max" value="5"/>
-        <integer name="max_depth" value="10"/>
+        <integer name="max_depth" value="64"/>
     </accelerate>
 
     <integrator type="path">

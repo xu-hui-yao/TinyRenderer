@@ -4,11 +4,20 @@
 #include <core/intersection.h>
 
 M_NAMESPACE_BEGIN
+namespace {
+// Primitive reference using a plain mesh index instead of shared_ptr<Mesh> - no atomic
+// refcount on the hot path, and directly matches TSurfaceIntersection::mesh_id.
+struct OctPrimRef {
+    uint32_t mesh_id;
+    uint32_t tri_idx;
+};
+} // namespace
+
 class OctreeNode {
 public:
-    BoundingBox3f bbox;                                                 // The bounding box for the current node
-    std::vector<std::pair<std::shared_ptr<Mesh>, uint32_t>> primitives; // Meshes in the leaf node
-    std::shared_ptr<OctreeNode> children[8];                            // Children nodes (if any)
+    BoundingBox3f bbox;                       // The bounding box for the current node
+    std::vector<OctPrimRef> primitives;       // Triangle references in the leaf node
+    std::shared_ptr<OctreeNode> children[8];  // Children nodes (if any)
     bool is_leaf;
 
     explicit OctreeNode(const BoundingBox3f &bbox) : bbox(bbox), is_leaf(false) {
@@ -24,9 +33,14 @@ public:
         m_name                 = properties.get_string("name", "octree");
     }
 
+    // The index of `mesh` within `m_meshes` (assigned in add_mesh call order) doubles as
+    // TSurfaceIntersection::mesh_id and matches Scene::get_mesh()'s indexing, since
+    // Scene::construct() calls add_mesh() in the same order as its own m_meshes vector.
     void add_mesh(const std::shared_ptr<Mesh> &mesh) override {
+        uint32_t mesh_id = static_cast<uint32_t>(m_meshes.size());
+        m_meshes.push_back(mesh);
         for (uint32_t i = 0; i < mesh->get_triangle_count(); ++i) {
-            primitives.emplace_back(mesh, i);
+            primitives.push_back({ mesh_id, i });
             bounding_box.expand_by(mesh->get_bounding_box(i));
         }
     }
@@ -53,7 +67,10 @@ private:
     int max_depth;
     int max_triangles_per_leaf;
     std::shared_ptr<OctreeNode> root;
-    std::vector<std::pair<std::shared_ptr<Mesh>, uint32_t>> primitives;
+    std::vector<OctPrimRef> primitives;
+    std::vector<std::shared_ptr<Mesh>> m_meshes;
+
+    [[nodiscard]] const Mesh *mesh_at(uint32_t mesh_id) const { return m_meshes[mesh_id].get(); }
 
     // Helper function to recursively traverse the octree and build the string representation
     [[nodiscard]] static std::string node_to_string(const std::shared_ptr<OctreeNode> &node, int depth) {
@@ -85,16 +102,15 @@ private:
     }
 
     // Recursively builds the octree
-    std::shared_ptr<OctreeNode>
-    build_tree(const BoundingBox3f &bbox, const std::vector<std::pair<std::shared_ptr<Mesh>, uint32_t>> &primitive_list,
-               int depth) {
+    std::shared_ptr<OctreeNode> build_tree(const BoundingBox3f &bbox, const std::vector<OctPrimRef> &primitive_list,
+                                           int depth) const {
         if (primitive_list.size() <= max_triangles_per_leaf || depth > max_depth) {
             auto node        = std::make_shared<OctreeNode>(bbox);
             node->is_leaf    = true;
-            node->primitives = primitive_list; // Store meshes directly in the leaf node
+            node->primitives = primitive_list; // Store triangle refs directly in the leaf node
 
             for (const auto &prim : primitive_list) {
-                node->bbox.expand_by(prim.first->get_bounding_box(prim.second));
+                node->bbox.expand_by(mesh_at(prim.mesh_id)->get_bounding_box(prim.tri_idx));
             }
             return node;
         }
@@ -103,19 +119,16 @@ private:
 
         // Recursively build child nodes
         for (int i = 0; i < 8; ++i) {
-            std::vector<std::pair<std::shared_ptr<Mesh>, uint32_t>> child_primitive_list;
+            std::vector<OctPrimRef> child_primitive_list;
             auto child_bbox = get_child_bbox(bbox, i);
 
             // Use triangle's bounding box, not just a vertex check
-            for (auto &primitive : primitive_list) {
-                std::shared_ptr<Mesh> mesh = primitive.first;
-                uint32_t triangle_index    = primitive.second;
-
+            for (const auto &primitive : primitive_list) {
                 // Get the bounding box of the triangle
-                BoundingBox3f triangle_bbox = mesh->get_bounding_box(triangle_index);
+                BoundingBox3f triangle_bbox = mesh_at(primitive.mesh_id)->get_bounding_box(primitive.tri_idx);
                 // Check if the triangle's bounding box intersects the child node's bounding box
                 if (child_bbox.overlaps(triangle_bbox)) {
-                    child_primitive_list.emplace_back(mesh, triangle_index);
+                    child_primitive_list.push_back(primitive);
                 }
             }
 
@@ -147,25 +160,26 @@ private:
     }
 
     // Traverses the octree nodes to find the closest intersection with the ray
-    bool static ray_intersect_node(Ray3f &ray, SurfaceIntersection3f &its, bool shadow_ray,
-                                   const std::shared_ptr<OctreeNode> &node) {
+    bool ray_intersect_node(Ray3f &ray, SurfaceIntersection3f &its, bool shadow_ray,
+                            const std::shared_ptr<OctreeNode> &node) const {
         if (!node->bbox.ray_intersect(ray)) {
             return false; // No intersection with this node's bounding box
         }
 
         if (node->is_leaf) {
-            bool hit = false;
+            bool hit             = false;
+            uint32_t best_mesh_id = M_INVALID_INDEX;
 
             for (const auto &prim : node->primitives) {
                 float u, v, t;
-                if (prim.first->ray_intersect(prim.second, ray, u, v, t)) {
+                if (mesh_at(prim.mesh_id)->ray_intersect(prim.tri_idx, ray, u, v, t)) {
                     if (shadow_ray) {
                         return true; // Early exit for shadow ray
                     }
                     ray.max_t() = its.t = t; // Ensure it is the closet
                     its.uv              = Point2f(u, v);
-                    its.mesh            = prim.first;
-                    its.primitive_index = prim.second;
+                    best_mesh_id        = prim.mesh_id;
+                    its.primitive_index = prim.tri_idx;
                     its.wi              = -ray.d();
                     hit                 = true;
                 }
@@ -178,12 +192,13 @@ private:
                    The following computes a number of additional properties which
                    characterize the intersection (normals, texture coordinates, etc..)
                 */
+                its.mesh_id = best_mesh_id;
 
                 /* Find the barycentric coordinates */
                 Vector3f bary(1 - its.uv.x() - its.uv.y(), its.uv.x(), its.uv.y());
 
                 /* References to all relevant mesh buffers */
-                std::shared_ptr mesh(its.mesh);
+                const Mesh *mesh                 = mesh_at(best_mesh_id);
                 const std::vector<Point3f> &v    = mesh->get_vertex_positions();
                 const std::vector<Normal3f> &n   = mesh->get_vertex_normals();
                 const std::vector<Point2f> &uv   = mesh->get_vertex_tex_coords();
@@ -259,7 +274,7 @@ private:
         }
     }
 
-    bool static ray_test_node(const Ray3f &ray, const std::shared_ptr<OctreeNode> &node) {
+    bool ray_test_node(const Ray3f &ray, const std::shared_ptr<OctreeNode> &node) const {
         if (!node->bbox.ray_intersect(ray)) {
             return false;
         }
@@ -267,7 +282,7 @@ private:
         if (node->is_leaf) {
             for (const auto &prim : node->primitives) {
                 float u, v, t;
-                if (prim.first->ray_intersect(prim.second, ray, u, v, t)) {
+                if (mesh_at(prim.mesh_id)->ray_intersect(prim.tri_idx, ray, u, v, t)) {
                     return true;
                 }
             }

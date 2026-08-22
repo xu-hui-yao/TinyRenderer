@@ -57,7 +57,7 @@ public:
 
     [[nodiscard]] std::pair<BSDFSample3f, Color3f> sample(const SurfaceIntersection3f &si, float /* sample1 */,
                                                           const Point2f &sample2, bool active) const override {
-        float cos_theta_i = Frame3f::cos_theta(si.wi, active);
+        float cos_theta_i = Frame3f::cos_theta(si.wi);
         BSDFSample3f bs(Vector3f({0, 0, 0}));
         active &= cos_theta_i > 0.f;
 
@@ -77,7 +77,7 @@ public:
         bs.delta = false;
 
         // Ensure that this is a valid sample
-        active &= bs.pdf != 0.0f && Frame3f::cos_theta(bs.wo, active) > 0.f;
+        active &= bs.pdf != 0.0f && Frame3f::cos_theta(bs.wo) > 0.f;
 
         float weight = distribution.smith_g1(bs.wo, m);
 
@@ -99,7 +99,7 @@ public:
     }
 
     [[nodiscard]] Color3f eval(const SurfaceIntersection3f &si, const Vector3f &wo, bool active) const override {
-        float cos_theta_i = Frame3f::cos_theta(si.wi, active), cos_theta_o = Frame3f::cos_theta(wo, active);
+        float cos_theta_i = Frame3f::cos_theta(si.wi), cos_theta_o = Frame3f::cos_theta(wo);
 
         active &= cos_theta_i > 0.f && cos_theta_o > 0.f;
 
@@ -122,7 +122,7 @@ public:
         float g = distribution.g(si.wi, wo, h);
 
         // Evaluate the full microfacet model (except Fresnel)
-        float temp = d * g / (4.0f * Frame3f::cos_theta(si.wi, active));
+        float temp = d * g / (4.0f * Frame3f::cos_theta(si.wi));
 
         // Evaluate the Fresnel factor
         Color3f f({ fresnel_conductor(si.wi.dot(h), m_eta->eval(si, active)(0), m_k->eval(si, active)(0)),
@@ -139,7 +139,7 @@ public:
     }
 
     [[nodiscard]] float pdf(const SurfaceIntersection3f &si, const Vector3f &wo, bool active) const override {
-        float cos_theta_i = Frame3f::cos_theta(si.wi, active), cos_theta_o = Frame3f::cos_theta(wo, active);
+        float cos_theta_i = Frame3f::cos_theta(si.wi), cos_theta_o = Frame3f::cos_theta(wo);
 
         Normal3f m((wo + si.wi).norm(active));
 
@@ -160,6 +160,23 @@ public:
         float result = distribution.pdf(si.wi, m) / (4.0f * wo.dot(m));
 
         return active ? result : 0.0f;
+    }
+
+    // Denoising feature only (see BSDF::albedo). Same rationale as the smooth
+    // conductor: only the view-independent specular tint is usable here.
+    [[nodiscard]] Color3f albedo(const SurfaceIntersection3f &si, bool active) const override {
+        return m_specular_reflectance ? m_specular_reflectance->eval(si, active) : Color3f(1.f);
+    }
+
+    [[nodiscard]] GPUMaterial to_gpu_material(GPUSceneBuilder &builder) const override {
+        GPUMaterial mat;
+        mat.type                     = GPUMaterialType::RoughConductor;
+        mat.flags                    = static_cast<uint32_t>(m_flags);
+        mat.tex_eta                  = builder.add_texture(m_eta);
+        mat.tex_k                    = builder.add_texture(m_k);
+        mat.tex_alpha                = builder.add_texture(m_alpha);
+        mat.tex_specular_reflectance = builder.add_texture(m_specular_reflectance);
+        return mat;
     }
 
     // Return a human-readable summary

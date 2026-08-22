@@ -1,1 +1,1 @@
-target_sources(tiny-renderer PRIVATE block.cpp)
+target_sources(tiny-renderer PRIVATE block.cpp progress.cpp gbuffer.cpp)

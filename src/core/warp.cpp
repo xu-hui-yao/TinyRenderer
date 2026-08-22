@@ -94,8 +94,13 @@ float square_to_uniform_triangle_pdf(const Point2f &p) { return 2.0f; }
 Vector3f square_to_uniform_sphere(const Point2f &sample) {
     float z = 1.0f - 2.0f * sample.y();
     float r = safe_sqrt(1.0f - z * z);
-    float s = sin(2.0f * static_cast<float>(M_PI) * sample.x());
-    float c = cos(2.0f * static_cast<float>(M_PI) * sample.y());
+    // Both the sine and the cosine must be taken of the SAME angle
+    // (2*pi*sample.x); using sample.y for one of them yields a non-unit
+    // vector whose density is not the 1/(4*pi) claimed by
+    // square_to_uniform_sphere_pdf below.
+    float phi = 2.0f * static_cast<float>(M_PI) * sample.x();
+    float s   = sin(phi);
+    float c   = cos(phi);
     return Vector3f({ r * c, r * s, z });
 }
 

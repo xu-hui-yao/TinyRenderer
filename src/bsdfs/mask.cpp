@@ -76,6 +76,22 @@ public:
         return m_nested_bsdf->pdf(si, wo, active) * opacity;
     }
 
+    // Denoising feature only (see BSDF::albedo). The opacity mask modulates
+    // *whether* the nested BSDF is hit, not its color, so pass the nested
+    // albedo through unchanged.
+    [[nodiscard]] Color3f albedo(const SurfaceIntersection3f &si, bool active) const override {
+        return m_nested_bsdf ? m_nested_bsdf->albedo(si, active) : Color3f(1.f);
+    }
+
+    [[nodiscard]] GPUMaterial to_gpu_material(GPUSceneBuilder &builder) const override {
+        GPUMaterial mat;
+        mat.type        = GPUMaterialType::Mask;
+        mat.flags       = static_cast<uint32_t>(m_flags);
+        mat.tex_opacity = builder.add_texture(m_opacity);
+        mat.nested_bsdf = builder.add_material(m_nested_bsdf);
+        return mat;
+    }
+
     [[nodiscard]] std::string to_string() const override {
         return "Mask[\n"
                "  opacity=" +

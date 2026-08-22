@@ -102,8 +102,12 @@ public:
     VectorType wi;
     VectorType dp_du;
     VectorType dp_dv;
-    uint32_t primitive_index   = 0;
-    std::shared_ptr<Mesh> mesh = nullptr;
+    uint32_t primitive_index = 0;
+    // Index into Scene::get_mesh() identifying which mesh was hit, or M_INVALID_INDEX
+    // if the ray escaped into the environment. Using a plain integer instead of a
+    // shared_ptr<Mesh> avoids an atomic refcount operation on every hot-path copy
+    // (BVH leaf tests, path vertex history, etc.) and is directly GPU-uploadable.
+    uint32_t mesh_id = M_INVALID_INDEX;
 
     TSurfaceIntersection() : TIntersection<Scalar>() {}
 
@@ -140,8 +144,8 @@ public:
                "  primitive index = "
             << primitive_index
             << "\n"
-               "  mesh = "
-            << (mesh ? "exists" : "null")
+               "  mesh_id = "
+            << (mesh_id != M_INVALID_INDEX ? std::to_string(mesh_id) : std::string("invalid"))
             << "\n"
                "]\n";
         return oss.str();

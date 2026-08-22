@@ -5,8 +5,73 @@
 #include <core/intersection.h>
 #include <core/microfacet.h>
 #include <core/record.h>
+#include <map>
+#include <mutex>
+#include <tuple>
 
 M_NAMESPACE_BEGIN
+
+namespace {
+// The rough-transmittance/internal-reflectance tables precomputed in
+// RoughPlastic::construct() below are a pure function of (alpha, eta, res) -
+// they depend on neither the textures nor anything else per-instance. They
+// are also expensive: eval_reflectance() runs a res_quad^2 Gauss-Legendre
+// double integral (res_quad = 128 for the eta < 1 direction) at each of the
+// `res` tabulated angles, i.e. ~1e6 microfacet samples per material.
+//
+// Real scenes instantiate the same material parameters over and over (e.g.
+// assets/kitchen has 103 <bsdf type="roughplastic"> elements, 89 of which
+// share alpha=0.1 / int_ior=1.5), which previously meant recomputing a
+// bit-for-bit identical table 89 times and dominated scene load time. This
+// process-wide cache collapses that to one computation per distinct
+// parameter triple; results are unchanged.
+struct RoughPlasticLUT {
+    std::vector<float> external_transmittance;
+    float internal_reflectance;
+};
+
+const RoughPlasticLUT &get_rough_plastic_lut(float alpha, float eta, int res) {
+    static std::mutex mutex;
+    static std::map<std::tuple<float, float, int>, RoughPlasticLUT> cache;
+
+    std::lock_guard<std::mutex> lock(mutex);
+    auto key = std::make_tuple(alpha, eta, res);
+    auto it  = cache.find(key);
+    if (it != cache.end()) {
+        return it->second;
+    }
+
+    MicrofacetDistribution1f distribution(alpha);
+
+    // mu[i] is the cosine of the incident angle at tabulation point i; wi[i]
+    // the corresponding direction in the local shading frame.
+    std::vector<Vector3f> wi(res);
+    float step = 1.0f / static_cast<float>(res - 1);
+    for (int i = 0; i < res; ++i) {
+        float mu = M_MAX(1e-6f, static_cast<float>(i) * step); // Ensure no zero value for cosine
+        wi[i]    = Vector3f(std::sqrt(1.0f - mu * mu), 0.0f, mu);
+    }
+
+    RoughPlasticLUT lut;
+
+    // Transmittance through the rough interface, entering from outside.
+    lut.external_transmittance.resize(res);
+    for (int i = 0; i < res; ++i) {
+        lut.external_transmittance[i] = distribution.eval_transmittance(wi[i], eta);
+    }
+
+    // Cosine-weighted average reflectance seen from *inside* the coating,
+    // used to account for light bouncing between substrate and interface.
+    float internal = 0.0f;
+    for (int i = 0; i < res; ++i) {
+        internal += distribution.eval_reflectance(wi[i], 1.0f / eta) * wi[i].z();
+    }
+    lut.internal_reflectance = internal * 2.0f / static_cast<float>(res);
+
+    return cache.emplace(std::move(key), std::move(lut)).first->second;
+}
+} // namespace
+
 class RoughPlastic : public BSDF {
 public:
     explicit RoughPlastic(const PropertyList &properties)
@@ -40,34 +105,13 @@ public:
 
         m_specular_sampling_weight = s_mean / (d_mean + s_mean);
 
-        // Create a Microfacet distribution
-        MicrofacetDistribution1f distribution(m_alpha);
-
-        // Precompute rough reflectance (vectorized approach using std::vector)
-        std::vector<float> mu(m_rough_transmittance_res);
-        std::vector<float> zero(m_rough_transmittance_res, 0);
-        std::vector<Vector3f> wi(m_rough_transmittance_res);
-
-        // Initialize mu, representing cosine of the incident angle
-        float step = 1.0f / static_cast<float>(m_rough_transmittance_res - 1);
-        for (int i = 0; i < m_rough_transmittance_res; ++i) {
-            mu[i] = M_MAX(1e-6f, i * step); // Ensure no zero value for cosine
-            wi[i] = Vector3f(std::sqrt(1.0f - mu[i] * mu[i]), zero[i], mu[i]);
-        }
-
-        // Compute the external transmittance for each direction
-        m_external_transmittance.resize(m_rough_transmittance_res);
-        for (int i = 0; i < m_rough_transmittance_res; ++i) {
-            m_external_transmittance[i] = distribution.eval_transmittance(wi[i], m_eta);
-        }
-
-        // Compute internal reflectance
-        m_internal_reflectance = 0.0f;
-        for (int i = 0; i < m_rough_transmittance_res; ++i) {
-            m_internal_reflectance += distribution.eval_reflectance(wi[i], 1.0f / m_eta) * wi[i].z();
-        }
-
-        m_internal_reflectance = m_internal_reflectance * 2.0f / static_cast<float>(m_rough_transmittance_res);
+        // Fetch (computing it on first use) the shared rough-transmittance /
+        // internal-reflectance table for this material's parameters - see
+        // get_rough_plastic_lut() above for why this is cached rather than
+        // computed per instance.
+        const RoughPlasticLUT &lut = get_rough_plastic_lut(m_alpha, m_eta, m_rough_transmittance_res);
+        m_external_transmittance   = lut.external_transmittance;
+        m_internal_reflectance     = lut.internal_reflectance;
 
         m_flags =
             static_cast<BSDFFlags>(static_cast<uint32_t>(EGlossyReflection) | static_cast<uint32_t>(EDiffuseReflection));
@@ -95,7 +139,7 @@ public:
     [[nodiscard]] std::pair<BSDFSample3f, Color3f> sample(const SurfaceIntersection3f &si, float sample1,
                                                           const Point2f &sample2, bool active) const override {
         // Compute the cosine of the angle of incidence
-        float cos_theta_i = Frame3f::cos_theta(si.wi, active);
+        float cos_theta_i = Frame3f::cos_theta(si.wi);
         active &= cos_theta_i > 0.f;
 
         BSDFSample3f bs(Vector3f({0, 0, 0}));
@@ -146,7 +190,7 @@ public:
     }
 
     [[nodiscard]] Color3f eval(const SurfaceIntersection3f &si, const Vector3f &wo, bool active) const override {
-        float cos_theta_i = Frame3f::cos_theta(si.wi, active), cos_theta_o = Frame3f::cos_theta(wo, active);
+        float cos_theta_i = Frame3f::cos_theta(si.wi), cos_theta_o = Frame3f::cos_theta(wo);
 
         active &= cos_theta_i > 0.f && cos_theta_o > 0.f;
 
@@ -178,7 +222,7 @@ public:
     }
 
     [[nodiscard]] float pdf(const SurfaceIntersection3f &si, const Vector3f &wo, bool active) const override {
-        float cos_theta_i = Frame3f::cos_theta(si.wi, active), cos_theta_o = Frame3f::cos_theta(wo, active);
+        float cos_theta_i = Frame3f::cos_theta(si.wi), cos_theta_o = Frame3f::cos_theta(wo);
 
         active &= cos_theta_i > 0.f && cos_theta_o > 0.f;
 
@@ -202,6 +246,28 @@ public:
         result += prob_diffuse * square_to_cosine_hemisphere_pdf(wo);
 
         return result;
+    }
+
+    // Denoising feature only (see BSDF::albedo). Same rationale as the smooth
+    // plastic: the diffuse substrate is what carries the texture detail.
+    [[nodiscard]] Color3f albedo(const SurfaceIntersection3f &si, bool active) const override {
+        return m_diffuse_reflectance ? m_diffuse_reflectance->eval(si, active) : Color3f(1.f);
+    }
+
+    [[nodiscard]] GPUMaterial to_gpu_material(GPUSceneBuilder &builder) const override {
+        GPUMaterial mat;
+        mat.type                     = GPUMaterialType::RoughPlastic;
+        mat.flags                    = static_cast<uint32_t>(m_flags);
+        mat.eta                      = m_eta;
+        mat.inv_eta_2                = m_inv_eta_2;
+        mat.alpha                    = m_alpha;
+        mat.specular_sampling_weight = m_specular_sampling_weight;
+        mat.nonlinear                = m_nonlinear;
+        mat.internal_reflectance     = m_internal_reflectance;
+        mat.external_transmittance   = m_external_transmittance;
+        mat.tex_reflectance          = builder.add_texture(m_diffuse_reflectance);
+        mat.tex_specular_reflectance = builder.add_texture(m_specular_reflectance);
+        return mat;
     }
 
     [[nodiscard]] std::string to_string() const override {

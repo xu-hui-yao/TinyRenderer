@@ -58,7 +58,7 @@ public:
     [[nodiscard]] std::pair<BSDFSample3f, Color3f> sample(const SurfaceIntersection3f &si, float sample1,
                                                           const Point2f &sample2, bool active) const override {
         // Compute the cosine of the angle of incidence
-        float cos_theta_i = Frame3f::cos_theta(si.wi, active);
+        float cos_theta_i = Frame3f::cos_theta(si.wi);
         active &= cos_theta_i > 0.f;
 
         BSDFSample3f bs(Vector3f({ 0, 0, 0 }));
@@ -98,9 +98,17 @@ public:
 
         // Sample diffuse component
         if (sample_diffuse) {
+            // Unlike the specular lobe above, this one is smooth (non-Dirac): its
+            // density is well-defined w.r.t. solid angle and eval()/pdf() return
+            // non-zero values for it, so `delta` must be reset here. Otherwise
+            // Path::li skips the emitter pdf at the next vertex (its
+            // prev_bsdf_delta branch), giving the BSDF-sampling strategy a MIS
+            // weight of 1 on top of the emitter-sampling contribution already
+            // added at this vertex - the diffuse component would be double counted.
             bs.wo         = square_to_cosine_hemisphere(sample2); // Diffuse reflection
             bs.pdf        = prob_diffuse * square_to_cosine_hemisphere_pdf(bs.wo);
-            float f_o     = std::get<0>(fresnel(Frame3f::cos_theta(bs.wo, active), m_eta));
+            bs.delta      = false;
+            float f_o     = std::get<0>(fresnel(Frame3f::cos_theta(bs.wo), m_eta));
             Color3f value = m_diffuse_reflectance->eval(si, active);
             value /= Color3f(1.0f) - (m_nonlinear ? value * m_fdr_int : Color3f(m_fdr_int));
             value *= m_inv_eta_2 * (1.0f - f_i) * (1.0f - f_o) / prob_diffuse;
@@ -111,7 +119,7 @@ public:
     }
 
     [[nodiscard]] Color3f eval(const SurfaceIntersection3f &si, const Vector3f &wo, bool active) const override {
-        float cos_theta_i = Frame3f::cos_theta(si.wi, active), cos_theta_o = Frame3f::cos_theta(wo, active);
+        float cos_theta_i = Frame3f::cos_theta(si.wi), cos_theta_o = Frame3f::cos_theta(wo);
 
         active &= cos_theta_i > 0.f && cos_theta_o > 0.f;
 
@@ -131,7 +139,7 @@ public:
     }
 
     [[nodiscard]] float pdf(const SurfaceIntersection3f &si, const Vector3f &wo, bool active) const override {
-        float cos_theta_i = Frame3f::cos_theta(si.wi, active), cos_theta_o = Frame3f::cos_theta(wo, active);
+        float cos_theta_i = Frame3f::cos_theta(si.wi), cos_theta_o = Frame3f::cos_theta(wo);
 
         active &= cos_theta_i > 0.f && cos_theta_o > 0.f;
 
@@ -147,6 +155,28 @@ public:
         float pdf = square_to_cosine_hemisphere_pdf(wo) * prob_diffuse;
 
         return active ? pdf : 0.0f;
+    }
+
+    // Denoising feature only (see BSDF::albedo). The diffuse substrate carries
+    // all of this material's texture detail, so it is the right demodulation
+    // factor; the specular coating on top is view-dependent and left out.
+    [[nodiscard]] Color3f albedo(const SurfaceIntersection3f &si, bool active) const override {
+        return m_diffuse_reflectance ? m_diffuse_reflectance->eval(si, active) : Color3f(1.f);
+    }
+
+    [[nodiscard]] GPUMaterial to_gpu_material(GPUSceneBuilder &builder) const override {
+        GPUMaterial mat;
+        mat.type                        = GPUMaterialType::Plastic;
+        mat.flags                       = static_cast<uint32_t>(m_flags);
+        mat.eta                         = m_eta;
+        mat.inv_eta_2                   = m_inv_eta_2;
+        mat.specular_sampling_weight    = m_specular_sampling_weight;
+        mat.nonlinear                   = m_nonlinear;
+        mat.fdr_int                     = m_fdr_int;
+        mat.fdr_ext                     = m_fdr_ext;
+        mat.tex_reflectance             = builder.add_texture(m_diffuse_reflectance);
+        mat.tex_specular_reflectance    = builder.add_texture(m_specular_reflectance);
+        return mat;
     }
 
     [[nodiscard]] std::string to_string() const override {

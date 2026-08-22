@@ -1,6 +1,7 @@
 #pragma once
 
 #include <components/object.h>
+#include <render/aov.h>
 
 M_NAMESPACE_BEGIN
 /**
@@ -42,10 +43,44 @@ public:
                                      const Ray3f &ray, bool &valid) const = 0;
 
     /**
+     * \brief Sample the incident radiance along a ray AND report the auxiliary
+     * G-buffer features of the primary hit (see \ref AOVSample).
+     *
+     * This is what the denoising pipeline calls instead of \ref li(): the
+     * feature buffers it fills are noise-free surface attributes that a
+     * denoiser needs in order to tell "these two neighboring pixels look
+     * different because of noise" apart from "...because there is an actual
+     * edge here".
+     *
+     * The default implementation simply forwards to \ref li() and leaves
+     * `aov` at its neutral defaults (albedo 1, no geometric feature), so
+     * integrators that have no meaningful notion of a primary hit keep
+     * working unchanged - they just cannot benefit from feature-guided
+     * filtering, and the denoisers fall back to purely color-based weights.
+     *
+     * \param aov
+     *    Output parameter, populated with the primary hit's albedo / shading
+     *    normal / depth.
+     */
+    [[nodiscard]] virtual Color3f li_aov(const std::shared_ptr<Scene> &scene, const std::shared_ptr<Sampler> &sampler,
+                                         const Ray3f &ray, bool &valid, AOVSample &aov) const {
+        (void) aov;
+        return li(scene, sampler, ray, valid);
+    }
+
+    /**
      * \brief Return the type of object (i.e. Mesh/BSDF/etc.)
      * provided by this instance
      * */
     [[nodiscard]] EClassType get_class_type() const override { return EIntegrator; }
+
+    // Exposes the integrator's max_depth/rr_depth so the GPU port's host
+    // code (path_trace_main.cpp) can mirror the exact same values instead of
+    // hardcoding its own, for an apples-to-apples CPU/GPU comparison.
+    // Default implementation returns Path's own defaults (see path.cpp);
+    // integrators without a notion of depth may leave these unimplemented.
+    [[nodiscard]] virtual int get_max_depth() const { return 10; }
+    [[nodiscard]] virtual int get_rr_depth() const { return 5; }
 };
 
 M_NAMESPACE_END

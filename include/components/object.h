@@ -18,6 +18,7 @@ public:
         EReconstructionFilter,
         ETexture,
         EAccelerate,
+        EDenoiser,
         EClassTypeCount
     };
 
@@ -58,6 +59,8 @@ public:
                 return "texture";
             case EAccelerate:
                 return "accelerate";
+            case EDenoiser:
+                return "denoiser";
             default:
                 return "<unknown>";
         }

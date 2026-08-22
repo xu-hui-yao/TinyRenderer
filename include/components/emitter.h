@@ -2,6 +2,7 @@
 
 #include <components/object.h>
 #include <components/scene.h>
+#include <core/gpu_scene.h>
 
 M_NAMESPACE_BEGIN
 class Emitter : public Object {
@@ -27,7 +28,7 @@ public:
      * along with a spectral importance weight.
      */
     [[nodiscard]] virtual std::pair<DirectionSample3f, Color3f>
-    sample_direction(const Intersection3f &ref, const Point2f &sample, bool &active) = 0;
+    sample_direction(const Intersection3f &ref, const Point2f &sample, bool active) = 0;
 
     /**
      * \brief Evaluate the probability density of the \a direct sampling
@@ -38,7 +39,7 @@ public:
      * directional emitters/sensors).
      */
     [[nodiscard]] virtual float pdf_direction(const Intersection3f &ref, const DirectionSample3f &ds,
-                                              bool &active) const = 0;
+                                              bool active) const = 0;
 
     // =============================================================
     //! @{ \name Position sampling interface
@@ -52,7 +53,7 @@ public:
      * along with an importance weight.
      */
     [[nodiscard]] virtual std::pair<PositionSample3f, float> sample_position(const Point2f &sample,
-                                                                             bool &active) const = 0;
+                                                                             bool active) const = 0;
 
     /**
      * \brief Evaluate the probability density of the position sampling
@@ -61,7 +62,7 @@ public:
      * In simple cases, this will be the reciprocal of the endpoint's
      * surface area.
      */
-    [[nodiscard]] virtual float pdf_position(const PositionSample3f &ps, bool &active) const = 0;
+    [[nodiscard]] virtual float pdf_position(const PositionSample3f &ps, bool active) const = 0;
 
     // =============================================================
     //! @{ \name Other query functions
@@ -77,13 +78,20 @@ public:
      *
      * return The emitted radiance or importance
      */
-    [[nodiscard]] virtual Color3f eval(const SurfaceIntersection3f &si, bool &active) const = 0;
+    [[nodiscard]] virtual Color3f eval(const SurfaceIntersection3f &si, bool active) const = 0;
 
     [[nodiscard]] EClassType get_class_type() const override { return EEmitter; }
 
     [[nodiscard]] std::string to_string() const override;
 
     [[nodiscard]] virtual bool is_spatial_varying() const = 0;
+
+    // Export a flattened, GPU-uploadable description of this emitter (Stage
+    // 0 of the CPU -> GPU port). See core/gpu_scene.h for details. `mesh_id`
+    // is the index (into GPUScene::meshes) of the owning mesh, meaningful for
+    // Area lights; other emitter types may ignore it. This is purely
+    // additive: it does not affect sample_direction()/eval()/etc.
+    [[nodiscard]] virtual GPULight to_gpu_light(GPUSceneBuilder &builder, uint32_t mesh_id) const = 0;
 };
 
 M_NAMESPACE_END

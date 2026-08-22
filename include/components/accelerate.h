@@ -1,6 +1,7 @@
 #pragma once
 
 #include <components/mesh.h>
+#include <core/gpu_scene.h>
 
 M_NAMESPACE_BEGIN
 /**
@@ -62,6 +63,22 @@ public:
     [[nodiscard]] EClassType get_class_type() const override { return EAccelerate; }
 
     [[nodiscard]] std::string to_string() const override = 0;
+
+    /**
+     * \brief Export this acceleration structure's flat BVH (if it has one)
+     * for GPU traversal (Stage 1 of the CPU -> GPU port; see core/gpu_scene.h).
+     *
+     * `scene.meshes` must already be populated (mesh triangle ranges are
+     * needed to convert internal (mesh, local triangle) primitive
+     * references into global triangle ids indexing `scene.indices`).
+     * Appends to `scene.bvh_nodes` / `scene.bvh_primitives`.
+     *
+     * Returns \c false if this Accel implementation has no flat BVH to
+     * export (the default; overridden by BVHAccel). Other Accel types
+     * (NaiveAccel/KDTreeAccel/OctreeAccel) currently have no GPU-side
+     * traversal counterpart.
+     */
+    [[nodiscard]] virtual bool export_gpu_bvh(GPUScene &scene) const { return false; }
 
 protected:
     BoundingBox3f bounding_box;

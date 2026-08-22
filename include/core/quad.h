@@ -2,6 +2,8 @@
 
 #include <cmath>
 #include <core/common.h>
+#include <map>
+#include <mutex>
 #include <stdexcept>
 #include <utility>
 #include <vector>
@@ -61,8 +63,17 @@ template <typename Scalar> std::pair<Scalar, Scalar> legendre_pd(int l, Scalar x
  * \return
  *     A tuple (nodes, weights) storing the nodes and weights of the
  *     quadrature rule.
+ *
+ * \remark
+ *     This is the raw, uncached implementation. Prefer gauss_legendre()
+ *     below, which memoizes the result - the rule depends on nothing but
+ *     `n`, yet computing it costs a Newton solve (up to 20 iterations of an
+ *     O(n) Legendre recurrence) per node plus two heap allocations. Call
+ *     sites like TMicrofacetDistribution::eval_reflectance() ask for the
+ *     same handful of `n` values thousands of times per scene, so
+ *     recomputing it was pure waste.
  */
-template <typename Scalar> std::pair<std::vector<Scalar>, std::vector<Scalar>> gauss_legendre(int n) {
+template <typename Scalar> std::pair<std::vector<Scalar>, std::vector<Scalar>> gauss_legendre_compute(int n) {
     if (n < 1) {
         throw std::invalid_argument("gauss_legendre: n must be >= 1");
     }
@@ -112,6 +123,30 @@ template <typename Scalar> std::pair<std::vector<Scalar>, std::vector<Scalar>> g
     }
 
     return { nodes, weights };
+}
+
+/**
+ * \brief Memoized front end for gauss_legendre_compute().
+ *
+ * Returns a reference into a process-wide, mutex-guarded cache keyed by `n`,
+ * so a given rule is computed at most once per (Scalar, n) pair. A std::map
+ * is used deliberately: it is node-based, so previously handed-out
+ * references stay valid no matter how many further entries other threads
+ * insert afterwards.
+ *
+ * Bind the result with `const auto &[nodes, weights]` to avoid copying the
+ * two vectors out of the cache.
+ */
+template <typename Scalar> const std::pair<std::vector<Scalar>, std::vector<Scalar>> &gauss_legendre(int n) {
+    static std::mutex mutex;
+    static std::map<int, std::pair<std::vector<Scalar>, std::vector<Scalar>>> cache;
+
+    std::lock_guard<std::mutex> lock(mutex);
+    auto it = cache.find(n);
+    if (it == cache.end()) {
+        it = cache.emplace(n, gauss_legendre_compute<Scalar>(n)).first;
+    }
+    return it->second;
 }
 
 M_NAMESPACE_END

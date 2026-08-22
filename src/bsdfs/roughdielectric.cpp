@@ -55,7 +55,7 @@ public:
 
     [[nodiscard]] std::pair<BSDFSample3f, Color3f> sample(const SurfaceIntersection3f &si, float sample1,
                                                           const Point2f &sample2, bool active) const override {
-        float cos_theta_i = Frame3f::cos_theta(si.wi, active);
+        float cos_theta_i = Frame3f::cos_theta(si.wi);
         BSDFSample3f bs(Vector3f({ 0, 0, 0 }));
         active &= cos_theta_i != 0.f;
 
@@ -120,7 +120,7 @@ public:
     }
 
     [[nodiscard]] Color3f eval(const SurfaceIntersection3f &si, const Vector3f &wo, bool active) const override {
-        float cos_theta_i = Frame3f::cos_theta(si.wi, active), cos_theta_o = Frame3f::cos_theta(wo, active);
+        float cos_theta_i = Frame3f::cos_theta(si.wi), cos_theta_o = Frame3f::cos_theta(wo);
 
         active &= cos_theta_i != 0.0f;
 
@@ -134,7 +134,7 @@ public:
         Normal3f m = Normal3f(si.wi + wo * (reflect ? 1.0f : eta)).norm(active);
 
         // Ensure that the half-vector points into the same hemisphere as the macrosurface normal
-        m = mulsign(m, Frame3f::cos_theta(m, active));
+        m = mulsign(m, Frame3f::cos_theta(m));
 
         MicrofacetDistribution1f distribution(m_alpha->eval(si, active)(0));
 
@@ -179,7 +179,7 @@ public:
     }
 
     [[nodiscard]] float pdf(const SurfaceIntersection3f &si, const Vector3f &wo, bool active) const override {
-        float cos_theta_i = Frame3f::cos_theta(si.wi, active), cos_theta_o = Frame3f::cos_theta(wo, active);
+        float cos_theta_i = Frame3f::cos_theta(si.wi), cos_theta_o = Frame3f::cos_theta(wo);
 
         active &= cos_theta_i != 0.0f;
 
@@ -193,14 +193,14 @@ public:
         Normal3f m = Normal3f(si.wi + wo * (reflect ? 1.0f : eta)).norm(active);
 
         // Ensure that the half-vector points into the same hemisphere as the macrosurface normal
-        m = mulsign(m, Frame3f::cos_theta(m, active));
+        m = mulsign(m, Frame3f::cos_theta(m));
 
         /* Filter cases where the micro/macro-surface don't agree on the side.
            This logic is evaluated in smith_g1() called as part of the eval()
            and sample() methods and needs to be replicated in the probability
            density computation as well. */
         active &=
-            si.wi.dot(m) * Frame3f::cos_theta(si.wi, active) > 0.f && wo.dot(m) * Frame3f::cos_theta(wo, active) > 0.f;
+            si.wi.dot(m) * Frame3f::cos_theta(si.wi) > 0.f && wo.dot(m) * Frame3f::cos_theta(wo) > 0.f;
 
         // Jacobian of the half-direction mapping
         float temp    = si.wi.dot(m) + eta * wo.dot(m);
@@ -213,10 +213,10 @@ public:
         /* Trick by Walter et al.: slightly scale the roughness values to
            reduce importance sampling weights. Not needed for the
            Heitz and D'Eon sampling technique. */
-        sample_distribution.scale_alpha(1.2f - 0.2f * sqrt(abs(Frame3f::cos_theta(si.wi, active))));
+        sample_distribution.scale_alpha(1.2f - 0.2f * sqrt(abs(Frame3f::cos_theta(si.wi))));
 
         // Evaluate the microfacet model sampling density function
-        float prob = sample_distribution.pdf(mulsign(si.wi, Frame3f::cos_theta(si.wi, active)), m);
+        float prob = sample_distribution.pdf(mulsign(si.wi, Frame3f::cos_theta(si.wi)), m);
 
         if (has_transmission && has_reflection) {
             float f = std::get<0>(fresnel(si.wi.dot(m), m_eta));
@@ -226,6 +226,20 @@ public:
         return active ? prob * abs(dwh_dwo) : 0.0f;
     }
 
+    [[nodiscard]] GPUMaterial to_gpu_material(GPUSceneBuilder &builder) const override {
+        GPUMaterial mat;
+        mat.type                       = GPUMaterialType::RoughDielectric;
+        mat.flags                      = static_cast<uint32_t>(m_flags);
+        mat.eta                        = m_eta;
+        mat.inv_eta                    = m_inv_eta;
+        mat.has_reflection              = has_reflection;
+        mat.has_transmission            = has_transmission;
+        mat.tex_alpha                  = builder.add_texture(m_alpha);
+        mat.tex_specular_reflectance   = builder.add_texture(m_specular_reflectance);
+        mat.tex_specular_transmittance = builder.add_texture(m_specular_transmittance);
+        return mat;
+    }
+
     // Return a human-readable summary
     [[nodiscard]] std::string to_string() const override {
         return "RoughDielectric[\n"
@@ -233,10 +247,10 @@ public:
                indent(m_alpha->to_string(), 2) +
                "\n"
                "  specular_reflectance = " +
-               indent(m_specular_reflectance->to_string(), 2) +
+               (m_specular_reflectance ? indent(m_specular_reflectance->to_string(), 2) : "null") +
                "\n"
                "  specular_transmittance = " +
-               indent(m_specular_transmittance->to_string(), 2) +
+               (m_specular_transmittance ? indent(m_specular_transmittance->to_string(), 2) : "null") +
                "\n"
                "  eta = " +
                std::to_string(m_eta) +

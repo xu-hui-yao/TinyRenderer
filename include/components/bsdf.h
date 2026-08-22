@@ -1,6 +1,7 @@
 #pragma once
 
 #include <components/object.h>
+#include <core/gpu_scene.h>
 
 M_NAMESPACE_BEGIN
 
@@ -151,6 +152,32 @@ public:
      */
     [[nodiscard]] virtual float pdf(const SurfaceIntersection3f &si, const Vector3f &wo, bool active) const = 0;
 
+    /**
+     * \brief Return this BSDF's directional-average reflectance at \c si -
+     * i.e. its "base color" / texture value, independent of any particular
+     * incident or outgoing direction.
+     *
+     * This is NOT used by light transport at all. It exists purely as a
+     * denoising feature buffer (see \ref AOVSample::albedo): dividing the
+     * noisy radiance estimate by this value before filtering, and multiplying
+     * it back in afterwards ("demodulation"), lets the denoiser work on the
+     * smooth, low-frequency irradiance while leaving high-frequency texture
+     * detail completely untouched - instead of blurring the texture along with
+     * the noise.
+     *
+     * The default implementation returns 1, which turns demodulation into a
+     * no-op. That is the correct conservative fallback for any BSDF whose
+     * notion of reflectance is ill-defined (e.g. a smooth dielectric): the
+     * pixel is then simply filtered in radiance space, exactly as it would be
+     * without this mechanism. Overriding is therefore optional and purely an
+     * opportunity to improve denoising quality.
+     */
+    [[nodiscard]] virtual Color3f albedo(const SurfaceIntersection3f &si, bool active) const {
+        (void) si;
+        (void) active;
+        return Color3f(1.f);
+    }
+
     void add_child(const std::shared_ptr<Object> &child) override = 0;
 
     void construct() override = 0;
@@ -162,6 +189,12 @@ public:
     [[nodiscard]] BSDFFlags get_flag() const;
 
     [[nodiscard]] std::string to_string() const override = 0;
+
+    // Export a flattened, GPU-uploadable description of this material (Stage
+    // 0 of the CPU -> GPU port). See core/gpu_scene.h for details. This is
+    // purely additive: it does not affect sample()/eval()/pdf() or any other
+    // existing rendering behavior.
+    [[nodiscard]] virtual GPUMaterial to_gpu_material(GPUSceneBuilder &builder) const = 0;
 
 protected:
     BSDFFlags m_flags = EEmpty;

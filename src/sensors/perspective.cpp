@@ -88,6 +88,21 @@ public:
         return Color3f(1.0f);
     }
 
+    [[nodiscard]] GPUCamera to_gpu_camera() const override {
+        GPUCamera cam;
+        cam.width     = static_cast<uint32_t>(output_size.x());
+        cam.height    = static_cast<uint32_t>(output_size.y());
+        cam.near_clip = near_clip;
+        cam.far_clip  = far_clip;
+        for (int r = 0; r < 4; ++r) {
+            for (int c = 0; c < 4; ++c) {
+                cam.camera_to_world[r * 4 + c]  = camera_to_world.get_transform()(r, c);
+                cam.sample_to_camera[r * 4 + c] = sample_to_camera.get_transform()(r, c);
+            }
+        }
+        return cam;
+    }
+
     void add_child(const std::shared_ptr<Object> &child) override {
         switch (child->get_class_type()) {
             case EReconstructionFilter:

@@ -1,0 +1,86 @@
+<scene>
+    <sampler type="independent">
+        <integer name="sample_count" value="256"/>
+    </sampler>
+
+    <accelerate type="bvh">
+        <integer name="leaf_max" value="5"/>
+        <integer name="max_depth" value="64"/>
+    </accelerate>
+
+    <integrator type="path">
+        <integer name="max_depth" value="32"/>
+        <integer name="rr_depth" value="5"/>
+    </integrator>
+
+    <camera type="perspective">
+        <rfilter type="tent">
+            <float name="radius" value="0.5"/>
+        </rfilter>
+        <transform name="to_world">
+            <matrix value="-1 0 0 0 0 1 0 1 0 0 -1 6.8 0 0 0 1"/>
+        </transform>
+        <float name="fov" value="19.5"/>
+        <integer name="width" value="64"/>
+        <integer name="height" value="64"/>
+    </camera>
+
+    <!-- Diffuse floor/walls; NO ceiling - instead a "window" made of an
+         UNWRAPPED (no two_sided) roughdielectric rectangle, with the light
+         source placed BEHIND it (mirrors bathroom2's RoughGlass + outdoor
+         light configuration exactly). -->
+    <mesh type="rectangle">
+        <string name="name" value="floor"/>
+        <transform name="to_world">
+            <matrix value="-4.37114e-008 1 4.37114e-008 0 0 -8.74228e-008 2 0 1 4.37114e-008 1.91069e-015 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided"><bsdf type="diffuse"><texture type="constant"><color name="color" value="0.7,0.7,0.7"/></texture></bsdf></bsdf>
+    </mesh>
+    <mesh type="rectangle">
+        <boolean name="flip_normal" value="true"/>
+        <string name="name" value="back_wall"/>
+        <transform name="to_world">
+            <matrix value="1.91069e-015 1 1.31134e-007 0 1 3.82137e-015 -8.74228e-008 1 -4.37114e-008 1.31134e-007 -2 -1 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided"><bsdf type="diffuse"><texture type="constant"><color name="color" value="0.7,0.7,0.7"/></texture></bsdf></bsdf>
+    </mesh>
+    <mesh type="rectangle">
+        <boolean name="flip_normal" value="true"/>
+        <string name="name" value="right_wall"/>
+        <transform name="to_world">
+            <matrix value="4.37114e-008 -1.74846e-007 2 1 1 3.82137e-015 -8.74228e-008 1 3.82137e-015 1 2.18557e-007 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided"><bsdf type="diffuse"><texture type="constant"><color name="color" value="0.14,0.45,0.091"/></texture></bsdf></bsdf>
+    </mesh>
+    <mesh type="rectangle">
+        <boolean name="flip_normal" value="true"/>
+        <string name="name" value="left_wall"/>
+        <transform name="to_world">
+            <matrix value="-4.37114e-008 8.74228e-008 -2 -1 1 3.82137e-015 -8.74228e-008 1 0 -1 -4.37114e-008 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided"><bsdf type="diffuse"><texture type="constant"><color name="color" value="0.63,0.065,0.05"/></texture></bsdf></bsdf>
+    </mesh>
+
+    <!-- Ceiling = window: unwrapped roughdielectric, no two_sided -->
+    <mesh type="rectangle">
+        <string name="name" value="window"/>
+        <transform name="to_world">
+            <matrix value="-1 7.64274e-015 -1.74846e-007 0 8.74228e-008 8.74228e-008 -2 2 0 -1 -4.37114e-008 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="roughdielectric">
+            <texture type="constant"><color name="color" value="0.1, 0.1, 0.1"/></texture>
+            <float name="int_ior" value="1.5"/>
+            <float name="ext_ior" value="1"/>
+        </bsdf>
+    </mesh>
+
+    <!-- Light OUTSIDE, behind the window (matches bathroom2's y=21, z=-22 outdoor light) -->
+    <mesh type="rectangle">
+        <string name="name" value="sun"/>
+        <transform name="to_world">
+            <matrix value="2 0 0 0 0 2 0 4 0 0 2 0 0 0 0 1"/>
+        </transform>
+        <bsdf type="two_sided"><bsdf type="diffuse"><texture type="constant"><color name="color" value="0,0,0"/></texture></bsdf></bsdf>
+        <emitter type="area"><texture type="constant"><color name="color" value="8,7,6"/></texture></emitter>
+    </mesh>
+</scene>

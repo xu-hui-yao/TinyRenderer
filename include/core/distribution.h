@@ -1,6 +1,7 @@
 #pragma once
 
 #include <core/common.h>
+#include <cmath>
 #include <iterator>
 #include <numeric>
 #include <stdexcept>
@@ -63,6 +64,12 @@ public:
 
         // Binary search in the CDF to find the corresponding index
         auto it = std::lower_bound(m_cdf.begin(), m_cdf.end(), u);
+        // lower_bound returns end() when u exceeds the last CDF entry, which
+        // happens for u == 1 (and, through floating point rounding, for values
+        // just below it). Clamping to the last valid interval keeps every
+        // caller's subsequent m_pmf/m_cdf indexing in bounds.
+        if (it == m_cdf.end())
+            return static_cast<Index>(m_cdf.size()) - 1;
         return std::distance(m_cdf.begin(), it);
     }
 
@@ -74,9 +81,17 @@ public:
 
     // Sample the distribution and reuse the sample for further computations
     std::tuple<Index, Scalar> sample_reuse(Scalar u) const {
-        Index index       = sample(u);
-        Scalar pmf        = eval_pmf_normalized(index);
-        Scalar cdf        = eval_cdf_normalized(index - 1);
+        Index index = sample(u);
+        Scalar pmf  = eval_pmf_normalized(index);
+        // The CDF *below* the selected interval. For index == 0 there is no
+        // preceding entry and the correct lower bound is 0 - reading
+        // m_cdf[index - 1] there is an out-of-bounds access that returns
+        // whatever happens to precede the vector's heap allocation. Since that
+        // garbage value is then subtracted from `u` to rescale the sample, the
+        // reused variate came out arbitrary and, worse, DIFFERENT from run to
+        // run, making every render that samples an emitter's first triangle
+        // (Mesh::sample_position) irreproducible.
+        Scalar cdf        = index > 0 ? eval_cdf_normalized(index - 1) : static_cast<Scalar>(0);
         Scalar rescaled_u = (u - cdf) / pmf;
 
         return { index, rescaled_u };
@@ -278,46 +293,50 @@ public:
         m_levels.clear();
         m_levels.push_back(std::move(level0));
 
-        // --- Build coarser levels by 2×2 down sampling ---
-        {
-            int cur_w = m_levels[0].width;
-            int cur_h = m_levels[0].height;
+        // --- Build coarser levels by 2x2 down sampling ---
+        //
+        // Each level halves a dimension only while that dimension is still
+        // larger than 1, and the pyramid continues until BOTH dimensions
+        // reach 1. Stopping as soon as EITHER dimension bottoms out (as in
+        // `if (next_w <= 1 || next_h <= 1) break;`) leaves the coarsest level
+        // wider than the 2x2 block that sample() starts from, so the high
+        // bits of the wider axis are never decided - for a typical 2:1
+        // equirectangular envmap that means the entire right half of the
+        // image can never be sampled. Odd sizes are handled by treating the
+        // missing row/column as 0 (bounds-checked below) instead of reading
+        // past the end of the previous level.
+        while (m_levels.back().width > 1 || m_levels.back().height > 1) {
+            const level_data &prev = m_levels.back();
 
-            // Continue until both dimensions are <= 1 or so
-            while (cur_w > 1 || cur_h > 1) {
-                if ((cur_w & 1) != 0)
-                    cur_w += 1;
-                if ((cur_h & 1) != 0)
-                    cur_h += 1;
-                int next_w = cur_w >> 1;
-                int next_h = cur_h >> 1;
+            int step_x = prev.width > 1 ? 2 : 1;
+            int step_y = prev.height > 1 ? 2 : 1;
+            int next_w = prev.width > 1 ? (prev.width + 1) / 2 : 1;
+            int next_h = prev.height > 1 ? (prev.height + 1) / 2 : 1;
 
-                if (next_w <= 1 || next_h <= 1)
-                    break;
+            level_data coarse;
+            coarse.width  = next_w;
+            coarse.height = next_h;
+            coarse.data.resize(static_cast<size_t>(next_w) * next_h, Scalar(0));
 
-                level_data coarse;
-                coarse.width  = next_w;
-                coarse.height = next_h;
-                coarse.data.resize(next_w * next_h, Scalar(0));
-
-                const level_data &prev = m_levels.back();
-
-                for (int y = 0; y < next_h; ++y) {
-                    for (int x = 0; x < next_w; ++x) {
-                        int x0                      = x * 2;
-                        int y0                      = y * 2;
-                        Scalar v00                  = prev.data[y0 * prev.width + x0];
-                        Scalar v10                  = prev.data[y0 * prev.width + (x0 + 1)];
-                        Scalar v01                  = prev.data[(y0 + 1) * prev.width + x0];
-                        Scalar v11                  = prev.data[(y0 + 1) * prev.width + (x0 + 1)];
-                        coarse.data[y * next_w + x] = v00 + v10 + v01 + v11;
+            for (int y = 0; y < next_h; ++y) {
+                for (int x = 0; x < next_w; ++x) {
+                    Scalar sum = Scalar(0);
+                    for (int dy = 0; dy < step_y; ++dy) {
+                        int sy = y * step_y + dy;
+                        if (sy >= prev.height)
+                            continue;
+                        for (int dx = 0; dx < step_x; ++dx) {
+                            int sx = x * step_x + dx;
+                            if (sx >= prev.width)
+                                continue;
+                            sum += prev.data[static_cast<size_t>(sy) * prev.width + sx];
+                        }
                     }
+                    coarse.data[static_cast<size_t>(y) * next_w + x] = sum;
                 }
-
-                m_levels.push_back(std::move(coarse));
-                cur_w = next_w;
-                cur_h = next_h;
             }
+
+            m_levels.push_back(std::move(coarse));
         }
     }
 
@@ -326,19 +345,33 @@ public:
         float px = clamp(pos.x(), 0.f, 1.f);
         float py = clamp(pos.y(), 0.f, 1.f);
 
-        // 2. Convert pos to patch coordinates
-        px *= m_size_x - 1;
-        py *= m_size_y - 1;
+        // 2. Convert pos to patch coordinates.
+        //
+        // sample() maps a chosen cell (ox, oy) plus an in-cell offset s to
+        // (ox + s) / size, i.e. cell `i` covers [i/size, (i+1)/size) and its
+        // CENTER sits at (i + 0.5)/size. The inverse mapping used here must
+        // match that convention (`pos * size - 0.5`), otherwise eval()/pdf()
+        // describe a density on a grid that is both scaled (size-1 vs size)
+        // and shifted by half a cell relative to the one sample() actually
+        // draws from - making pdf() inconsistent with sample() and biasing
+        // every estimator built on the pair.
+        px = px * static_cast<float>(m_size_x) - 0.5f;
+        py = py * static_cast<float>(m_size_y) - 0.5f;
 
-        // 3. Identify the integer patch indices (offset_x, offset_y)
-        int ix = static_cast<int>(px);
-        int iy = static_cast<int>(py);
+        // 3. Identify the integer patch indices (offset_x, offset_y).
+        // std::floor (not a cast) is required: px/py can now be slightly
+        // negative (down to -0.5) near the low edge, and a cast truncates
+        // toward zero rather than down.
+        int ix = static_cast<int>(std::floor(px));
+        int iy = static_cast<int>(std::floor(py));
         ix     = clamp(ix, 0, static_cast<int>(m_size_x) - 2);
         iy     = clamp(iy, 0, static_cast<int>(m_size_y) - 2);
 
-        // 4. Fractional part within this patch
-        float frac_x = px - static_cast<float>(ix);
-        float frac_y = py - static_cast<float>(iy);
+        // 4. Fractional part within this patch, clamped so the edge cells
+        // (where the sample point lies outside the outermost cell centers)
+        // extrapolate to a constant rather than past the corner values.
+        float frac_x = clamp(px - static_cast<float>(ix), 0.f, 1.f);
+        float frac_y = clamp(py - static_cast<float>(iy), 0.f, 1.f);
 
         // 5. Retrieve the four corners in level 0
         size_t idx = static_cast<size_t>(iy) * m_size_x + static_cast<size_t>(ix);
@@ -356,111 +389,107 @@ public:
         return static_cast<Scalar>(v);
     }
 
-    // Return the normalized PDF at (x, y)
-    Scalar pdf(const Point2f &p) const { return eval(p) * m_normalization; }
+    /**
+     * \brief Probability DENSITY at a continuous position in [0,1]^2.
+     *
+     * `m_normalization` (1 / sum of all cells) only turns eval()'s
+     * un-normalized cell value into a discrete PMF - i.e. something that sums
+     * to 1 over the m_size_x * m_size_y cells. sample() however returns a
+     * CONTINUOUS point in [0,1]^2, so the matching quantity is a density with
+     * respect to that unit-square measure: each cell covers an area of
+     * 1/(m_size_x * m_size_y), so the density is the PMF divided by that
+     * area. Without this factor the returned "pdf" is too small by exactly
+     * the number of cells, which silently scales every importance-sampled
+     * estimator that divides by it (e.g. EnvironmentMap::sample_direction's
+     * radiance/pdf weight) by that same factor.
+     */
+    Scalar pdf(const Point2f &p) const {
+        auto cell_count = static_cast<Scalar>(m_size_x * m_size_y);
+        return eval(p) * m_normalization * cell_count;
+    }
 
     /**
      * \brief Hierarchical sample in [0, 1]^2
      *
-     * 1. Start from the coarsest level.
-     * 2. Each level is conceptually divided into 2×2 sub-blocks.
-     * 3. Decide if the random sample is in the top vs bottom row, and left vs right column,
-     *    then descend to the next level, shifting offset bits accordingly.
-     * 4. Finally, at level 0, we perform a final 2×2 check to get exact sub-pixel coordinates.
+     * Descends the mip pyramid from the coarsest level (a single cell) down
+     * to level 0. At each step the current cell is refined into the (up to)
+     * 2x2 block of finer cells that composed it, and the sample chooses one
+     * of them proportionally to their sums - first a row, then a column
+     * within that row. A dimension that is not actually subdivided between
+     * two levels (which happens for non-square inputs, where the shorter
+     * axis reaches 1 first) is simply not refined in that step.
      *
-     * It returns a 2D point in [0,1]^2 and the PDF at the corresponding discrete cell.
+     * Returns a continuous point in [0,1]^2 together with pdf() at that
+     * point, so callers can form a consistent radiance/pdf estimator.
      */
     std::pair<Point2f, Scalar> sample(const Point2f &sample_xy) const {
         float sx = clamp(sample_xy.x(), static_cast<float>(M_EPSILON), 1.f - static_cast<float>(M_EPSILON));
         float sy = clamp(sample_xy.y(), static_cast<float>(M_EPSILON), 1.f - static_cast<float>(M_EPSILON));
 
-        // offset_x_ / offset_y_ keep track of the discrete patch as we descend
+        // Cell index within the level currently being considered. The
+        // coarsest level is 1x1, so we start at its only cell.
         int offset_x_ = 0, offset_y_ = 0;
 
-        // Traverse from coarse to just above the finest level
-        auto level_count = static_cast<int>(m_levels.size());
-        for (int l = level_count - 1; l > 0; --l) {
-            const level_data &lev_coarse = m_levels[l];
+        for (int l = static_cast<int>(m_levels.size()) - 2; l >= 0; --l) {
+            const level_data &fine   = m_levels[l];
+            const level_data &coarse = m_levels[l + 1];
 
-            // Shift offset (equivalent to offset_x_ <<= 1, offset_y_ <<= 1)
-            offset_x_ <<= 1;
-            offset_y_ <<= 1;
+            // Whether this step actually subdivides each axis (see the
+            // pyramid construction in initialize()).
+            bool split_x = fine.width > coarse.width;
+            bool split_y = fine.height > coarse.height;
 
-            // Fetch 2×2 block corner values at the coarse level
-            int base_idx = index_2x2(lev_coarse, offset_x_, offset_y_);
-            auto v00     = static_cast<float>(lev_coarse.data[base_idx]);
-            auto v10     = static_cast<float>(lev_coarse.data[base_idx + 1]);
-            auto v01     = static_cast<float>(lev_coarse.data[base_idx + lev_coarse.width]);
-            auto v11     = static_cast<float>(lev_coarse.data[base_idx + lev_coarse.width + 1]);
+            int x0 = split_x ? offset_x_ * 2 : offset_x_;
+            int y0 = split_y ? offset_y_ * 2 : offset_y_;
 
-            float r0      = v00 + v10; // top row sum
-            float r1      = v01 + v11; // bottom row sum
-            float row_sum = r0 + r1;
+            // Values of the (up to) 2x2 finer cells this coarse cell splits
+            // into; out-of-range neighbours (odd dimensions) count as 0.
+            auto at = [&fine](int x, int y) -> float {
+                if (x < 0 || y < 0 || x >= fine.width || y >= fine.height)
+                    return 0.0f;
+                return static_cast<float>(fine.data[static_cast<size_t>(y) * fine.width + x]);
+            };
+            float v00 = at(x0, y0);
+            float v10 = split_x ? at(x0 + 1, y0) : 0.0f;
+            float v01 = split_y ? at(x0, y0 + 1) : 0.0f;
+            float v11 = (split_x && split_y) ? at(x0 + 1, y0 + 1) : 0.0f;
 
-            // Decide top vs bottom
-            float scaled_y = sy * row_sum;
-            bool in_bottom = scaled_y > r0;
-            if (in_bottom) {
-                sy = (scaled_y - r0) / M_MAX(r1, static_cast<float>(M_EPSILON));
-                offset_y_ += 1;
-            } else {
-                sy = scaled_y / M_MAX(r0, static_cast<float>(M_EPSILON));
+            offset_x_ = x0;
+            offset_y_ = y0;
+
+            // Pick the row (top vs bottom), if this step splits y.
+            float r0 = v00 + v10; // top row
+            float r1 = v01 + v11; // bottom row
+            bool in_bottom = false;
+            if (split_y) {
+                float row_sum  = r0 + r1;
+                float scaled_y = sy * row_sum;
+                in_bottom      = scaled_y > r0;
+                if (in_bottom) {
+                    sy = (scaled_y - r0) / M_MAX(r1, static_cast<float>(M_EPSILON));
+                    offset_y_ += 1;
+                } else {
+                    sy = scaled_y / M_MAX(r0, static_cast<float>(M_EPSILON));
+                }
             }
 
-            // Decide left vs right
-            float c0                = in_bottom ? v01 : v00;
-            float c1                = in_bottom ? v11 : v10;
-            float row_sum_given_col = c0 + c1;
-
-            float scaled_x = sx * row_sum_given_col;
-            if (scaled_x > c0) {
-                sx = (scaled_x - c0) / M_MAX(c1, static_cast<float>(M_EPSILON));
-                offset_x_ += 1;
-            } else {
-                sx = scaled_x / M_MAX(c0, static_cast<float>(M_EPSILON));
-            }
-        }
-
-        // Final step at level 0
-        {
-            const level_data &lev0 = m_levels[0];
-            offset_x_ <<= 1;
-            offset_y_ <<= 1;
-
-            int base_idx = index_2x2(lev0, offset_x_, offset_y_);
-            auto v00     = static_cast<float>(lev0.data[base_idx]);
-            auto v10     = static_cast<float>(lev0.data[base_idx + 1]);
-            auto v01     = static_cast<float>(lev0.data[base_idx + lev0.width]);
-            auto v11     = static_cast<float>(lev0.data[base_idx + lev0.width + 1]);
-
-            float r0      = v00 + v10;
-            float r1      = v01 + v11;
-            float row_sum = r0 + r1;
-
-            float scaled_y = sy * row_sum;
-            bool in_bottom = (scaled_y > r0);
-            if (in_bottom) {
-                sy = (scaled_y - r0) / M_MAX(r1, static_cast<float>(M_EPSILON));
-                offset_y_ += 1;
-            } else {
-                sy = scaled_y / M_MAX(r0, static_cast<float>(M_EPSILON));
-            }
-
-            float c0                = in_bottom ? v01 : v00;
-            float c1                = in_bottom ? v11 : v10;
-            float row_sum_given_col = c0 + c1;
-
-            float scaled_x = sx * row_sum_given_col;
-            if (scaled_x > c0) {
-                sx = (scaled_x - c0) / M_MAX(c1, static_cast<float>(M_EPSILON));
-                offset_x_ += 1;
-            } else {
-                sx = scaled_x / M_MAX(c0, static_cast<float>(M_EPSILON));
+            // Pick the column (left vs right) within the chosen row.
+            if (split_x) {
+                float c0       = in_bottom ? v01 : v00;
+                float c1       = in_bottom ? v11 : v10;
+                float col_sum  = c0 + c1;
+                float scaled_x = sx * col_sum;
+                if (scaled_x > c0) {
+                    sx = (scaled_x - c0) / M_MAX(c1, static_cast<float>(M_EPSILON));
+                    offset_x_ += 1;
+                } else {
+                    sx = scaled_x / M_MAX(c0, static_cast<float>(M_EPSILON));
+                }
             }
         }
 
-        // Convert to continuous [0,1]^2
-        // This mapping is analogous to square_to_bilinear.
+        // Convert the chosen level-0 cell + in-cell position to [0,1]^2.
+        // Must stay in sync with eval()'s inverse mapping.
         float final_x = (static_cast<float>(offset_x_) + sx) / static_cast<float>(m_size_x);
         float final_y = (static_cast<float>(offset_y_) + sy) / static_cast<float>(m_size_y);
         Point2f continuous_coords(final_x, final_y);
@@ -481,6 +510,12 @@ public:
     [[nodiscard]] int get_rows() const { return static_cast<int>(m_size_y); }
     [[nodiscard]] int get_cols() const { return static_cast<int>(m_size_x); }
 
+    // Row-major, un-normalized level-0 (full resolution) PMF grid. Exposed
+    // read-only for the GPU flattening export layer (see core/gpu_scene.h);
+    // building an equivalent GPU-side sampling structure (e.g. an alias
+    // table) from this data is left to that later stage.
+    [[nodiscard]] const std::vector<Scalar> &level0_data() const { return m_levels[0].data; }
+
 private:
     // Internal structure for each mip level
     struct level_data {
@@ -488,21 +523,6 @@ private:
         int height = 0;
         std::vector<Scalar> data;
     };
-
-    /**
-     * \brief Returns the 1D index of the top-left pixel in a 2×2 block
-     * for the given offset (offset_x, offset_y).
-     *
-     * Originally, there's a specialized bitwise layout that packs 2×2 blocks
-     * contiguously. Here we keep row-major ordering and simply clamp to avoid
-     * out-of-bounds for x+1, y+1. This yields equivalent results with a less
-     * complex indexing function.
-     */
-    static int index_2x2(const level_data &lev, int ox, int oy) {
-        int block_x = (ox & ~1), block_y = (oy & ~1);
-        int offset_in_block = (ox & 1) + ((oy & 1) << 1);
-        return block_y * lev.width + block_x + offset_in_block;
-    }
 
     size_t m_size_x = 0;
     size_t m_size_y = 0;

@@ -2,6 +2,7 @@
 
 #include <components/object.h>
 #include <components/rfilter.h>
+#include <core/gpu_scene.h>
 
 M_NAMESPACE_BEGIN
 /**
@@ -59,6 +60,12 @@ public:
 
     /// Return a human-readable summary of this instance
     [[nodiscard]] std::string to_string() const override;
+
+    // Export a flattened, GPU-uploadable description of this camera's ray
+    // generation parameters (Stage 1 of the CPU -> GPU port; see
+    // core/gpu_scene.h). This is purely additive: it does not affect
+    // sample_ray() or any other existing rendering behavior.
+    [[nodiscard]] virtual GPUCamera to_gpu_camera() const = 0;
 
 protected:
     Vector2i output_size;

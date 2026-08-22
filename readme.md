@@ -151,7 +151,7 @@ Multiple Importance Sampling (MIS) combines multiple sampling methods, sampling 
 $$
 \begin{align}
 & \sum_{i=1}^m\frac{1}{n_i}\sum_{j=1}^{n_i}w_i(x_{i,j})\frac{f(x_{i,j})}{p_i(x_{i,j})}\\
-& \text{where }w_i(x_{i,j})=\frac{(n_ip_i(x_{i,j}))^\beta}{\sum_j^m (n_ip_i(x_{i,j}))^\beta}
+& \text{where }w_i(x_{i,j})=\frac{(n_ip_i(x_{i,j}))^\beta}{\sum_{k=1}^m (n_kp_k(x_{i,j}))^\beta}
 \end{align}
 $$
 Thus, for the integral $\displaystyle{\int f_r(p,\omega_i,\omega_o)L_e(p',\omega_i)|\cos\theta_i|\mathrm{d}\omega_i}$, it can be sampled with probability $p$ using BSDF and with probability $1-p$ using light source sampling, greatly alleviating this issue. Multiple Importance Sampling can be expressed as:
@@ -164,10 +164,11 @@ $$
 & \hat{L_{s2}}(p,\omega_o)=\hat{E}(p,\omega_o)+\hat{S}(p,\omega_o)\text{ otherwise}
 \end{array}
 \right.\\
-& \hat{E}(p,\omega_o)=\frac{\hat{E_I}(p,\omega_o)}{p_I(I)}\text{ for } I\in\{1, 2\} \text{ sampled by pdf } p_I\\
+& \hat{E}(p,\omega_o)=w_1\,\hat{E_1}(p,\omega_o)+w_2\,\hat{E_2}(p,\omega_o)\\
+& w_1=\frac{p_{emitter}^2(\omega_i)}{p_{emitter}^2(\omega_i)+p_{bsdf}^2(\omega_i)},\quad w_2=\frac{p_{bsdf}^2(\omega_i)}{p_{emitter}^2(\omega_i)+p_{bsdf}^2(\omega_i)}\\
 & \hat{E_1}(p,\omega_o)=\frac{f_r(p,\omega_i,\omega_o)L_e(p',\omega_i)|\cos\theta_i|}{p_{emitter}(\omega_i)}\\
 & \hat{E_2}(p,\omega_o)=\frac{f_r(p,\omega_i,\omega_o)L_e(p',\omega_i)|\cos\theta_i|}{p_{bsdf}(\omega_i)}\\
-& \hat{S}(p,\omega_o)=\hat{E_2}(p,\omega_o)=\frac{f_r(p,\omega_i,\omega_o)L_o(p'',\omega_i)|\cos\theta_i|}{p_{bsdf}(\omega_i)}\\
+& \hat{S}(p,\omega_o)=\frac{f_r(p,\omega_i,\omega_o)L_o(p'',\omega_i)|\cos\theta_i|}{p_{bsdf}(\omega_i)}\\
 \end{align}
 $$
 

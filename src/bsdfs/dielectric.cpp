@@ -46,7 +46,7 @@ public:
 
     [[nodiscard]] std::pair<BSDFSample3f, Color3f> sample(const SurfaceIntersection3f &si, float sample1,
                                                           const Point2f &sample2, bool active) const override {
-        float cos_theta_i = Frame3f::cos_theta(si.wi, active);
+        float cos_theta_i = Frame3f::cos_theta(si.wi);
 
         auto [r_i, cos_theta_t, eta_it, eta_ti] = fresnel(cos_theta_i, m_eta);
         float t_i                               = 1.0f - r_i;
@@ -96,6 +96,18 @@ public:
 
     [[nodiscard]] float pdf(const SurfaceIntersection3f &si, const Vector3f &wo, bool active) const override {
         return 0.0f;
+    }
+
+    [[nodiscard]] GPUMaterial to_gpu_material(GPUSceneBuilder &builder) const override {
+        GPUMaterial mat;
+        mat.type                       = GPUMaterialType::Dielectric;
+        mat.flags                      = static_cast<uint32_t>(m_flags);
+        mat.eta                        = m_eta;
+        mat.has_reflection              = has_reflection;
+        mat.has_transmission            = has_transmission;
+        mat.tex_specular_reflectance   = builder.add_texture(m_specular_reflectance);
+        mat.tex_specular_transmittance = builder.add_texture(m_specular_transmittance);
+        return mat;
     }
 
     // Return a human-readable summary

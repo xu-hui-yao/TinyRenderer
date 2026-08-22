@@ -4,14 +4,23 @@
 #include <core/intersection.h>
 
 M_NAMESPACE_BEGIN
+namespace {
+// Primitive reference using a plain mesh index instead of shared_ptr<Mesh> - no atomic
+// refcount on the hot path, and directly matches TSurfaceIntersection::mesh_id.
+struct KDPrimRef {
+    uint32_t mesh_id;
+    uint32_t tri_idx;
+};
+} // namespace
+
 class KDTreeNode {
 public:
-    BoundingBox3f bbox;                                                 // Bounding box for the node
-    std::vector<std::pair<std::shared_ptr<Mesh>, uint32_t>> primitives; // Primitives in leaf nodes
-    std::shared_ptr<KDTreeNode> left, right;                            // Children nodes
-    bool is_leaf;                                                       // Indicates if the node is a leaf
-    int split_axis;                                                     // Splitting axis (0=x, 1=y, 2=z)
-    float split_position;                                               // Splitting position
+    BoundingBox3f bbox;                    // Bounding box for the node
+    std::vector<KDPrimRef> primitives;     // Primitives in leaf nodes
+    std::shared_ptr<KDTreeNode> left, right; // Children nodes
+    bool is_leaf;                          // Indicates if the node is a leaf
+    int split_axis;                        // Splitting axis (0=x, 1=y, 2=z)
+    float split_position;                  // Splitting position
 
     explicit KDTreeNode(const BoundingBox3f &bbox)
         : bbox(bbox), left(nullptr), right(nullptr), is_leaf(false), split_axis(-1), split_position(0.0f) {}
@@ -25,9 +34,14 @@ public:
         m_name                  = properties.get_string("name", "kdtree");
     }
 
+    // The index of `mesh` within `m_meshes` (assigned in add_mesh call order) doubles as
+    // TSurfaceIntersection::mesh_id and matches Scene::get_mesh()'s indexing, since
+    // Scene::construct() calls add_mesh() in the same order as its own m_meshes vector.
     void add_mesh(const std::shared_ptr<Mesh> &mesh) override {
+        uint32_t mesh_id = static_cast<uint32_t>(m_meshes.size());
+        m_meshes.push_back(mesh);
         for (uint32_t i = 0; i < mesh->get_triangle_count(); ++i) {
-            primitives.emplace_back(mesh, i);
+            primitives.push_back({ mesh_id, i });
             bounding_box.expand_by(mesh->get_bounding_box(i));
         }
     }
@@ -55,33 +69,35 @@ private:
     int max_primitives_per_leaf;
     std::shared_ptr<KDTreeNode> root;
     BoundingBox3f bounding_box;
-    std::vector<std::pair<std::shared_ptr<Mesh>, uint32_t>> primitives;
+    std::vector<KDPrimRef> primitives;
+    std::vector<std::shared_ptr<Mesh>> m_meshes;
+
+    [[nodiscard]] const Mesh *mesh_at(uint32_t mesh_id) const { return m_meshes[mesh_id].get(); }
 
     // Recursive KD-Tree construction
-    std::shared_ptr<KDTreeNode> build_tree(const std::vector<std::pair<std::shared_ptr<Mesh>, uint32_t>> &primitives,
-                                           const BoundingBox3f &bbox, int depth) {
-        if (primitives.size() <= max_primitives_per_leaf || depth >= max_depth) {
+    std::shared_ptr<KDTreeNode> build_tree(const std::vector<KDPrimRef> &prims, const BoundingBox3f &bbox,
+                                           int depth) const {
+        if (prims.size() <= max_primitives_per_leaf || depth >= max_depth) {
             auto node        = std::make_shared<KDTreeNode>(bbox);
             node->is_leaf    = true;
-            node->primitives = primitives;
+            node->primitives = prims;
             return node;
         }
 
         int axis             = bbox.get_major_axis();
         float split_position = bbox.get_center()(axis);
 
-        auto left_primitives  = std::vector<std::pair<std::shared_ptr<Mesh>, uint32_t>>();
-        auto right_primitives = std::vector<std::pair<std::shared_ptr<Mesh>, uint32_t>>();
+        std::vector<KDPrimRef> left_prims, right_prims;
 
-        for (const auto &prim : primitives) {
-            const auto &tri_bbox = prim.first->get_bounding_box(prim.second);
+        for (const auto &prim : prims) {
+            const auto &tri_bbox = mesh_at(prim.mesh_id)->get_bounding_box(prim.tri_idx);
             if (tri_bbox.get_max()(axis) <= split_position) {
-                left_primitives.push_back(prim);
+                left_prims.push_back(prim);
             } else if (tri_bbox.get_min()(axis) >= split_position) {
-                right_primitives.push_back(prim);
+                right_prims.push_back(prim);
             } else {
-                left_primitives.push_back(prim);
-                right_primitives.push_back(prim);
+                left_prims.push_back(prim);
+                right_prims.push_back(prim);
             }
         }
 
@@ -89,41 +105,42 @@ private:
         node->split_axis     = axis;
         node->split_position = split_position;
 
-        if (!left_primitives.empty()) {
+        if (!left_prims.empty()) {
             BoundingBox3f left_bbox   = bbox;
             left_bbox.get_max()(axis) = split_position;
-            node->left                = build_tree(left_primitives, left_bbox, depth + 1);
+            node->left                = build_tree(left_prims, left_bbox, depth + 1);
         }
 
-        if (!right_primitives.empty()) {
+        if (!right_prims.empty()) {
             BoundingBox3f right_bbox   = bbox;
             right_bbox.get_min()(axis) = split_position;
-            node->right                = build_tree(right_primitives, right_bbox, depth + 1);
+            node->right                = build_tree(right_prims, right_bbox, depth + 1);
         }
 
         return node;
     }
 
     // Ray intersection with KD-Tree nodes
-    bool static ray_intersect_node(Ray3f &ray, SurfaceIntersection3f &its, bool shadow_ray,
-                                   const std::shared_ptr<KDTreeNode> &node) {
+    bool ray_intersect_node(Ray3f &ray, SurfaceIntersection3f &its, bool shadow_ray,
+                            const std::shared_ptr<KDTreeNode> &node) const {
         if (!node->bbox.ray_intersect(ray)) {
             return false;
         }
 
         if (node->is_leaf) {
-            bool hit = false;
+            bool hit             = false;
+            uint32_t best_mesh_id = M_INVALID_INDEX;
 
             for (const auto &prim : node->primitives) {
                 float u, v, t;
-                if (prim.first->ray_intersect(prim.second, ray, u, v, t)) {
+                if (mesh_at(prim.mesh_id)->ray_intersect(prim.tri_idx, ray, u, v, t)) {
                     if (shadow_ray) {
                         return true; // Early exit for shadow ray
                     }
                     ray.max_t() = its.t = t;
                     its.uv              = Point2f(u, v);
-                    its.mesh            = prim.first;
-                    its.primitive_index = prim.second;
+                    best_mesh_id        = prim.mesh_id;
+                    its.primitive_index = prim.tri_idx;
                     its.wi              = -ray.d();
                     hit                 = true;
                 }
@@ -136,12 +153,13 @@ private:
                    The following computes a number of additional properties which
                    characterize the intersection (normals, texture coordinates, etc..)
                 */
+                its.mesh_id = best_mesh_id;
 
                 /* Find the barycentric coordinates */
                 Vector3f bary(1 - its.uv.x() - its.uv.y(), its.uv.x(), its.uv.y());
 
                 /* References to all relevant mesh buffers */
-                std::shared_ptr mesh(its.mesh);
+                const Mesh *mesh                 = mesh_at(best_mesh_id);
                 const std::vector<Point3f> &v    = mesh->get_vertex_positions();
                 const std::vector<Normal3f> &n   = mesh->get_vertex_normals();
                 const std::vector<Point2f> &uv   = mesh->get_vertex_tex_coords();
@@ -217,7 +235,7 @@ private:
         }
     }
 
-    bool static ray_test_node(const Ray3f &ray, const std::shared_ptr<KDTreeNode> &node) {
+    bool ray_test_node(const Ray3f &ray, const std::shared_ptr<KDTreeNode> &node) const {
         if (!node->bbox.ray_intersect(ray)) {
             return false;
         }
@@ -225,7 +243,7 @@ private:
         if (node->is_leaf) {
             for (const auto &prim : node->primitives) {
                 float u, v, t;
-                if (prim.first->ray_intersect(prim.second, ray, u, v, t)) {
+                if (mesh_at(prim.mesh_id)->ray_intersect(prim.tri_idx, ray, u, v, t)) {
                     return true;
                 }
             }

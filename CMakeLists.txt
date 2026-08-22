@@ -44,3 +44,57 @@ target_compile_definitions(tiny-renderer PRIVATE
 #if(OpenMP_CXX_FOUND)
 #    target_link_libraries(tiny-renderer PRIVATE OpenMP::OpenMP_CXX)
 #endif()
+
+# ----------------------------------------------------------------------------
+# GPU backend (Stage 1 of the CPU -> GPU path tracer port).
+#
+# Uses Vulkan compute (portable to Windows/Linux/macOS; on macOS this runs
+# through MoltenVK, which does not implement hardware ray tracing extensions,
+# so BVH traversal is done in-shader rather than via VK_KHR_ray_query). Shaders
+# are written in Slang and cross-compiled to SPIR-V, so the same shader source
+# can later be retargeted to other backends (e.g. native Metal) without a
+# host-side rewrite. See include/gpu/vk_context.h for the rationale.
+#
+# This is opt-in (M_ENABLE_GPU). It builds a handful of standalone debug/
+# comparison executables (gpu-smoketest, gpu-raytrace-debug, gpu-path-trace,
+# gpu-wavefront, atomic-test - see src/gpu/CMakeLists.txt), AND a
+# `gpu-renderer-lib` static library that is linked directly into the main
+# `tiny-renderer` executable below, powering its `--gpu[=megakernel|wavefront]`
+# CLI flag (see src/main/main.cpp and include/gpu/gpu_renderer.h).
+# ----------------------------------------------------------------------------
+option(M_ENABLE_GPU "Build the experimental Vulkan GPU backend" ON)
+if (M_ENABLE_GPU)
+    add_subdirectory(src/gpu)
+
+    # Link the GPU backend library (see src/gpu/CMakeLists.txt's
+    # gpu-renderer-lib target) directly into the main tiny-renderer
+    # executable, enabling its --gpu[=megakernel|wavefront] CLI flag
+    # (see src/main/main.cpp). gpu-renderer-lib PUBLIC-propagates the
+    # M_ENABLE_GPU_BACKEND compile definition and its include directories,
+    # so no further target_compile_definitions/target_include_directories
+    # call is needed here.
+    target_link_libraries(tiny-renderer PRIVATE gpu-renderer-lib)
+endif ()
+
+# ----------------------------------------------------------------------------
+# Optional live preview window (GLFW + Dear ImGui) powering --progress's
+# on-screen display (see include/render/progress.h and src/main/main.cpp).
+# Purely a display convenience, completely decoupled from both the CPU and
+# GPU (headless Vulkan) render paths: if this is OFF, or glfw3/OpenGL are
+# unavailable on the build machine, --progress still works and simply falls
+# back to console-only progress reporting.
+# ----------------------------------------------------------------------------
+option(M_ENABLE_PREVIEW_GUI "Build the ImGui live preview window used by --progress" ON)
+if (M_ENABLE_PREVIEW_GUI)
+    find_package(glfw3 QUIET)
+    find_package(OpenGL QUIET)
+    if (glfw3_FOUND AND OpenGL_FOUND)
+        add_subdirectory(src/gui)
+        target_link_libraries(tiny-renderer PRIVATE preview-gui-lib)
+    else ()
+        message(STATUS "M_ENABLE_PREVIEW_GUI is ON but glfw3/OpenGL were not found - "
+                       "building without the live preview window (--progress will still "
+                       "print console progress).")
+    endif ()
+endif ()
+

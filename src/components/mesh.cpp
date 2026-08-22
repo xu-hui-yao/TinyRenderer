@@ -170,7 +170,7 @@ std::string Mesh::to_string() const {
            std::string("\n") + std::string("]");
 }
 
-PositionSample3f Mesh::sample_position(const Point2f &sample_, bool &active) const {
+PositionSample3f Mesh::sample_position(const Point2f &sample_, bool active) const {
     int face_idx;
     Point2f sample = sample_;
 
@@ -215,9 +215,9 @@ PositionSample3f Mesh::sample_position(const Point2f &sample_, bool &active) con
     return ps;
 }
 
-float Mesh::pdf_position(const PositionSample3f &ps, bool &active) const { return m_area_pmf->normalization(); }
+float Mesh::pdf_position(const PositionSample3f &ps, bool active) const { return m_area_pmf->normalization(); }
 
-DirectionSample3f Mesh::sample_direction(const Intersection3f &it, const Point2f &sample, bool &active) const {
+DirectionSample3f Mesh::sample_direction(const Intersection3f &it, const Point2f &sample, bool active) const {
     DirectionSample3f ds(sample_position(sample, active));
     ds.d = ds.p - it.p;
 
@@ -231,7 +231,7 @@ DirectionSample3f Mesh::sample_direction(const Intersection3f &it, const Point2f
     return ds;
 }
 
-float Mesh::pdf_direction(const Intersection3f &it, const DirectionSample3f &ds, bool &active) const {
+float Mesh::pdf_direction(const Intersection3f &it, const DirectionSample3f &ds, bool active) const {
     float pdf = pdf_position(ds, active);
     float dp  = abs(ds.d.dot(ds.n));
 

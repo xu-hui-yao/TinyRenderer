@@ -294,6 +294,59 @@ public:
         return result;
     }
 
+    // Inverse of to_srgb(): decodes an sRGB-encoded value (e.g. straight from
+    // an 8-bit PNG/JPEG, normalized to [0,1]) into linear light. This is the
+    // sRGB EOTF (electro-optical transfer function), the exact mathematical
+    // inverse of to_srgb()'s OETF above. Used when loading LDR texture files
+    // that were authored/exported in sRGB (the vast majority of PNG/JPG
+    // texture assets - anything NOT already linear like .exr/.hdr, and NOT a
+    // "raw" data map like a roughness/alpha/normal texture, which must be
+    // left undecoded - see Bitmap's `raw` property).
+    TRGBSpectrum<Scalar, 3> from_srgb() const {
+        TRGBSpectrum<Scalar, 3> result;
+
+        if constexpr (Dimension == 3) {
+            for (int i = 0; i < 3; ++i) {
+                Scalar value = m_data[i];
+                if (value <= 0.04045) {
+                    result(i) = value / static_cast<Scalar>(12.92);
+                } else {
+                    result(i) = pow((value + static_cast<Scalar>(0.055)) / static_cast<Scalar>(1.055),
+                                    static_cast<Scalar>(2.4));
+                }
+            }
+        } else {
+            printf("error, unimplemented yet.");
+        }
+
+        return result;
+    }
+
+    // ACES-approximated filmic tonemap (Krzysztof Narkowicz's fit to the
+    // ACES RRT+ODT curve). Unlike to_srgb() (which is just the sRGB transfer
+    // function - a pure re-encoding with no compression), this actually
+    // compresses highlights with a smooth shoulder instead of hard-clamping
+    // at 1.0, so it is meant to be applied to HDR linear radiance BEFORE the
+    // sRGB encoding step, as an alternative final step to plain clamping.
+    // Operates on (and returns) LINEAR values; the result must still be
+    // passed through to_srgb() before writing to an 8-bit image format.
+    TRGBSpectrum<Scalar, 3> aces_filmic() const {
+        static_assert(Dimension == 3, "aces_filmic");
+        TRGBSpectrum<Scalar, 3> result;
+        constexpr Scalar a = static_cast<Scalar>(2.51);
+        constexpr Scalar b = static_cast<Scalar>(0.03);
+        constexpr Scalar c = static_cast<Scalar>(2.43);
+        constexpr Scalar d = static_cast<Scalar>(0.59);
+        constexpr Scalar e = static_cast<Scalar>(0.14);
+        for (int i = 0; i < 3; ++i) {
+            Scalar x  = m_data[i] < Scalar(0) ? Scalar(0) : m_data[i];
+            Scalar num = x * (a * x + b);
+            Scalar den = x * (c * x + d) + e;
+            result(i) = den > Scalar(0) ? num / den : Scalar(0);
+        }
+        return result;
+    }
+
     Scalar luminance() const {
         static_assert(Dimension == 3, "luminance");
         return m_data[0] * Scalar(0.212671) + m_data[1] * Scalar(0.715160) + m_data[2] * Scalar(0.072169);

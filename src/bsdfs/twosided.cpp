@@ -58,7 +58,7 @@ public:
         BSDFSample3f bs;
         Color3f value(0);
 
-        if (Frame3f::cos_theta(si.wi, active) > 0.f) {
+        if (Frame3f::cos_theta(si.wi) > 0.f) {
             // Front side
             if (m_front_bsdf) {
                 std::tie(bs, value) = m_front_bsdf->sample(si, sample1, sample2, active);
@@ -78,7 +78,7 @@ public:
     }
 
     [[nodiscard]] Color3f eval(const SurfaceIntersection3f &si, const Vector3f &wo, bool active) const override {
-        if (Frame3f::cos_theta(si.wi, active) > 0.f) {
+        if (Frame3f::cos_theta(si.wi) > 0.f) {
             // Front side
             return m_front_bsdf ? m_front_bsdf->eval(si, wo, active) : Color3f(0);
         } else {
@@ -94,7 +94,7 @@ public:
     }
 
     [[nodiscard]] float pdf(const SurfaceIntersection3f &si, const Vector3f &wo, bool active) const override {
-        if (Frame3f::cos_theta(si.wi, active) > 0.f) {
+        if (Frame3f::cos_theta(si.wi) > 0.f) {
             // Front side
             return m_front_bsdf ? m_front_bsdf->pdf(si, wo, active) : 0.f;
         } else {
@@ -107,6 +107,26 @@ public:
 
             return m_back_bsdf ? m_back_bsdf->pdf(flipped_si, flipped_wo, active) : 0.f;
         }
+    }
+
+    // Denoising feature only (see BSDF::albedo). Forwards to whichever side is
+    // actually facing the viewer, mirroring eval()/pdf() above.
+    [[nodiscard]] Color3f albedo(const SurfaceIntersection3f &si, bool active) const override {
+        if (Frame3f::cos_theta(si.wi) > 0.f)
+            return m_front_bsdf ? m_front_bsdf->albedo(si, active) : Color3f(1.f);
+
+        SurfaceIntersection3f flipped_si = si;
+        flipped_si.wi.z() *= -1.f;
+        return m_back_bsdf ? m_back_bsdf->albedo(flipped_si, active) : Color3f(1.f);
+    }
+
+    [[nodiscard]] GPUMaterial to_gpu_material(GPUSceneBuilder &builder) const override {
+        GPUMaterial mat;
+        mat.type       = GPUMaterialType::TwoSided;
+        mat.flags      = static_cast<uint32_t>(m_flags);
+        mat.front_bsdf = builder.add_material(m_front_bsdf);
+        mat.back_bsdf  = builder.add_material(m_back_bsdf);
+        return mat;
     }
 
     [[nodiscard]] std::string to_string() const override {

@@ -22,6 +22,13 @@ M_NAMESPACE_BEGIN
 Bitmap::Bitmap(const PropertyList &properties) : Texture(true) {
     filesystem::path filename = get_file_resolver()->resolve(filesystem::path(properties.get_string("filename")));
 
+    // See include/components/bitmap.h's m_raw doc comment: this project's
+    // XML scenes/assets already store LDR bitmap textures as linear data
+    // (not sRGB-encoded), so default to true (skip the sRGB->linear decode
+    // below). Set <boolean name="raw" value="false"/> to opt back into the
+    // sRGB decode for a texture that IS actually sRGB-encoded.
+    m_raw = properties.get_boolean("raw", true);
+
     std::string ext = filename.extension();
     std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 
@@ -51,7 +58,11 @@ void Bitmap::construct() {
     if (m_data == nullptr) {
         throw std::runtime_error("Bitmap data is not loaded.");
     }
-    if (m_data->get_channels() != 1 && m_data->get_channels() != 3) {
+    // eval()/eval_1() below now handle any channel count (>= 3 channels take
+    // the RGB path, ignoring any extra ones such as an alpha channel; <= 2
+    // take the single-channel path) so this only needs to reject the
+    // genuinely empty case.
+    if (m_data->get_channels() < 1) {
         throw std::runtime_error("Bitmap data does not support channels: " + std::to_string(m_data->get_channels()));
     }
 }
@@ -137,7 +148,7 @@ void Bitmap::save_exr(const std::string &filename) const {
     free(header.requested_pixel_types);
 }
 
-void Bitmap::save_png(const std::string &filename) const {
+void Bitmap::save_png(const std::string &filename, ToneMapMode tonemap) const {
     int width  = m_data->get_cols();
     int height = m_data->get_rows();
 
@@ -146,9 +157,12 @@ void Bitmap::save_png(const std::string &filename) const {
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
             Color3f color;
-            color(0)  = m_data->operator()(y, x, 0);
-            color(1)  = m_data->operator()(y, x, 1);
-            color(2)  = m_data->operator()(y, x, 2);
+            color(0) = m_data->operator()(y, x, 0);
+            color(1) = m_data->operator()(y, x, 1);
+            color(2) = m_data->operator()(y, x, 2);
+            if (tonemap == ToneMapMode::ACES) {
+                color = color.aces_filmic();
+            }
             auto srgb = color.to_srgb();
             for (int c = 0; c < 3; ++c) {
                 // Convert to 8-bit by clamping to 0-255 range
@@ -171,6 +185,22 @@ void Bitmap::load_exr(const std::string &filename) {
     EXRHeader exr_header;
     const char *err = nullptr;
     InitEXRHeader(&exr_header);
+
+    // exr_version must be populated via ParseEXRVersionFromFile before being
+    // passed to ParseEXRHeaderFromFile: the header parser reads
+    // exr_version->multipart / non_image to decide whether the "name" /
+    // "type" attributes are required. Leaving exr_version uninitialized
+    // means those flags are garbage stack bytes, which can spuriously
+    // evaluate to true and make header parsing fail with
+    // "\"name\" attribute not found in the header." / "\"type\" attribute
+    // not found in the header." even for a perfectly valid single-part EXR.
+    if (ParseEXRVersionFromFile(&exr_version, filename.c_str()) != TINYEXR_SUCCESS) {
+        throw std::runtime_error("Failed to parse EXR version: " + filename);
+    }
+    if (exr_version.multipart || exr_version.non_image) {
+        throw std::runtime_error("Unsupported EXR file (multipart or deep image): " + filename);
+    }
+
     if (ParseEXRHeaderFromFile(&exr_header, &exr_version, filename.c_str(), &err) != TINYEXR_SUCCESS) {
         std::string error_message = err ? std::string(err) : "Unknown error";
         if (err)
@@ -214,7 +244,16 @@ void Bitmap::load_image(const std::string &filename) {
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
             for (int c = 0; c < channels; ++c) {
-                m_data->operator()(y, x, c) = static_cast<float>(img_data[(y * width + x) * channels + c]) / 255.0f;
+                float normalized = static_cast<float>(img_data[(y * width + x) * channels + c]) / 255.0f;
+                // Channel 3 (alpha, if present) is coverage/opacity, never
+                // color - it is always linear and must never be decoded,
+                // regardless of m_raw. Channels 0-2 (or the single channel
+                // of a grayscale image) are decoded from sRGB unless this
+                // texture was explicitly marked `raw` (a data map).
+                if (!m_raw && c != 3) {
+                    normalized = Color3f(normalized).from_srgb()(0);
+                }
+                m_data->operator()(y, x, c) = normalized;
             }
         }
     }
@@ -248,8 +287,15 @@ int Bitmap::get_cols() const { return m_data->get_cols(); }
 
 int Bitmap::get_rows() const { return m_data->get_rows(); }
 
-Color3f Bitmap::eval(const SurfaceIntersection3f &si, bool &active) {
-    if (m_data->get_channels() == 3) {
+Color3f Bitmap::eval(const SurfaceIntersection3f &si, bool active) {
+    // >= 3 (not == 3) so that a 4-channel RGBA source (e.g. a color map
+    // exported with an alpha channel, like assets/bathroom/textures/rug.png)
+    // still takes this direct RGB path instead of falling into the
+    // channels < 3 branch below - see eval_1()'s matching comment for why
+    // that matters: it is what keeps eval()/eval_1() from calling each
+    // other back and forth forever (a stack-overflow that shows up as a
+    // "Bus error" on macOS) for any channel count other than exactly 1 or 3.
+    if (m_data->get_channels() >= 3) {
         Point2f uv = si.uv;
 
         // Ensure uv coordinates are within the [0, 1] range
@@ -286,8 +332,18 @@ Color3f Bitmap::eval(const SurfaceIntersection3f &si, bool &active) {
     }
 }
 
-float Bitmap::eval_1(const SurfaceIntersection3f &si, bool &active) {
-    if (m_data->get_channels() == 1) {
+float Bitmap::eval_1(const SurfaceIntersection3f &si, bool active) {
+    // <= 2 (not == 1) so a 2-channel source also takes this direct,
+    // channel-0-only path instead of falling into the else branch below.
+    // This is the other half of the fix described in eval()'s comment: as
+    // long as this branch's condition is the exact logical complement of
+    // eval()'s ">= 3" condition, eval() and eval_1() can never call each
+    // other for the same channel count, so the mutual recursion (previously
+    // infinite for any bitmap with channels != 1 && != 3, e.g. the 4-channel
+    // RGBA assets/bathroom/textures/rug.png - a stack overflow that
+    // manifests as a "Bus error" on macOS) is now impossible for any
+    // channel count.
+    if (m_data->get_channels() <= 2) {
         Point2f uv = si.uv;
 
         // Ensure uv coordinates are within the [0, 1] range
@@ -324,7 +380,7 @@ float Bitmap::eval_1(const SurfaceIntersection3f &si, bool &active) {
     }
 }
 
-Vector2f Bitmap::eval_1_grad(const SurfaceIntersection3f &si, bool &active) {
+Vector2f Bitmap::eval_1_grad(const SurfaceIntersection3f &si, bool active) {
     // Ensure UV coordinates are within [0, 1] range
     Point2f uv = si.uv;
     uv.x()     = clamp(uv.x(), 0.0f, 1.0f);
@@ -387,6 +443,27 @@ Color3f Bitmap::mean() {
 }
 
 std::string Bitmap::to_string() const { return "Bitmap"; }
+
+GPUTexture Bitmap::to_gpu_texture(GPUSceneBuilder &builder) const {
+    GPUTexture tex;
+    tex.type            = GPUTextureType::Bitmap;
+    tex.spatial_varying = true;
+    tex.channels        = m_data->get_channels();
+    tex.width           = m_data->get_cols();
+    tex.height          = m_data->get_rows();
+
+    tex.pixels.resize(static_cast<size_t>(tex.width) * static_cast<size_t>(tex.height) *
+                      static_cast<size_t>(tex.channels));
+    for (int y = 0; y < tex.height; ++y) {
+        for (int x = 0; x < tex.width; ++x) {
+            for (int c = 0; c < tex.channels; ++c) {
+                size_t idx = (static_cast<size_t>(y) * tex.width + x) * tex.channels + c;
+                tex.pixels[idx] = m_data->operator()(y, x, c);
+            }
+        }
+    }
+    return tex;
+}
 
 REGISTER_CLASS(Bitmap, "bitmap")
 

@@ -74,19 +74,30 @@ public:
      *                 | z
      */
     [[nodiscard]] std::pair<DirectionSample3f, Color3f> sample_direction(const Intersection3f &it,
-                                                                         const Point2f &sample, bool &active) override {
+                                                                         const Point2f &sample, bool active) override {
         if (is_spatial_varying()) {
             auto [uv, pdf] = m_distribution->sample(sample);
-            int width      = std::dynamic_pointer_cast<Bitmap>(m_radiance)->get_cols();
-            uv.x() += 0.5f / static_cast<float>(width - 1);
             active &= pdf > 0.0f;
 
             DirectionSample3f ds;
             ds.uv.x() = uv.x(); // col
             ds.uv.y() = uv.y(); // row
 
-            float theta = ds.uv.y() * static_cast<float>(M_PI);        // [0, pi]
-            float phi   = ds.uv.x() * static_cast<float>(M_PI) * 2.0f; // [0, 2pi]
+            // The half-texel shift is purely a UV <-> direction mapping
+            // convention (it is what eval()/pdf_direction() undo with their
+            // `uv.x() -= 0.5/(width-1)`), so it belongs ONLY in the
+            // uv -> direction conversion below. It must NOT be baked into
+            // ds.uv, because `pdf` was evaluated by the distribution at the
+            // UNSHIFTED uv: sampling the radiance at uv + delta while
+            // dividing by the density at uv makes the estimator
+            // radiance/pdf inconsistent. On a smooth envmap that is
+            // invisible, but on a real one (where the sun spans only a few
+            // texels) it biases the result by >10%.
+            int width       = std::dynamic_pointer_cast<Bitmap>(m_radiance)->get_cols();
+            float u_shifted = uv.x() + 0.5f / static_cast<float>(width - 1);
+
+            float theta = ds.uv.y() * static_cast<float>(M_PI);   // [0, pi]
+            float phi   = u_shifted * static_cast<float>(M_PI) * 2.0f; // [0, 2pi]
 
             Vector3f d({ sin(phi) * sin(theta), cos(theta), -cos(phi) * sin(theta) });
 
@@ -131,7 +142,7 @@ public:
     }
 
     [[nodiscard]] float pdf_direction(const Intersection3f &it, const DirectionSample3f &ds,
-                                      bool &active) const override {
+                                      bool active) const override {
         if (is_spatial_varying()) {
             Vector3f d = m_to_world.inverse() * ds.d;
             auto phi   = atan2(d.x(), -d.z());
@@ -146,7 +157,11 @@ public:
 
             float inv_sin_theta = 1.0f / safe_sqrt(M_MAX(d.x() * d.x() + d.z() * d.z(), static_cast<float>(M_EPSILON)));
 
-            return m_distribution->eval(uv) * inv_sin_theta * static_cast<float>(1.0f / (2.0f * M_PI * M_PI));
+            // Must be pdf() (the normalized DENSITY), not eval() (the
+            // un-normalized cell value): this has to return the same density
+            // that sample_direction() divides by, otherwise MIS weights this
+            // strategy against a differently-scaled quantity.
+            return m_distribution->pdf(uv) * inv_sin_theta * static_cast<float>(1.0f / (2.0f * M_PI * M_PI));
         } else {
             Vector3f d = m_to_world.inverse() * ds.d;
             return square_to_uniform_sphere_pdf(d);
@@ -154,15 +169,15 @@ public:
     }
 
     [[nodiscard]] std::pair<PositionSample3f, float> sample_position(const Point2f &sample,
-                                                                     bool &active) const override {
+                                                                     bool active) const override {
         throw std::runtime_error("Not implemented");
     }
 
-    [[nodiscard]] float pdf_position(const PositionSample3f &ps, bool &active) const override {
+    [[nodiscard]] float pdf_position(const PositionSample3f &ps, bool active) const override {
         throw std::runtime_error("Not implemented");
     }
 
-    [[nodiscard]] Color3f eval(const SurfaceIntersection3f &si, bool &active) const override {
+    [[nodiscard]] Color3f eval(const SurfaceIntersection3f &si, bool active) const override {
         if (is_spatial_varying()) {
             Vector3f d = m_to_world.inverse() * -si.wi;
             auto phi   = atan2(d.x(), -d.z());
@@ -189,6 +204,22 @@ public:
     }
 
     [[nodiscard]] bool is_spatial_varying() const override { return m_radiance->is_spatial_varying(); }
+
+    [[nodiscard]] GPULight to_gpu_light(GPUSceneBuilder &builder, uint32_t /*mesh_id*/) const override {
+        GPULight light;
+        light.type                   = GPULightType::Envmap;
+        light.radiance_tex           = builder.add_texture(m_radiance);
+        light.to_world               = m_to_world;
+        light.bounding_sphere_center = m_bounding_sphere_center;
+        light.bounding_sphere_radius = m_bounding_sphere_radius;
+        light.spatial_varying        = is_spatial_varying();
+        if (light.spatial_varying && m_distribution) {
+            light.distribution_width      = m_distribution->get_cols();
+            light.distribution_height     = m_distribution->get_rows();
+            light.distribution_luminance  = m_distribution->level0_data();
+        }
+        return light;
+    }
 
 private:
     std::shared_ptr<Texture> m_radiance;

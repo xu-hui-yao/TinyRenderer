@@ -1,0 +1,4417 @@
+<scene>
+    <sampler type="independent">
+        <integer name="sample_count" value="1024" />
+    </sampler>
+    <accelerate type="bvh">
+        <integer name="leaf_max" value="8" />
+        <integer name="max_depth" value="64" />
+    </accelerate>
+    <integrator type="path">
+        <integer name="max_depth" value="8" />
+    </integrator>
+    <camera type="perspective">
+        <rfilter type="tent">
+            <float name="radius" value="1.0" />
+        </rfilter>
+        <float name="fov" value="39" />
+        <transform name="to_world">
+            <look_at origin="-1.2, 0.5, 1.2" target="0.4, 0.45, 0.5" up="0, 1, 0" />
+        </transform>
+        <integer name="width" value="1024" />
+        <integer name="height" value="1024" />
+    </camera>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinTransitionConnector_01_02_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinTransitionConnector_01_02_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinTransitionConnector_01_02_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinTransitionConnector_01_02_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_02_transparent_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.162644 0.162644 0.162644" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_02_black_007.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_02_black_006.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_02_transparent_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.162644 0.162644 0.162644" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_01_purple_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="1.000000 0.015209 0.003347" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_01_purple_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="1.000000 0.015209 0.003347" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_round_01_01_purple_glass_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="1.000000 0.015209 0.003347" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_02_04_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_02_04_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_04_06_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_08_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_08_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_02_02_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_02_03_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_round_01_01_black_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_round_01_01_black_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_04_06_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_round_01_01_black_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_08_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_04_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_011.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_010.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_02_008.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_02_007.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_02_006.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_02_005.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicConnector_01_02_008.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicConnector_01_02_007.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Technic_axle_6_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_08_010.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Technic_axle_6_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicConnector_01_02_006.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicConnector_01_02_005.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Technic_axle_8_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicBush_01_01_009.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicBush_01_01_008.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_022.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_021.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_020.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_019.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_018.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_017.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_016.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_015.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_08_009.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_02_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_014.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_08_008.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_08_007.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_013.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_02_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_04_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_08_006.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_08_005.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_012.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_011.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_010.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_009.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_04_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_04_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_06_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_16_006.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_06_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_16_005.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_008.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_007.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_02_gray_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_02_black_005.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_02_black_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_04_gray_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_04_gray_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_02_black_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_02_black_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_04_gray_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_02_gray_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_04_gray_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_02_black_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_01_04_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_01_02_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_007.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_006.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_005.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_01_02_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_01_04_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_04_10_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_01_04_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_01_06_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_02_02_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_01_06_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_01_04_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_06_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_01_06_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_02_06_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_02_06_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_01_06_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_06_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_08_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_08_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_08_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_08_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_02_02_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_02_02_007.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_02_04_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_02_02_006.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_02_02_005.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_02_02_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_02_02_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_02_02_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_01_02_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_01_08_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_01_08_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/SlopeBrickInverted_02_02_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/SlopeBrickInverted_02_02_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_02_02_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_01_02_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/SlopeBrickInverted_02_02_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_06_10_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_06_10_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicBush_01_01_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Technic_axle_12_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicBush_01_01_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_04_10_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicBush_01_01_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Technic_axle_12_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicBush_01_01_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_16_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_16_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_16_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_16_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicBush_01_01_007.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicBush_01_01_006.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Technic_axle_8_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/RubberBand_Left_001.obj" />
+        <bsdf type="diffuse">
+            <texture type="constant">
+                <color name="color" value="1.000000 0.000000 0.300000" />
+            </texture>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/RubberBand_Left.obj" />
+        <bsdf type="diffuse">
+            <texture type="constant">
+                <color name="color" value="1.000000 0.000000 0.300000" />
+            </texture>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_04_007.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_04_006.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_04_005.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_04_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_04_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_04_12_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_04_12_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TipperEnd_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TipperEnd_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_04_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_02_06_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_02_06_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_02_04_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_02_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_02_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_02_010.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_030.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_029.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_02_009.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicConnector_01_02_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicConnector_01_02_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicBush_01_01_011.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicBush_01_01_010.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Technic_axle_8_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_038.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_037.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicConnector_01_02_024.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicConnector_01_02_023.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Technic_axle_4_011.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Technic_axle_4_010.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicConnector_01_02_022.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicConnector_01_02_021.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_06_008.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_06_007.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_034.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_033.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_036.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicConnector_01_02_020.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicConnector_01_02_019.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Technic_axle_4_009.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_035.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Technic_axle_4_008.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicConnector_01_02_018.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicConnector_01_02_017.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_032.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_031.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_08_005.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_04_005.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_013.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/GearRack_01_04_007.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_012.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_009.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/GearRack_01_04_005.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_008.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_04_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_08_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_06_006.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_08_006.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_06_005.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_12_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_040.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_12_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_039.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_024.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_023.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicConnector_01_02_012.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicConnector_01_02_011.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Technic_axle_4_007.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Technic_axle_4_006.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicConnector_01_02_010.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicConnector_01_02_009.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_028.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_027.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_026.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_025.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicConnector_01_02_016.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicConnector_01_02_015.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Technic_axle_6_006.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Technic_axle_6_005.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicConnector_01_02_014.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicConnector_01_02_013.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_02_02_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_02_08_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_02_02_008.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_02_02_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/GearRack_01_04_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/GearRack_01_04_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/GearRack_01_04_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/GearRack_01_04_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_02_02_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_02_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_m_hole_01_02_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.799103 0.502886 0.029557" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicPulleyLarge_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Gear_08_Teeth_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Technic_axle_4_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_005.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Technic_axle_4_005.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Gear_24_Teeth_rounded_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Gear_08_Teeth_007.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicBush_01_01_005.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Gear_08_Teeth_005.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Technic_axle_10_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Gear_24_Teeth_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/PinSmoothWithoutFrictionRidges_01_02_006.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Technic_axle_4_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Gear_08_Teeth_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/TechnicPulleyLarge_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Gear_24_Teeth_rounded_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Technic_axle_4_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Gear_08_Teeth_006.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Technic_axle_8_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Gear_24_Teeth_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Gear_08_Teeth_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Technic_axle_6_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Gear_24_Teeth_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Gear_08_Teeth_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Gear_40_TeethLeftF.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_052.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_051.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_050.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_049.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_048.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_047.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_046.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_045.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_044.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_043.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_042.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_041.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_040.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_039.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_038.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_037.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_036.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_035.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_034.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_033.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_032.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_031.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_030.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_029.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_028.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_027.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_026.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_025.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_024.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_023.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_022.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_021.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_020.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_019.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_018.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_017.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_016.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_015.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_014.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_013.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_012.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_011.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_010.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_009.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_008.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_007.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_006.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_005.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_001.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_000.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Gear_40_TeethLeftB.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_105.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_104.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_103.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_102.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_101.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_100.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_099.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_098.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_097.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_096.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_095.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_094.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_093.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_092.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_091.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_090.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_089.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_088.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_087.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_086.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_085.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_084.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_083.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_082.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_081.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_080.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_079.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_078.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_077.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_076.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_075.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_074.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_073.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_072.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_071.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_070.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_069.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_068.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_067.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_066.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_065.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_064.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_063.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_062.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_061.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_060.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_059.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_058.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_057.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_056.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_055.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_054.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/ChainTreadLeft_053.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.002808 0.002808 0.002808" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Gear_40_TeethRightB.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Gear_40_TeethRightF.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.296138 0.323143 0.391572" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/LegoPlane_huge.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_038.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_08_022.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.201102 0.079997 0.034288" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_04_011.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.097587 0.040915 0.020289" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_08_021.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.097587 0.040915 0.020289" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_08_020.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.097587 0.040915 0.020289" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_08_019.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.097587 0.040915 0.020289" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_08_018.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.097587 0.040915 0.020289" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_08_017.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.201102 0.079997 0.034288" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_04_010.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.201102 0.079997 0.034288" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_037.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.097587 0.040915 0.020289" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_02_006.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.201102 0.079997 0.034288" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_08_016.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.097587 0.040915 0.020289" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_02_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.201102 0.079997 0.034288" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_036.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.097587 0.040915 0.020289" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_035.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.097587 0.040915 0.020289" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_034.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.201102 0.079997 0.034288" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_033.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.201102 0.079997 0.034288" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_08_015.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.097587 0.040915 0.020289" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_032.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.097587 0.040915 0.020289" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_031.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.097587 0.040915 0.020289" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_030.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_029.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_028.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_027.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_026.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_025.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_024.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_023.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_02_08_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_02_08_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_02_06_006.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_02_06_005.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_022.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_021.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.097587 0.040915 0.020289" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_020.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.097587 0.040915 0.020289" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_08_014.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.097587 0.040915 0.020289" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_019.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.201102 0.079997 0.034288" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_018.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.201102 0.079997 0.034288" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_017.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.097587 0.040915 0.020289" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_016.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.097587 0.040915 0.020289" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_02_005.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.201102 0.079997 0.034288" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_08_013.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.097587 0.040915 0.020289" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_02_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.201102 0.079997 0.034288" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_015.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.097587 0.040915 0.020289" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_04_009.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.201102 0.079997 0.034288" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_08_012.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.201102 0.079997 0.034288" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_08_011.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.097587 0.040915 0.020289" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_08_010.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.201102 0.079997 0.034288" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_08_009.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.097587 0.040915 0.020289" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_08_008.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.097587 0.040915 0.020289" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_04_008.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.097587 0.040915 0.020289" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_01_08_007.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.201102 0.079997 0.034288" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_m_flatTop_01_02_014.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_02_08_002.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_06_10_014.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_06_10_013.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_06_10_012.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_06_10_011.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_06_10_010.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_06_10_009.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_06_10_008.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_06_10_007.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_06_10_006.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_06_10_005.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_06_10_004.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <mesh type="obj">
+        <string name="filename" value="meshes_obj/Brick_flat_06_10_003.obj" />
+        <bsdf type="two_sided">
+            <bsdf type="diffuse">
+                <texture type="constant">
+                    <color name="color" value="0.529543 0.435094 0.248232" />
+                </texture>
+            </bsdf>
+        </bsdf>
+    </mesh>
+    <emitter type="envmap">
+        <transform name="to_world">
+            <rotate angle="20" axis="0.0, 1.0, 0.0" />
+        </transform>
+        <texture type="bitmap">
+            <string name="filename" value="textures/cathedral.hdr" />
+        </texture>
+    </emitter>
+</scene>

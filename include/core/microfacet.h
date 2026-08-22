@@ -29,7 +29,7 @@ public:
     Scalar eval(const Normal &m) const {
         bool active        = true;
         Scalar alpha_uv    = m_alpha * m_alpha;
-        Scalar cos_theta   = Frame::cos_theta(m, active);
+        Scalar cos_theta   = Frame::cos_theta(m);
         Scalar cos_theta_2 = cos_theta * cos_theta;
         Scalar result;
 
@@ -44,7 +44,7 @@ public:
     Scalar pdf(const Vector &wi, const Normal &m) const {
         bool active   = true;
         Scalar result = eval(m);
-        result *= smith_g1(wi, m) * abs(wi.dot(m)) / Frame::cos_theta(wi, active);
+        result *= smith_g1(wi, m) * abs(wi.dot(m)) / Frame::cos_theta(wi);
         return result;
     }
 
@@ -56,7 +56,7 @@ public:
         Vector wi_p = Vector({ m_alpha * wi.x(), m_alpha * wi.y(), wi.z() }).norm(valid);
 
         std::tie(sin_phi, cos_phi) = Frame::sincos_phi(wi_p);
-        cos_theta                  = Frame::cos_theta(wi_p, valid);
+        cos_theta                  = Frame::cos_theta(wi_p);
 
         // Step 2: simulate P22_{wi}(slope.x, slope.y, 1, 1)
         Vector2 slope = sample_visible_11(cos_theta, sample);
@@ -67,7 +67,7 @@ public:
 
         // Step 4: compute normal & PDF
         Normal m   = Normal({ -slope1.x(), -slope1.y(), Scalar(1) }).norm(valid);
-        Scalar pdf = eval(m) * smith_g1(wi, m) * abs(wi.dot(m)) / Frame::cos_theta(wi, valid);
+        Scalar pdf = eval(m) * smith_g1(wi, m) * abs(wi.dot(m)) / Frame::cos_theta(wi);
 
         return { m, pdf };
     }
@@ -98,7 +98,7 @@ public:
         bool active = true;
         // Ensure consistent orientation (can't see the back of the microfacet
         // from the front and vice versa)
-        if (v.dot(m) * Frame::cos_theta(v, active) <= Scalar(0)) {
+        if (v.dot(m) * Frame::cos_theta(v) <= Scalar(0)) {
             result = Scalar(0);
         }
 
@@ -110,7 +110,12 @@ public:
     Scalar eval_reflectance(const Vector &wi, Scalar eta) {
         int res = eta > 1 ? 32 : 128;
 
-        auto [nodes, weights] = gauss_legendre<float>(res);
+        // Bound by const reference: gauss_legendre() hands out a reference
+        // into its own cache, so this neither recomputes the rule nor copies
+        // the two node/weight vectors (this function is called O(res_lut)
+        // times per material, and there are hundreds of materials in a
+        // large scene - see RoughPlastic::construct()).
+        const auto &[nodes, weights] = gauss_legendre<float>(res);
 
         Scalar result = Scalar(0);
 
@@ -140,7 +145,8 @@ public:
     Scalar eval_transmittance(const Vector &wi, Scalar eta) {
         int res = eta > 1 ? 32 : 128;
 
-        auto [nodes, weights] = gauss_legendre<float>(res);
+        // See eval_reflectance() above for why this is a const reference.
+        const auto &[nodes, weights] = gauss_legendre<float>(res);
 
         Scalar result = Scalar(0);
 

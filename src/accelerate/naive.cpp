@@ -13,6 +13,10 @@ public:
         bounding_box.expand_by(mesh->get_bounding_box());
     }
 
+    // The index of `mesh` within `meshes` (assigned in add_mesh call order) doubles as
+    // TSurfaceIntersection::mesh_id and matches Scene::get_mesh()'s indexing, since
+    // Scene::construct() calls add_mesh() in the same order as its own m_meshes vector.
+
     void construct() override {
 #ifdef M_DEBUG
         std::cout << "Construct " << class_type_name(get_class_type()) << std::endl;
@@ -25,9 +29,11 @@ public:
         bool hit = false;                     // Was an intersection found so far
 
         Ray3f ray(ray_); // Make a copy of the ray (we will need to update its 'max_t' value)
+        uint32_t best_mesh_id = M_INVALID_INDEX;
 
         /* Brute force search through all triangles */
-        for (auto &mesh : this->meshes) {
+        for (uint32_t mesh_id = 0; mesh_id < meshes.size(); ++mesh_id) {
+            const auto &mesh = meshes[mesh_id];
             for (uint32_t idx = 0; idx < mesh->get_triangle_count(); ++idx) {
                 float u, v, t;
                 if (mesh->ray_intersect(idx, ray, u, v, t)) {
@@ -37,7 +43,7 @@ public:
                         return true;
                     ray.max_t() = its.t = t;
                     its.uv              = Point2f(u, v);
-                    its.mesh            = mesh;
+                    best_mesh_id        = mesh_id;
                     its.primitive_index = idx;
                     its.wi              = -ray.d();
                     hit                 = true;
@@ -52,12 +58,13 @@ public:
                The following computes a number of additional properties which
                characterize the intersection (normals, texture coordinates, etc..)
             */
+            its.mesh_id = best_mesh_id;
 
             /* Find the barycentric coordinates */
             Vector3f bary(1 - its.uv.x() - its.uv.y(), its.uv.x(), its.uv.y());
 
             /* References to all relevant mesh buffers */
-            std::shared_ptr mesh(its.mesh);
+            const Mesh *mesh                 = meshes[best_mesh_id].get();
             const std::vector<Point3f> &v    = mesh->get_vertex_positions();
             const std::vector<Normal3f> &n   = mesh->get_vertex_normals();
             const std::vector<Point2f> &uv   = mesh->get_vertex_tex_coords();

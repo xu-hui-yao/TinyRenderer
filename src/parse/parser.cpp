@@ -48,6 +48,7 @@ std::shared_ptr<Object> load_from_xml(const std::string &filename) {
         EReconstructionFilter = Object::EReconstructionFilter,
         ETexture              = Object::ETexture,
         EAccelerate           = Object::EAccelerate,
+        EDenoiser             = Object::EDenoiser,
 
         /* Properties */
         EBoolean = Object::EClassTypeCount,
@@ -79,6 +80,7 @@ std::shared_ptr<Object> load_from_xml(const std::string &filename) {
     tags["rfilter"]    = EReconstructionFilter;
     tags["texture"]    = ETexture;
     tags["accelerate"] = EAccelerate;
+    tags["denoiser"]   = EDenoiser;
 
     tags["boolean"]   = EBoolean;
     tags["integer"]   = EInteger;

@@ -20,7 +20,7 @@ public:
 #endif
     }
 
-    Color3f eval(const SurfaceIntersection3f &si, bool &active) override {
+    Color3f eval(const SurfaceIntersection3f &si, bool active) override {
         Point2f uv = si.uv;
         uv.x() *= m_scale_u;
         uv.y() *= m_scale_v;
@@ -40,11 +40,23 @@ public:
         return Color3f(0.0f);
     }
 
-    float eval_1(const SurfaceIntersection3f &si, bool &active) override { return eval(si, active).luminance(); }
+    float eval_1(const SurfaceIntersection3f &si, bool active) override { return eval(si, active).luminance(); }
 
-    Vector2f eval_1_grad(const SurfaceIntersection3f &si, bool &active) override { return Vector2f({ 0.0f, 0.0f }); }
+    Vector2f eval_1_grad(const SurfaceIntersection3f &si, bool active) override { return Vector2f({ 0.0f, 0.0f }); }
 
     Color3f mean() override { return (m_color0 + m_color1) / 2.0f; }
+
+    [[nodiscard]] GPUTexture to_gpu_texture(GPUSceneBuilder &builder) const override {
+        GPUTexture tex;
+        tex.type            = GPUTextureType::Checkerboard;
+        tex.spatial_varying = true;
+        tex.channels        = 3;
+        tex.color0          = m_color0;
+        tex.color1          = m_color1;
+        tex.scale_u         = m_scale_u;
+        tex.scale_v         = m_scale_v;
+        return tex;
+    }
 
     [[nodiscard]] std::string to_string() const override {
         return "CheckerBoard[\n"

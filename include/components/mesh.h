@@ -113,7 +113,7 @@ public:
      * \return
      *     A \ref PositionSample instance describing the generated sample
      */
-    [[nodiscard]] virtual PositionSample3f sample_position(const Point2f &sample, bool &active) const;
+    [[nodiscard]] virtual PositionSample3f sample_position(const Point2f &sample, bool active) const;
 
     /**
      * \brief Query the probability density of \ref sample_position() for
@@ -127,7 +127,7 @@ public:
      * \return
      *     The probability density per unit area
      */
-    [[nodiscard]] virtual float pdf_position(const PositionSample3f &ps, bool &active) const;
+    [[nodiscard]] virtual float pdf_position(const PositionSample3f &ps, bool active) const;
 
     /**
      * \brief Sample a direction towards this shape with respect to solid
@@ -159,7 +159,7 @@ public:
      *     A \ref DirectionSample instance describing the generated sample
      */
     [[nodiscard]] virtual DirectionSample3f sample_direction(const Intersection3f &it, const Point2f &sample,
-                                                             bool &active) const;
+                                                             bool active) const;
 
     /**
      * \brief Query the probability density of \ref sample_direction()
@@ -176,7 +176,7 @@ public:
      *     The probability density per unit solid angle
      */
     [[nodiscard]] virtual float pdf_direction(const Intersection3f &it, const DirectionSample3f &ds,
-                                              bool &active) const;
+                                              bool active) const;
 
 protected:
     std::vector<Point3f> vertices;              // Vertex positions

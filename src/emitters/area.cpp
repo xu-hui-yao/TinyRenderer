@@ -41,7 +41,7 @@ public:
     void set_scene(const std::shared_ptr<Scene> &scene) override {}
 
     [[nodiscard]] std::pair<DirectionSample3f, Color3f> sample_direction(const Intersection3f &it,
-                                                                         const Point2f &sample, bool &active) override {
+                                                                         const Point2f &sample, bool active) override {
         DirectionSample3f ds = std::dynamic_pointer_cast<Mesh>(parent)->sample_direction(it, sample, active);
         active &= ds.d.dot(ds.n) < 0.f && ds.pdf != 0.f;
         SurfaceIntersection3f si = SurfaceIntersection3f(ds);
@@ -52,7 +52,7 @@ public:
     }
 
     [[nodiscard]] float pdf_direction(const Intersection3f &it, const DirectionSample3f &ds,
-                                      bool &active) const override {
+                                      bool active) const override {
         float dp = ds.d.dot(ds.n);
         active &= dp < 0.0f;
         float value = std::dynamic_pointer_cast<Mesh>(parent)->pdf_direction(it, ds, active);
@@ -60,19 +60,19 @@ public:
     }
 
     [[nodiscard]] std::pair<PositionSample3f, float> sample_position(const Point2f &sample,
-                                                                     bool &active) const override {
+                                                                     bool active) const override {
         PositionSample3f ps = std::dynamic_pointer_cast<Mesh>(parent)->sample_position(sample, active);
         float weight        = active && ps.pdf > 0.f ? 1.0f / ps.pdf : 0.0f;
         return { ps, weight };
     }
 
-    [[nodiscard]] float pdf_position(const PositionSample3f &ps, bool &active) const override {
+    [[nodiscard]] float pdf_position(const PositionSample3f &ps, bool active) const override {
         float pdf = std::dynamic_pointer_cast<Mesh>(parent)->pdf_position(ps, active);
         return active ? pdf : 0.0f;
     }
 
-    [[nodiscard]] Color3f eval(const SurfaceIntersection3f &si, bool &active) const override {
-        return Frame3f::cos_theta(si.wi, active) > 0.0f ? m_radiance->eval(si, active) : Color3f(0.0f);
+    [[nodiscard]] Color3f eval(const SurfaceIntersection3f &si, bool active) const override {
+        return Frame3f::cos_theta(si.wi) > 0.0f ? m_radiance->eval(si, active) : Color3f(0.0f);
     }
 
     [[nodiscard]] std::string to_string() const override {
@@ -80,6 +80,14 @@ public:
     }
 
     [[nodiscard]] bool is_spatial_varying() const override { return m_radiance->is_spatial_varying(); }
+
+    [[nodiscard]] GPULight to_gpu_light(GPUSceneBuilder &builder, uint32_t mesh_id) const override {
+        GPULight light;
+        light.type          = GPULightType::Area;
+        light.mesh_id        = mesh_id;
+        light.radiance_tex   = builder.add_texture(m_radiance);
+        return light;
+    }
 
 private:
     std::shared_ptr<Texture> m_radiance;

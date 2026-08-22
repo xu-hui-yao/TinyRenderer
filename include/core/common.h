@@ -21,6 +21,9 @@ M_NAMESPACE_BEGIN
 #define M_SQRT_TWO 1.41421356237309504880
 #define M_INV_SQRT_TWO 0.70710678118654752440
 #define M_MAX_FLOAT 3.402823466e+38
+// Sentinel used in place of a null shared_ptr for GPU-friendly index-based references
+// (e.g. TSurfaceIntersection::mesh_id when a ray hits the environment / nothing)
+#define M_INVALID_INDEX 0xFFFFFFFFu
 
 #define M_MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define M_MAX(a, b) (((a) > (b)) ? (a) : (b))

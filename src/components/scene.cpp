@@ -52,6 +52,12 @@ void Scene::construct() {
     m_integrator->construct();
     m_sampler->construct();
 
+    // Optional - a scene without a <denoiser> simply gets its raw render
+    // written out, exactly as before this feature existed.
+    if (m_denoiser) {
+        m_denoiser->construct();
+    }
+
     for (const auto &emitter : m_emitters) {
         emitter->set_scene(std::dynamic_pointer_cast<Scene>(shared_from_this()));
     }
@@ -105,6 +111,13 @@ void Scene::add_child(const std::shared_ptr<Object> &obj) {
             m_environment = std::dynamic_pointer_cast<Emitter>(obj);
             break;
 
+        case EDenoiser:
+            if (m_denoiser) {
+                throw std::runtime_error("There can only be one Denoiser per scene!");
+            }
+            m_denoiser = std::dynamic_pointer_cast<Denoiser>(obj);
+            break;
+
         default:
             throw std::runtime_error("Scene::add_child(<" + class_type_name(obj->get_class_type()) +
                                      ">) is not supported!");
@@ -122,7 +135,7 @@ bool Scene::ray_intersect(const Ray3f &ray, SurfaceIntersection3f &its, bool sha
         its.n             = -ray.d();
         its.shading_frame = its.geometric_frame = Frame3f(its.n);
         its.dp_du = its.dp_dv = Vector3f({ 0, 0, 0 });
-        its.mesh              = nullptr;
+        its.mesh_id           = M_INVALID_INDEX;
         its.primitive_index   = -1;
         its.wi                = -ray.d();
         its.uv                = Point2f({ 0, 0 });
@@ -150,7 +163,7 @@ std::string Scene::to_string() const {
 
 std::pair<DirectionSample3f, Color3f> Scene::sample_emitter_direction(const SurfaceIntersection3f &its,
                                                                       const Point2f &sample_, bool test_visibility,
-                                                                      bool &active) const {
+                                                                      bool active) const {
     Point2f sample(sample_);
     DirectionSample3f ds;
     Color3f spec;
@@ -194,11 +207,11 @@ std::pair<DirectionSample3f, Color3f> Scene::sample_emitter_direction(const Surf
     return { ds, spec };
 }
 
-float Scene::pdf_emitter_direction(const Intersection3f &it, const DirectionSample3f &ds, bool &active) const {
+float Scene::pdf_emitter_direction(const Intersection3f &it, const DirectionSample3f &ds, bool active) const {
     return ds.emitter->pdf_direction(it, ds, active) * m_emitter_pmf;
 }
 
-std::tuple<uint32_t, float, float> Scene::sample_emitter(float sample, bool &active) const {
+std::tuple<uint32_t, float, float> Scene::sample_emitter(float sample, bool active) const {
     if (m_num_emitters == 0) {
         return { static_cast<uint32_t>(-1), 0.0f, sample };
     } else if (m_num_emitters == 1) {
@@ -211,7 +224,108 @@ std::tuple<uint32_t, float, float> Scene::sample_emitter(float sample, bool &act
     }
 }
 
-float Scene::pdf_emitter(uint32_t index, bool &active) const { return m_emitter_pmf; }
+float Scene::pdf_emitter(uint32_t index, bool active) const { return m_emitter_pmf; }
+
+GPUScene Scene::build_gpu_scene() const {
+    GPUSceneBuilder builder;
+    GPUScene &result = builder.result;
+
+    result.meshes.reserve(m_meshes.size());
+
+    for (uint32_t mesh_id = 0; mesh_id < m_meshes.size(); ++mesh_id) {
+        const auto &mesh = m_meshes[mesh_id];
+
+        const auto &positions = mesh->get_vertex_positions();
+        const auto &normals   = mesh->get_vertex_normals();
+        const auto &uvs       = mesh->get_vertex_tex_coords();
+        const auto &faces     = mesh->get_indices();
+
+        GPUMeshInfo info;
+        info.base_vertex    = static_cast<uint32_t>(result.vertex_positions.size());
+        info.vertex_count   = static_cast<uint32_t>(positions.size());
+        info.base_index     = static_cast<uint32_t>(result.indices.size());
+        info.triangle_count = static_cast<uint32_t>(faces.size());
+        info.has_normals    = !normals.empty();
+        info.has_uvs        = !uvs.empty();
+
+        // Concatenate this mesh's vertex attributes into the global buffers.
+        // Meshes without normals/UVs get filled with placeholders so that
+        // vertex_positions/vertex_normals/vertex_uvs stay a fixed-format,
+        // uniformly-indexable vertex buffer (GPUMeshInfo::has_normals/
+        // has_uvs record whether a given mesh's range is "real" data).
+        for (uint32_t v = 0; v < info.vertex_count; ++v) {
+            result.vertex_positions.push_back(positions[v]);
+            result.vertex_normals.push_back(info.has_normals ? normals[v] : Normal3f(0.0f));
+            result.vertex_uvs.push_back(info.has_uvs ? uvs[v] : Point2f(0.0f));
+        }
+
+        // Convert mesh-local face indices to GLOBAL vertex indices by adding
+        // this mesh's base_vertex, exactly like a typical GPU index buffer.
+        for (uint32_t f = 0; f < info.triangle_count; ++f) {
+            result.indices.push_back(info.base_vertex + static_cast<uint32_t>(faces[f](0)));
+            result.indices.push_back(info.base_vertex + static_cast<uint32_t>(faces[f](1)));
+            result.indices.push_back(info.base_vertex + static_cast<uint32_t>(faces[f](2)));
+        }
+
+        info.material_id = builder.add_material(mesh->get_bsdf());
+        if (mesh->is_emitter()) {
+            info.light_id = builder.add_light(mesh->get_emitter(), mesh_id);
+
+            // Populate the area-weighted triangle-sampling CDF for this
+            // light, exactly mirroring Mesh::m_area_pmf (DiscreteDistribution1f
+            // built from per-triangle surface_area()) so GPU-side area
+            // sampling matches the CPU renderer's distribution exactly (see
+            // GPULight::cdf_offset/cdf_count/inv_total_area in gpu_scene.h).
+            GPULight &light   = result.lights[info.light_id];
+            light.cdf_offset  = static_cast<uint32_t>(result.light_triangle_cdf.size());
+            light.cdf_count   = info.triangle_count;
+            light.base_triangle = info.base_index / 3;
+
+            float running_sum = 0.0f;
+            for (uint32_t t = 0; t < info.triangle_count; ++t) {
+                running_sum += mesh->surface_area(t);
+                result.light_triangle_cdf.push_back(running_sum);
+            }
+            light.inv_total_area = running_sum > 0.0f ? 1.0f / running_sum : 0.0f;
+            // Normalize the CDF to [0, 1] so the GPU-side binary search can
+            // work directly against a canonical [0,1) sample u (matching
+            // DiscreteDistribution1f::eval_cdf_normalized()'s convention).
+            if (running_sum > 0.0f) {
+                for (uint32_t t = 0; t < info.triangle_count; ++t) {
+                    result.light_triangle_cdf[light.cdf_offset + t] *= light.inv_total_area;
+                }
+            }
+        }
+
+        // Denormalize this mesh's material/light onto each of its triangles,
+        // so a GPU shading kernel can resolve a hit triangle in O(1) without
+        // searching which mesh's [base_index/3, base_index/3+triangle_count)
+        // range it falls into.
+        result.triangle_material_id.insert(result.triangle_material_id.end(), info.triangle_count, info.material_id);
+        result.triangle_light_id.insert(result.triangle_light_id.end(), info.triangle_count, info.light_id);
+
+        result.meshes.push_back(info);
+    }
+
+    if (m_environment) {
+        result.environment_light_id = builder.add_light(m_environment, M_INVALID_INDEX);
+    }
+
+    if (m_camera) {
+        result.camera = m_camera->to_gpu_camera();
+    }
+
+    // Export the flat BVH for GPU-side traversal, if the configured Accel
+    // implementation has one (currently only BVHAccel does). This must run
+    // AFTER the mesh loop above, since it converts (mesh_id, local triangle
+    // index) primitive references into global triangle ids using
+    // result.meshes[mesh_id].base_index, which the loop just populated.
+    if (m_accel) {
+        (void)m_accel->export_gpu_bvh(result);
+    }
+
+    return result;
+}
 
 REGISTER_CLASS(Scene, "scene");
 

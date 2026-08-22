@@ -40,7 +40,7 @@ public:
 
     [[nodiscard]] std::pair<BSDFSample3f, Color3f> sample(const SurfaceIntersection3f &si, float /* sample1 */,
                                                           const Point2f &sample2, bool active) const override {
-        float cos_theta_i = Frame3f::cos_theta(si.wi, active);
+        float cos_theta_i = Frame3f::cos_theta(si.wi);
         BSDFSample3f bs(Vector3f({0, 0, 0}));
 
         active &= cos_theta_i > 0.f;
@@ -60,7 +60,7 @@ public:
     }
 
     [[nodiscard]] Color3f eval(const SurfaceIntersection3f &si, const Vector3f &wo, bool active) const override {
-        float cos_theta_i = Frame3f::cos_theta(si.wi, active), cos_theta_o = Frame3f::cos_theta(wo, active);
+        float cos_theta_i = Frame3f::cos_theta(si.wi), cos_theta_o = Frame3f::cos_theta(wo);
 
         active &= cos_theta_i > 0.f && cos_theta_o > 0.f;
 
@@ -70,11 +70,23 @@ public:
     }
 
     [[nodiscard]] float pdf(const SurfaceIntersection3f &si, const Vector3f &wo, bool active) const override {
-        float cos_theta_i = Frame3f::cos_theta(si.wi, active), cos_theta_o = Frame3f::cos_theta(wo, active);
+        float cos_theta_i = Frame3f::cos_theta(si.wi), cos_theta_o = Frame3f::cos_theta(wo);
 
         float pdf = square_to_cosine_hemisphere_pdf(wo);
 
         return cos_theta_i > 0.f && cos_theta_o > 0.f ? pdf : 0.f;
+    }
+
+    [[nodiscard]] Color3f albedo(const SurfaceIntersection3f &si, bool active) const override {
+        return m_reflectance->eval(si, active);
+    }
+
+    [[nodiscard]] GPUMaterial to_gpu_material(GPUSceneBuilder &builder) const override {
+        GPUMaterial mat;
+        mat.type            = GPUMaterialType::Diffuse;
+        mat.flags           = static_cast<uint32_t>(m_flags);
+        mat.tex_reflectance = builder.add_texture(m_reflectance);
+        return mat;
     }
 
     // Return a human-readable summary
