@@ -23,8 +23,8 @@
         </transform>
 
         <float name="fov" value="19.5"/>
-        <integer name="width" value="1024"/>
-        <integer name="height" value="1024"/>
+        <integer name="width" value="4096"/>
+        <integer name="height" value="4096"/>
     </camera>
 
     <mesh type="rectangle">

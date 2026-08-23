@@ -1,6 +1,6 @@
 <scene>
     <sampler type="independent">
-        <integer name="sample_count" value="1024" />
+        <integer name="sample_count" value="4096" />
     </sampler>
     <accelerate type="bvh">
         <integer name="leaf_max" value="8" />
@@ -17,8 +17,8 @@
         <transform name="to_world">
             <matrix value="-0.435524 -4.21474e-008 -0.900177 6.91182 -8.15734e-015 1 -4.68212e-008 1.65163 0.900177 -2.03917e-008 -0.435523 2.55414 0 0 0 1" />
         </transform>
-        <integer name="width" value="1024" />
-        <integer name="height" value="1024" />
+        <integer name="width" value="4096" />
+        <integer name="height" value="4096" />
     </camera>
     <mesh type="obj">
         <string name="filename" value="models/Mesh008.obj" />
