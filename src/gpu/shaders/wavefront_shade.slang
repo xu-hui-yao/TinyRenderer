@@ -105,12 +105,12 @@ void main(uint3 tid: SV_DispatchThreadID)
             if (!prev_bsdf_delta) {
                 float3 ds_d = normalize(hit_p - prev_p);
                 float ds_dist = length(hit_p - prev_p);
-                em_pdf = pdf_emitter_direction(hit_mesh_light, ds_d, hit_shading_n, ds_dist);
+                em_pdf = pdf_emitter_direction(hit_mesh_light, ds_d, hit_shading_n, ds_dist, pc.num_lights);
             }
         } else if (!hit_mesh_valid && pc.environment_light_id != INVALID_INDEX) {
             emission = eval_envmap(pc.environment_light_id, ray_d);
             if (!prev_bsdf_delta) {
-                em_pdf = pdf_emitter_direction(pc.environment_light_id, ray_d, -ray_d, 1.0);
+                em_pdf = pdf_emitter_direction(pc.environment_light_id, ray_d, -ray_d, 1.0, pc.num_lights);
             }
         }
         float w = mis_weight(prev_bsdf_pdf, em_pdf);
@@ -143,7 +143,7 @@ void main(uint3 tid: SV_DispatchThreadID)
     float3 wo_local = float3(0, 0, 0);
 
     if (active_em) {
-        ds = sample_emitter_direction(hit_p, rng, em_weight);
+        ds = sample_emitter_direction(hit_p, rng, pc.num_lights, em_weight);
         active_em = active_em && ds.pdf != 0.0;
         wo_world = ds.d;
         wo_local = frame_to_local(sh, wo_world);

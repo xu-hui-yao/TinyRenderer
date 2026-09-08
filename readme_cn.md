@@ -25,10 +25,59 @@
   - 内置几何体：立方体、长方形、球体
 - 路径追踪
   - 使用多重重要性采样，支持对材质以及场景中的光源进行重要性采样。
+- 降噪
+  - 单帧蒙特卡洛降噪器：`atrous`（保边 À-Trous 小波）、`nlm`（非局部均值）、`outlier`（萤火虫/离群点剔除）。
+  - 通过场景 XML 配置，并且支持嵌套：一个降噪器可以包含一个子降噪器作为预滤波（典型用法是 `outlier` 接在 `atrous` 之前）。
+  - 在色调映射之前作用于线性辐射值，因此同一套实现同时服务于 CPU 与 GPU 渲染路径。
+- GPU 后端（实验性）
+  - 基于 Vulkan compute 的路径追踪器，提供两种后端：**Megakernel**（每个 spp 一次 dispatch，整个弹射循环在单个 shader 内）与 **Wavefront**（每次弹射拆成 6 个 kernel，通过压缩工作队列连接）。
+  - 着色器使用 [Slang](https://shader-slang.org/) 编写，构建时交叉编译为 SPIR-V。
+- 实时交互模式
+  - 常驻的 GPU 会话，每帧渲染 1 spp，配合 SVGF 时空滤波、轨道/飞行相机以及 ImGui 参数面板，详见[实时交互模式](#实时交互模式)。
 
 
 
 ## 编译运行
+
+### 环境依赖
+
+| 依赖 | 是否必需 | 用途 |
+| --- | --- | --- |
+| CMake >= 3.19 与支持 C++17 的编译器 | 必需 | 全部功能 |
+| [Vulkan SDK](https://vulkan.lunarg.com/)（其中包含 `slangc`，且需在 `PATH` 中） | 可选 | GPU 后端（`--gpu`）与实时交互（`--interactive`） |
+| [GLFW 3](https://www.glfw.org/) + OpenGL | 可选 | 预览窗口（`--progress`）与实时交互 |
+
+第三方库（`pugixml`、`stb`、`tinyexr`、Dear ImGui）已经放在 `ext/` 下，无需额外安装。
+
+注意"可选"不等于"不装也能顺利构建"：`M_ENABLE_GPU` 默认为 `ON`，所以默认构建**确实需要** Vulkan SDK 与 `slangc`；只有 GLFW 是 CMake 能在缺失时静默降级的那一个。
+
+可选依赖可以用系统的包管理器安装：
+
+```bash
+# macOS
+brew install glfw            # 预览窗口 / 实时交互
+# 然后从 https://vulkan.lunarg.com/ 安装 LunarG Vulkan SDK（提供 Vulkan 与 slangc）
+
+# Ubuntu / Debian
+sudo apt install libglfw3-dev
+# 然后安装 LunarG Vulkan SDK
+
+# Windows：安装 Vulkan SDK，并通过 vcpkg 获取 GLFW
+vcpkg install glfw3:x64-windows
+```
+
+### CMake 选项
+
+| 选项 | 默认值 | 作用 |
+| --- | --- | --- |
+| `M_ENABLE_GPU` | `ON` | 构建 Vulkan GPU 后端并链接进 `tiny-renderer`。需要 Vulkan SDK 与 `slangc`，**缺任意一个都会直接配置失败**（`find_package(Vulkan REQUIRED)` / `find_program(slangc REQUIRED)`）。不想要 GPU 就设 `-DM_ENABLE_GPU=OFF`。 |
+| `M_ENABLE_PREVIEW_GUI` | `ON` | 构建 GLFW + Dear ImGui 窗口。如果**找不到** `glfw3`/OpenGL，CMake 只会打印一条状态信息并继续构建——此时 `--progress` 只剩下控制台进度条，而 `--interactive` 不可用。 |
+
+例如，一个不带窗口的纯 CPU 构建：
+
+```bash
+cmake -DCMAKE_BUILD_TYPE=Release -DM_ENABLE_GPU=OFF -DM_ENABLE_PREVIEW_GUI=OFF -S . -B build
+```
 
 ### Windows 11
 
@@ -57,7 +106,7 @@ tiny-renderer.exe 'xml relative path of the root directory' -t 'thread count'
 
 进入项目根目录，打开终端运行以下指令：
 
-```
+```bash
 mkdir build
 cd build
 cmake .. -G "Xcode"
@@ -66,7 +115,7 @@ xcodebuild -configuration Release
 
 可执行文件生成于`build/src/Release`，运行可执行文件：
 
-```cmd
+```bash
 tiny-renderer 'xml relative path of the root directory' -t 'thread count'
 ```
 
@@ -78,7 +127,7 @@ tiny-renderer 'xml relative path of the root directory' -t 'thread count'
 
 进入项目根目录，打开终端运行以下指令：
 
-```cmd
+```bash
 cmake -DCMAKE_BUILD_TYPE=Release -S . -B build
 cd build
 make -j${proc}
@@ -86,11 +135,207 @@ make -j${proc}
 
 可执行文件生成于`build/src/`，运行可执行文件：
 
-```cmd
+```bash
 tiny-renderer 'xml relative path of the root directory' -t 'thread count'
 ```
 
 即可在 xml 同级目录下生成渲染图（png）。
+
+### 命令行参数
+
+```
+tiny-renderer <scene.xml> [options]
+```
+
+| 参数 | 说明 |
+| --- | --- |
+| `<scene.xml>` | 必需。场景文件路径，其所在目录会被加入文件搜索路径，因此 XML 中可以用相对路径引用 OBJ 与贴图。 |
+| `-t N` / `--threads N` | CPU 渲染线程数（默认 1）。`--gpu` 与 `--interactive` 下无效。 |
+| `--gpu[=megakernel\|wavefront]` | 使用 GPU 渲染，默认后端为 `megakernel`。 |
+| `--progress` | 打印实时控制台进度条（百分比/已用时/预计剩余），若编译时带了预览窗口，还会弹出窗口显示当前图像。 |
+| `--tonemap=none\|aces` | 输出 PNG 时使用的色调映射（默认 `none`）。 |
+| `--denoise[=outlier\|atrous\|nlm]` | 启用降噪器（使用默认参数），会覆盖场景 XML 中的 `<denoiser>` 配置。只写 `--denoise` 时选择 `atrous`。 |
+| `--dump-aov` | 额外把降噪器的输入缓冲导出为 PNG，便于调参。 |
+| `--interactive[=WxH]` | 打开实时交互窗口。`WxH` 覆盖场景的输出分辨率（默认使用 XML 中配置的分辨率）。 |
+
+`--interactive` 优先于 `--gpu`；交互模式**不会**输出任何 PNG，只做显示（关闭窗口即退出）。
+
+#### 输出文件
+
+以 `assets/teapot/teapot.xml` 为例，输出写在场景文件同级目录下：
+
+| 文件 | 何时生成 |
+| --- | --- |
+| `teapot.png` | 总是生成——最终图像（若启用降噪则为降噪后的结果） |
+| `teapot_noisy.png` | 只要跑了降噪器就会生成——未降噪的原图，便于 A/B 对比 |
+| `teapot_albedo.png`、`teapot_normal.png`、`teapot_variance.png` | 仅在使用 `--dump-aov` 时生成 |
+
+#### 示例
+
+```bash
+# CPU 渲染，8 线程
+tiny-renderer assets/teapot/teapot.xml -t 8
+
+# GPU megakernel，带实时预览窗口
+tiny-renderer assets/dragon/dragon.xml --gpu=megakernel --progress
+
+# GPU wavefront，降噪 + ACES 色调映射，并导出降噪器输入
+tiny-renderer assets/box/box.xml --gpu=wavefront --denoise=atrous --tonemap=aces --dump-aov
+
+# 以 1280x720 打开实时交互窗口
+tiny-renderer assets/dragon/dragon.xml --interactive=1280x720
+```
+
+
+
+## 实时交互模式
+
+`--interactive` 用**常驻的 GPU 会话**取代了"渲染一次并写出 PNG"的离线流程：每帧只 dispatch `spp_per_frame` 个样本，由 SVGF（时域重投影 + À-Trous 空域滤波）把 1 spp 的信号逐步累积成收敛图像。结果直接从 GPU 的 RGBA8 缓冲上传显示，主机端每帧不做任何逐像素处理。
+
+### 编译前提
+
+只有**同时**满足以下条件时，交互模式才会被编译进来（见 [CMake 选项](#cmake-选项)）：
+
+- `M_ENABLE_GPU=ON`（Vulkan SDK + `slangc`），且
+- `M_ENABLE_PREVIEW_GUI=ON`，并且在配置阶段确实找到了 `glfw3` + OpenGL。
+
+否则运行 `--interactive` 会打印 `This build lacks interactive support ...` 并退出。配置时要留意 CMake 是否输出了 `M_ENABLE_PREVIEW_GUI is ON but glfw3/OpenGL were not found`——这就是"静默退化"的情况。
+
+### 操作方式
+
+| 输入 | 轨道模式（Orbit，默认） | 飞行模式（Fly） |
+| --- | --- | --- |
+| 左键拖拽 | 绕目标点旋转 | - |
+| 中键/右键拖拽 | 平移 | 平移 |
+| 滚轮 | 推拉镜头 | 前进/后退 |
+| `W` `A` `S` `D` | - | 沿视轴移动 |
+| `Q` / `E` | - | 下移 / 上移 |
+| `Shift` | - | 4 倍加速 |
+
+初始视角与 FOV 都从场景 XML 读取，因此打开窗口时看到的正是 XML 中配置的机位。相机或渲染参数一旦改变，时域累积就会重置（历史对新的视角是过期的）；仅影响显示的设置不会触发重置。
+
+### 参数面板
+
+左上角 ImGui 面板提供：
+
+- **Stats**：FPS / 帧时间、已累积 spp，以及各 pass 的 GPU 耗时分解（`path_trace`、`temporal`、`atrous`、`display`）。
+- **Camera**：Orbit / Fly、FOV、移动速度、重置视角。
+- **Render**：每帧 spp（1-8）、最大深度、俄罗斯轮盘赌深度、辐射亮度钳制（0 表示关闭）、反照率解调、重置累积。
+- **Denoise**：时域滤波开关与拒绝阈值（`alpha`、`phi_depth`、`phi_normal`、历史钳制与增长系数），以及空域 pass（迭代次数、`phi_color`、`phi_normal`、`phi_depth`）。把迭代次数设为 0 可以单独观察时域 pass 的效果。
+- **Display**：曝光、色调映射（Clamp / Reinhard / ACES）、sRGB 传输函数、gamma，以及**调试视图**（raw illum、filtered illum、albedo、normal、depth、variance、历史长度、position）——调滤波参数主要靠这些视图。
+
+### 自动化跑帧
+
+设置环境变量 `M_INTERACTIVE_MAX_FRAMES=N` 可在跑满 N 帧后自动退出并打印平均 FPS。否则循环会一直运行到窗口被关闭，帧率也就取决于何时关闭窗口，不适合做对比。
+
+```bash
+M_INTERACTIVE_MAX_FRAMES=300 tiny-renderer assets/dragon/dragon.xml --interactive=1280x720
+```
+
+
+
+## GPU 后端
+
+GPU 路径（`--gpu`、`--interactive`）复用与 CPU 完全相同的 `Scene`/BVH 构建流程，再把场景展平成纯数组（`Scene::build_gpu_scene()`，见 `include/core/gpu_scene.h`），一次性上传，然后用 Slang 编写、构建期交叉编译为 SPIR-V 的 Vulkan compute shader（`src/gpu/shaders`）执行路径追踪。
+
+- **Megakernel**（`--gpu=megakernel`）：每个 spp 一次 dispatch，整个弹射循环在单个 shader 内完成。
+- **Wavefront**（`--gpu=wavefront`）：同一算法拆成每次弹射 6 个 kernel（raygen / extend / shade / shadow + 间接 dispatch 维护），由常驻的逐像素状态与压缩工作队列连接。
+
+BVH 遍历是在 shader 内实现的，而不是走 `VK_KHR_ray_query`，因为 macOS 上的 MoltenVK 不提供硬件光追扩展。
+
+### 限制
+
+- 只有 `bvh` 这种加速结构会导出 GPU 需要的扁平 BVH；其他 `accelerate` 类型会抛出 `std::runtime_error`。
+- 降噪用的特征缓冲（albedo / normal / depth）是在 CPU 上用每像素一条 primary ray 重算的（`compute_gbuffer`），方差估计则来自 GPU 的半缓冲累积——因此 GPU 渲染喂给降噪器的信息与 CPU 路径一致。
+- 交互模式目前只做显示，没有"把当前机位写回 XML"的按钮（相机矩阵可由 `CameraController::to_string()` 取得）。
+
+### 独立的 GPU 调试工具
+
+`M_ENABLE_GPU=ON` 时会随 `tiny-renderer` 一起构建（单配置生成器下位于 `build/src/gpu/`，Visual Studio / Xcode 下位于 `build/src/gpu/Release`）：
+
+| 可执行文件 | 用途 |
+| --- | --- |
+| `gpu-smoketest` | 最小的 Vulkan compute 冒烟测试（不需要场景） |
+| `gpu-raytrace-debug <scene.xml> [output.png]` | BVH 遍历 / 法线可视化 |
+| `gpu-path-trace <scene.xml> [output.png] [spp]` | 离线 megakernel 路径追踪 |
+| `gpu-wavefront <scene.xml> [output.png] [spp]` | 离线 wavefront 路径追踪 |
+| `gpu-interactive-verify <scene.xml> [spp]` | 校验"N 帧交互渲染 == 离线 megakernel 的 N spp"，并检查时域滤波是否收敛 |
+| `atomic-test` | 设备端原子操作诊断（不需要场景） |
+
+
+
+## 场景文件格式
+
+场景是一个以 `<scene>` 为根的 XML 文档。采样器、加速结构、积分器、相机以及可选的降噪器各声明一次，其后是网格与光源。
+
+```xml
+<scene>
+    <sampler type="independent">
+        <integer name="sample_count" value="1024"/>
+    </sampler>
+
+    <accelerate type="bvh">
+        <integer name="leaf_max" value="5"/>
+        <integer name="max_depth" value="100"/>
+    </accelerate>
+
+    <integrator type="path">
+        <integer name="max_depth" value="5"/>
+        <integer name="rr_depth" value="5"/>
+    </integrator>
+
+    <camera type="perspective">
+        <rfilter type="tent">
+            <float name="radius" value="0.5"/>
+        </rfilter>
+        <transform name="to_world">
+            <matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"/>
+        </transform>
+        <float name="fov" value="35"/>
+        <integer name="width" value="1280"/>
+        <integer name="height" value="720"/>
+    </camera>
+
+    <mesh type="obj">
+        <string name="filename" value="models/Mesh001.obj"/>
+        <bsdf type="diffuse">
+            <texture type="constant">
+                <color name="color" value="0.9, 0.9, 0.9"/>
+            </texture>
+        </bsdf>
+    </mesh>
+
+    <emitter type="envmap">
+        <texture type="bitmap">
+            <string name="filename" value="textures/envmap.hdr"/>
+        </texture>
+    </emitter>
+</scene>
+```
+
+完整场景见 `assets/`（`teapot.xml` 是最小的一个）。
+
+### 降噪器
+
+`<denoiser>` 是 `<scene>` 的子元素，渲染结束（CPU 或 GPU）后自动生效。它可以包含一个嵌套的降噪器，后者先运行、作为预滤波——最典型的组合就是先做萤火虫剔除，再做空域滤波：
+
+```xml
+<denoiser type="atrous">
+    <integer name="iterations" value="5"/>
+    <float name="sigma_c" value="4.0"/>
+    <denoiser type="outlier"/>
+</denoiser>
+```
+
+参数如下（括号内为默认值）：
+
+| 类型 | 参数 |
+| --- | --- |
+| `atrous` | `iterations` (5)、`sigma_c` (4.0，颜色)、`sigma_n` (128.0，法线)、`sigma_d` (1.0，深度)、`sigma_a` (0.05，反照率)、`demodulate` (true)、`threads` (0) |
+| `nlm` | `radius` (10)、`patch_radius` (3)、`k` (0.45)、`k_smooth` (1.0)、`alpha` (1.0)、`cross_validate` (true)、`demodulate` (true)、`sigma_n` (0.8)、`sigma_d` (0.6)、`threads` (0) |
+| `outlier` | `radius` (1)、`threshold` (2.0)、`threads` (0) |
+
+`threads = 0` 表示使用 `std::thread::hardware_concurrency()`。
 
 
 
@@ -117,6 +362,7 @@ tiny-renderer 'xml relative path of the root directory' -t 'thread count'
 - timer：计时类。
 - transform：变换类，包含对向量、点、法向的变换以及透视投影、旋转平移的矩阵构建。
 - warp：一系列随机数分布变换函数。
+- gpu_scene：`Scene` 展平后可供 GPU 上传的形式——顶点、三角形、BVH 节点、材质、贴图与光源的纯数组，由 `Scene::build_gpu_scene()` 生成。
 
 ### 场景组成
 
@@ -125,6 +371,35 @@ tiny-renderer 'xml relative path of the root directory' -t 'thread count'
 ![Scene](./assets/document/Scene.png)
 
 除了环境光照`Environment map`外，其余光照`Emitter`均依附于几何体`Mesh`，但是场景`Scene`会保留所有光照的共享指针以便于管理光源并做多光源的重要性采样。
+
+### 渲染工具（`include/render`）
+
+- **block**：`ImageBlock`（线程局部累积缓冲，可选携带 AOV 半缓冲）与 `BlockGenerator`（把图像块分发给各线程的任务调度器）。
+- **aov**：降噪器需要时，与辐射值一起写入的辅助采样记录（`albedo` / `normal` / `depth`）。
+- **framebuffer**：`FrameBufferSet`——从渲染结果流向降噪器的那一组缓冲（颜色、两个半缓冲、方差、特征缓冲）。
+- **gbuffer**：在 CPU 上用每像素一条 primary ray 重算几何特征缓冲（albedo、normal、depth），使 GPU 渲染也能获得与 CPU 一致的特征信息。
+- **progress**：`ProgressReporter`——`--progress` 的控制台进度条与可选预览窗口。
+- **denoise_utils**：降噪器共用的辅助函数（缓冲转换、并行分带调度等）。
+
+### 降噪器（`include/components/denoiser.h`、`src/denoisers`）
+
+`Denoiser` 是 `Object` 的子类，因此和其他组件一样通过 `ObjectFactory` 直接从 XML 实例化。它接收线性辐射空间的渲染结果，返回同样位于线性空间的滤波图像，并可以持有一个嵌套的降噪器作为预滤波。实现有 `atrous`、`nlm`、`outlier` 三种。
+
+### GPU 后端（`include/gpu`、`src/gpu`）
+
+- **vk_context**：Vulkan 实例 / 设备 / 队列的初始化与 shader 模块加载。
+- **gpu_buffer**、**gpu_image**：缓冲与 storage image 的封装（降噪器的屏幕大小缓冲用的是 image 而非 buffer）。
+- **gpu_scene_upload**：把 `GPUScene` 打包成 shader 绑定的设备缓冲。
+- **gpu_renderer**：`--gpu` 使用的离线 GPU 入口（`render_gpu`、`render_gpu_with_aov`）。
+- **gpu_session**：`InteractiveSession`——`--interactive` 背后的常驻会话；把所有一次性初始化提到构造函数里，使 `render_frame()` 足够便宜、可以每秒调用 30 次以上。
+- **gpu_timings**：交互面板中显示的各 pass GPU 时间戳查询。
+- **src/gpu/shaders**：Slang 源码（`path_trace`、`wavefront_*`、`rt_path_trace`、`svgf_*`），构建时交叉编译为 SPIR-V 输出到构建目录。
+
+### GUI（`include/gui`、`src/gui`）
+
+- **preview_window**：`--progress` 使用的被动窗口——只负责显示传进来的图像，不拥有主循环。
+- **interactive_window**：**拥有**交互主循环的窗口：采集输入、承载 ImGui 参数面板、上传 GPU 的 RGBA8 输出，并报告某次改动是否使时域累积失效。
+- **camera_controller**：与输入无关的相机运动学（orbit / pan / dolly / fly），直接输出可上传的 `camera_to_world` 与 `sample_to_camera` 矩阵。它刻意不去触碰 `Camera` 类，以免把 GLFW 状态带进离线渲染器。
 
 
 
@@ -338,17 +613,27 @@ $$
 
 <img src="./assets/box/box.png" alt="box"/>
 
-<img src="./assets/ball.png" alt="box"/>
+<img src="./assets/ball/ball.png" alt="ball"/>
 
-<img src="./assets/mis.png" alt="mis"/>
+<img src="./assets/mis/mis.png" alt="mis"/>
 
-<img src="./assets/bathroom2.png" alt="box"/>
+<img src="./assets/bathroom2/bathroom2.png" alt="bathroom2"/>
 
-<img src="./assets/livingroom/livingroom.png" alt="livingroom"/>
+<img src="./assets/living-room/living-room.png" alt="living-room"/>
 
 <img src="./assets/teapot/teapot.png" alt="teapot"/>
 
 <img src="./assets/bidir/bidir.png" alt="bidir"/>
+
+### 降噪
+
+每个场景目录下还保存了未降噪的渲染结果（`*_noisy.png`，只要运行了降噪器就会生成），可以直接 A/B 对比降噪效果：
+
+| 未降噪（`*_noisy.png`） | 降噪后（`*.png`） |
+| --- | --- |
+| <img src="./assets/living-room/living-room_noisy.png" alt="living-room 未降噪"/> | <img src="./assets/living-room/living-room.png" alt="living-room 降噪后"/> |
+| <img src="./assets/bathroom2/bathroom2_noisy.png" alt="bathroom2 未降噪"/> | <img src="./assets/bathroom2/bathroom2.png" alt="bathroom2 降噪后"/> |
+| <img src="./assets/teapot/teapot_noisy.png" alt="teapot 未降噪"/> | <img src="./assets/teapot/teapot.png" alt="teapot 降噪后"/> |
 
 
 
@@ -358,12 +643,18 @@ $$
 2. 更多积分器：双向路径追踪、Metropolis Light Transport
 3. 更多材质：法向贴图、BSSRDF（[Position-Free Monte Carlo Simulation for Arbitrary Layered BSDFs](https://shuangz.com/projects/layered-sa18/)）、毛发等
 4. 更多类型的几何体，曲面曲线的实现
-5. 可交互GUI
-6. 光线追踪降噪
+5. ~~可交互GUI~~ 已完成——`--interactive`，见[实时交互模式](#实时交互模式)。
+6. ~~光线追踪降噪~~ 已完成——离线的 `atrous` / `nlm` / `outlier` 降噪器，以及交互模式中的 SVGF。
+7. GPU 后端：在支持的平台上改用硬件光追（`VK_KHR_ray_query`），以及与 CPU 路径完全对齐的材质/体积支持。
+8. 把交互模式中找到的相机机位写回场景 XML。
 
 
 
 ## 未修复Bug
 
-1. 图像分辨率不是$2^x$时保存图像会出错。
+1. 图像分辨率不是$2^x$时保存图像会出错。（历史问题：现在 `Bitmap::save_png()` 通过 `stbi_write_png` 写出，没有 2 的幂限制——该问题可能已不复现，需要重新验证。）
 2. 双层材质`Smooth`标签的识别。
+3. 缺少 GPU 后端或预览窗口时 `--interactive` 不可用；若 `glfw3`/OpenGL 缺失，CMake 只会打印一条状态信息并继续，因此问题要到运行时才暴露。
+4. GPU 后端只支持能导出扁平 BVH 的加速结构（目前只有 `bvh`），其他类型会抛出 `std::runtime_error`。
+5. 命令行 usage 中仍然列着 `--no-gui`，但它并未实现；预览窗口是由 `--progress` 打开的。
+6. 交互模式不输出图像，也还没有"把当前机位复制回 XML"的按钮。

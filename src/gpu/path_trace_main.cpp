@@ -13,6 +13,7 @@
 #include <cstring>
 #include <filesystem/resolver.h>
 #include <gpu/gpu_buffer.h>
+#include <gpu/gpu_triangles.h>
 #include <gpu/vk_context.h>
 #include <iostream>
 #include <parse/parser.h>
@@ -302,6 +303,12 @@ int main(int argc, char **argv) {
                                                           VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
         GpuBuffer camera_buf = create_buffer_with_data(ctx, &gs.camera, sizeof(GPUCamera), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
+        // binding 32: packed triangles declared by common/scene_common.slang.
+        const std::vector<float> packed_triangles = build_packed_triangles(gs);
+        GpuBuffer packed_tri_buf = create_buffer_with_data(ctx, packed_triangles.data(),
+                                                           packed_triangles.size() * sizeof(float),
+                                                           VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+
         VkDeviceSize accum_size = static_cast<VkDeviceSize>(width) * height * sizeof(float) * 4;
         GpuBuffer accum_buf     = create_empty_buffer(ctx, accum_size, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
@@ -329,6 +336,7 @@ int main(int argc, char **argv) {
             { 13, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, material_lut_buf.buffer, material_lut_buf.size },
             { 14, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, lights_buf.buffer, lights_buf.size },
             { 15, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, light_cdf_buf.buffer, light_cdf_buf.size },
+            { 32, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, packed_tri_buf.buffer, packed_tri_buf.size },
         };
 
         std::vector<VkDescriptorSetLayoutBinding> layout_bindings(bindings.size());
@@ -381,7 +389,7 @@ int main(int argc, char **argv) {
 
         VkDescriptorPoolSize pool_sizes[2] = {};
         pool_sizes[0].type            = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-        pool_sizes[0].descriptorCount = 15;
+        pool_sizes[0].descriptorCount = 16; // 15 scene + packed_triangles
         pool_sizes[1].type            = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         pool_sizes[1].descriptorCount = 1;
 
@@ -505,6 +513,7 @@ int main(int argc, char **argv) {
         destroy_buffer(ctx, material_lut_buf);
         destroy_buffer(ctx, lights_buf);
         destroy_buffer(ctx, light_cdf_buf);
+        destroy_buffer(ctx, packed_tri_buf);
         destroy_buffer(ctx, camera_buf);
         destroy_buffer(ctx, accum_buf);
 

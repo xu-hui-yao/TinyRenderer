@@ -546,7 +546,18 @@ public:
         static_assert(Rows == Cols, "Matrix translate requires a square matrix.");
 
         TMatrix result = identity();
-        for (int i = 0; i < Rows; ++i) {
+        // Only the first Rows-1 entries of the last column are the translation;
+        // the last one is the homogeneous 1 and MUST be left alone.
+        //
+        // Looping to `Rows` instead clobbered result(Rows-1, Rows-1) with
+        // vector(Rows-1). Callers pass a trailing 0.0f (e.g. PerspectiveCamera
+        // builds translate(-1, -1/aspect, 0, 0)), so the matrix came out with a
+        // zero bottom-right entry - i.e. singular. Nothing noticed, because
+        // TMatrix::inverse() substitutes M_EPSILON for a zero pivot and so
+        // returns a usable-looking result anyway; the damage only surfaced far
+        // away, as a projection whose inverse was no longer its own inverse
+        // (reprojecting a point through it landed ~1/near pixels off).
+        for (int i = 0; i < Rows - 1; ++i) {
             result(i, Rows - 1) = vector(i);
         }
         return result;

@@ -21,6 +21,7 @@
 #include <cstring>
 #include <filesystem/resolver.h>
 #include <gpu/gpu_buffer.h>
+#include <gpu/gpu_triangles.h>
 #include <gpu/vk_context.h>
 #include <iostream>
 #include <parse/parser.h>
@@ -321,6 +322,11 @@ int main(int argc, char **argv) {
         GpuBuffer light_cdf_buf = create_buffer_with_data(ctx, gs.light_triangle_cdf.data(), gs.light_triangle_cdf.size() * sizeof(float), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
         GpuBuffer camera_buf    = create_buffer_with_data(ctx, &gs.camera, sizeof(GPUCamera), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
+        const std::vector<float> packed_triangles = build_packed_triangles(gs);
+        GpuBuffer packed_tri_buf = create_buffer_with_data(ctx, packed_triangles.data(),
+                                                           packed_triangles.size() * sizeof(float),
+                                                           VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+
         VkDeviceSize accum_size = static_cast<VkDeviceSize>(total_pixels) * sizeof(float) * 4;
         // VK_BUFFER_USAGE_TRANSFER_DST_BIT is required because we vkCmdFillBuffer
         // this buffer once (to clear it) before the spp loop below.
@@ -387,6 +393,7 @@ int main(int argc, char **argv) {
             { 29, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, shadow_pixel_buf.buffer, shadow_pixel_buf.size },
             { 30, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, shadow_contrib_buf.buffer, shadow_contrib_buf.size },
             { 31, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, indirect_args_buf.buffer, indirect_args_buf.size },
+            { 32, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, packed_tri_buf.buffer, packed_tri_buf.size },
         };
 
         std::vector<VkDescriptorSetLayoutBinding> layout_bindings(bindings.size());
@@ -431,7 +438,7 @@ int main(int argc, char **argv) {
 
         VkDescriptorPoolSize pool_sizes[2] = {};
         pool_sizes[0].type            = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-        pool_sizes[0].descriptorCount = 31;
+        pool_sizes[0].descriptorCount = 32; // 15 scene + 16 path state + packed_triangles
         pool_sizes[1].type            = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         pool_sizes[1].descriptorCount = 1;
 

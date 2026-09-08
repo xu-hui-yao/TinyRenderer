@@ -16,6 +16,14 @@
 
 #ifdef M_ENABLE_GPU_BACKEND
 #include <gpu/gpu_renderer.h>
+// Interactive mode needs BOTH the GPU backend (to render) and the preview GUI
+// (to display and to capture input); it is compiled out unless both are on.
+#if defined(M_ENABLE_PREVIEW_GUI)
+#include <gpu/gpu_session.h>
+#include <gui/camera_controller.h>
+#include <gui/interactive_window.h>
+#define M_INTERACTIVE_AVAILABLE
+#endif
 #endif
 
 using namespace tiny_renderer;
@@ -325,6 +333,130 @@ static void render(const std::shared_ptr<Scene> &scene, const std::string &filen
     save_render(result.to_framebuffers(), scene, filename, tonemap, dump_aov);
 }
 
+// --------------------------------------------------------------------------
+// Interactive mode (--interactive): a persistent GPU session rendering 1 spp
+// per frame, driven by a CameraController. See include/gpu/gpu_session.h.
+// --------------------------------------------------------------------------
+#ifdef M_INTERACTIVE_AVAILABLE
+void render_interactive(const std::shared_ptr<Scene> &scene, uint32_t width, uint32_t height) {
+    // Same prologue as render()/render_on_gpu(): construct() is what actually
+    // builds the BVH that build_gpu_scene() flattens for upload. Skipping it
+    // yields an empty BVH, i.e. a silently all-black render rather than an
+    // error - which is exactly why this mirrors the offline path exactly.
+    scene->construct();
+    scene->get_integrator()->preprocess(scene);
+
+    GPUScene gs = scene->build_gpu_scene();
+
+    // Seed the camera controller with the scene's bounds so orbit/pan/zoom
+    // step sizes are sensible for this scene's scale.
+    BoundingBox3f bounds;
+    for (const auto &mesh : scene->get_meshes())
+        bounds.expand_by(mesh->get_bounding_box());
+
+    float center[3] = { 0.0f, 0.0f, 0.0f };
+    float radius    = 1.0f;
+    if (bounds.is_valid()) {
+        Point3f c = bounds.get_center();
+        center[0] = c.x(); center[1] = c.y(); center[2] = c.z();
+        Vector3f e = bounds.get_extents();
+        radius = std::max(std::sqrt(e.x() * e.x() + e.y() * e.y() + e.z() * e.z()) * 0.5f, 1e-3f);
+    }
+
+    // Start at the FOV the scene XML actually specified (recovered from the
+    // baked projection matrix - see CameraController::fov_from_sample_to_camera).
+    const float fov = gui::CameraController::fov_from_sample_to_camera(gs.camera.sample_to_camera);
+
+    gui::InteractiveSettings settings;
+    settings.fov = fov;
+
+    gui::InteractiveWindow window(static_cast<int>(width), static_cast<int>(height),
+                                  "TinyRenderer - Interactive", settings);
+    gpu::InteractiveSession session(gs, width, height);
+    gui::CameraController camera(gs.camera.camera_to_world, fov, gs.camera.near_clip, gs.camera.far_clip,
+                                 center, radius);
+    camera.set_aspect(width, height);
+
+    std::cout << "[interactive] LMB drag = orbit, MMB/RMB = pan, wheel = zoom, "
+                 "WASD/QE in Fly mode. Close the window to exit."
+              << std::endl;
+
+    // M_INTERACTIVE_MAX_FRAMES=N stops after N frames. Without it the loop runs
+    // until the window closes, which makes timing measurements depend on when
+    // that happens - on a headless machine that is effectively random, and it
+    // made A/B comparisons of renderer changes useless (the same build measured
+    // anywhere from 12 to 17 FPS on dragon). Set it to compare builds honestly.
+    uint64_t max_frames = 0;
+    if (const char *env = std::getenv("M_INTERACTIVE_MAX_FRAMES")) {
+        max_frames = std::strtoull(env, nullptr, 10);
+    }
+
+    Timer timer;
+    uint64_t frames = 0;
+    while (window.begin_frame()) {
+        window.update_camera(camera, window.delta_time());
+        ++frames;
+        if (max_frames > 0 && frames >= max_frames)
+            break;
+
+        // Panel-driven changes: FOV/mode come from the camera section, the rest
+        // from render settings. Display settings deliberately do NOT reset.
+        const auto &s = window.settings();
+        camera.set_mode(s.camera_mode == 1 ? gui::CameraController::Mode::Fly
+                                           : gui::CameraController::Mode::Orbit);
+        camera.set_fov(s.fov);
+        camera.settings().move_speed = s.move_speed;
+        if (window.consume_view_reset())
+            camera.reset();
+
+        camera.update();
+        bool view_changed = camera.consume_changed();
+
+        gpu::InteractiveSession::RenderParams rp;
+        rp.camera_to_world  = camera.camera_to_world();
+        rp.sample_to_camera = camera.sample_to_camera();
+        rp.max_depth        = static_cast<uint32_t>(s.max_depth);
+        rp.rr_depth         = static_cast<uint32_t>(s.rr_depth);
+        rp.spp_per_frame    = static_cast<uint32_t>(s.spp_per_frame);
+        rp.radiance_clamp   = s.radiance_clamp;
+        rp.demodulate       = s.demodulate;
+        rp.reset_history    = view_changed || window.consume_render_reset();
+
+        gpu::InteractiveSession::DenoiseParams den;
+        den.enabled        = s.denoise;
+        den.clamp_history  = s.clamp_history;
+        den.alpha_color    = s.alpha_color;
+        den.alpha_moments  = s.alpha_moments;
+        den.phi_depth      = s.phi_depth;
+        den.phi_normal     = s.phi_normal;
+        den.clamp_growth   = s.clamp_growth;
+        den.atrous_iterations = static_cast<uint32_t>(s.atrous_iterations);
+        den.phi_color      = s.phi_color;
+        den.phi_normal_a   = s.phi_normal_a;
+        den.phi_depth_a    = s.phi_depth_a;
+
+        gpu::InteractiveSession::DisplayParams dp;
+        dp.exposure = s.exposure;
+        dp.tonemap  = static_cast<uint32_t>(s.tonemap);
+        dp.use_srgb = s.use_srgb;
+        dp.gamma    = s.gamma;
+        dp.debug_view = static_cast<uint32_t>(s.debug_view);
+
+        const uint8_t *rgba = session.render_frame(rp, den, dp);
+
+        window.draw_image(rgba, static_cast<int>(width), static_cast<int>(height));
+        window.draw_panel(session.accumulated_spp(), session.timings());
+        window.end_frame();
+    }
+
+    const double elapsed = timer.elapsed() * 0.001; // Timer::elapsed() is milliseconds
+    std::cout << "[interactive] Exited after " << frames << " frames";
+    if (frames > 0 && elapsed > 0.0)
+        std::cout << " (avg " << (static_cast<double>(frames) / elapsed) << " FPS)";
+    std::cout << "." << std::endl;
+}
+#endif // M_INTERACTIVE_AVAILABLE
+
 int main(int argc, char **argv) {
     int thread_count = 1;
     bool use_gpu     = false;
@@ -334,11 +466,13 @@ int main(int argc, char **argv) {
     // Empty = leave whatever the scene XML configured (possibly nothing).
     std::string denoiser_name;
     bool dump_aov = false;
+    bool interactive        = false;
+    uint32_t interactive_width = 0, interactive_height = 0; // 0 = use the scene's own resolution
 
     if (argc < 2) {
         std::cerr << "Syntax: " << argv[0]
                   << " <scene.xml> [--no-gui] [--threads N] [--gpu[=megakernel|wavefront]] [--tonemap=none|aces] "
-                     "[--progress] [--denoise[=outlier|atrous|nlm]] [--dump-aov]"
+                     "[--progress] [--denoise[=outlier|atrous|nlm]] [--dump-aov] [--interactive[=WxH]]"
                   << std::endl;
         return -1;
     }
@@ -373,6 +507,29 @@ int main(int argc, char **argv) {
         }
         if (token == "--progress") {
             show_progress = true;
+            continue;
+        }
+        if (token == "--interactive") {
+            interactive = true;
+            continue;
+        }
+        if (token.rfind("--interactive=", 0) == 0) {
+            // --interactive=WxH overrides the scene's output resolution, which
+            // is the main lever for hitting 30 FPS (see the resolution-scale
+            // discussion in the frame budget).
+            interactive   = true;
+            std::string dims = token.substr(std::string("--interactive=").size());
+            const auto x_pos = dims.find('x');
+            if (x_pos == std::string::npos) {
+                std::cerr << "\"--interactive=\" expects WxH, e.g. --interactive=1280x720" << std::endl;
+                return -1;
+            }
+            interactive_width  = static_cast<uint32_t>(std::strtoul(dims.substr(0, x_pos).c_str(), nullptr, 10));
+            interactive_height = static_cast<uint32_t>(std::strtoul(dims.substr(x_pos + 1).c_str(), nullptr, 10));
+            if (interactive_width == 0 || interactive_height == 0) {
+                std::cerr << "\"--interactive=\" expects positive WxH, e.g. --interactive=1280x720" << std::endl;
+                return -1;
+            }
             continue;
         }
         // Install a denoiser with its default parameters, overriding the
@@ -443,7 +600,21 @@ int main(int argc, char **argv) {
                 scene->set_denoiser(std::dynamic_pointer_cast<Denoiser>(obj));
             }
 
-            if (use_gpu) {
+            if (interactive) {
+#ifdef M_INTERACTIVE_AVAILABLE
+                // Default to the scene's configured resolution when --interactive
+                // was given without dimensions.
+                Vector2i size = scene->get_camera()->get_output_size();
+                uint32_t w = interactive_width ? interactive_width : static_cast<uint32_t>(size.x());
+                uint32_t h = interactive_height ? interactive_height : static_cast<uint32_t>(size.y());
+                render_interactive(scene, w, h);
+#else
+                std::cerr << "This build lacks interactive support (needs both M_ENABLE_GPU and the "
+                             "preview GUI); rebuild with both enabled."
+                          << std::endl;
+                return -1;
+#endif
+            } else if (use_gpu) {
 #ifdef M_ENABLE_GPU_BACKEND
                 gpu::GPUBackend backend;
                 if (gpu_backend_name == "megakernel") {

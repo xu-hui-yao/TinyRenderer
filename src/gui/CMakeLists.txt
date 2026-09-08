@@ -5,23 +5,18 @@
 # and OpenGL were found - see there for the fallback (console-only progress)
 # when they are not.
 #
-# Dear ImGui itself is fetched the same way src/gpu/CMakeLists.txt already
-# fetches VulkanMemoryAllocator (FetchContent, pinned tag) rather than being
-# vendored under ext/ - it has no build system of its own to speak of, just
-# a handful of source files compiled directly into this library below.
+# Dear ImGui is vendored as source under ext/imgui (it has no build system of
+# its own to speak of, just a handful of source files compiled directly into
+# this library below). Previously this was fetched via FetchContent, but on
+# some platforms (e.g. Windows) that could not be relied on to work out of
+# the box, so it is now built directly from the local checkout instead.
 # ----------------------------------------------------------------------------
 
-include(FetchContent)
-FetchContent_Declare(
-        imgui
-        GIT_REPOSITORY https://github.com/ocornut/imgui.git
-        GIT_TAG v1.92.9b
-        GIT_SHALLOW TRUE
-)
-FetchContent_MakeAvailable(imgui)
+set(imgui_SOURCE_DIR ${CMAKE_SOURCE_DIR}/ext/imgui)
 
 add_library(preview-gui-lib STATIC
         preview_window.cpp
+        interactive_window.cpp
         ${imgui_SOURCE_DIR}/imgui.cpp
         ${imgui_SOURCE_DIR}/imgui_draw.cpp
         ${imgui_SOURCE_DIR}/imgui_tables.cpp
@@ -38,7 +33,15 @@ target_include_directories(preview-gui-lib PUBLIC
 
 target_link_libraries(preview-gui-lib PUBLIC glfw OpenGL::GL)
 
-target_compile_definitions(preview-gui-lib PUBLIC M_ENABLE_PREVIEW_GUI)
+# core/array.h -> core/common.h -> filesystem/resolver.h needs
+# M_PROJECT_SOURCE_DIR unconditionally (it seeds the file resolver's search
+# path). The top-level CMakeLists.txt only defines it PRIVATE for the
+# tiny-renderer target, so this library needs its own copy now that
+# interactive_window.cpp pulls in core math types (via camera_controller.h).
+target_compile_definitions(preview-gui-lib PUBLIC
+        M_ENABLE_PREVIEW_GUI
+        M_PROJECT_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
+)
 
 set_target_properties(preview-gui-lib PROPERTIES
         CXX_STANDARD 17

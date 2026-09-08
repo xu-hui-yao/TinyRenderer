@@ -201,6 +201,44 @@ set_target_properties(gpu-wavefront PROPERTIES
         CXX_STANDARD_REQUIRED ON
 )
 
+# ---- gpu-interactive-verify executable ----
+#
+# Cross-checks the real-time backend against the offline megakernel: N frames
+# of InteractiveSession must equal N spp of the megakernel, since both share
+# trace_path() and their RNG seeding lines up (see interactive_verify_main.cpp).
+add_executable(gpu-interactive-verify
+        interactive_verify_main.cpp
+        gpu_renderer.cpp
+        gpu_scene_upload.cpp
+        gpu_session.cpp
+        gpu_image.cpp
+        vk_context.cpp
+        gpu_buffer.cpp
+        ${M_CORE_SOURCES}
+)
+add_dependencies(gpu-interactive-verify gpu_shaders)
+
+target_include_directories(gpu-interactive-verify PRIVATE
+        ${CMAKE_SOURCE_DIR}/include
+        ${CMAKE_SOURCE_DIR}/ext/stb
+        ${CMAKE_SOURCE_DIR}/ext/pugixml
+        ${CMAKE_SOURCE_DIR}/ext/tinyexr
+)
+target_link_libraries(gpu-interactive-verify PRIVATE Vulkan::Vulkan GPUOpen::VulkanMemoryAllocator pugixml
+        Threads::Threads)
+
+target_compile_definitions(gpu-interactive-verify PRIVATE
+        M_GPU_SHADER_BINARY_DIR="${M_GPU_SHADER_BINARY_DIR}"
+        M_PROJECT_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
+        M_ENABLE_GPU_BACKEND
+        $<$<CONFIG:Debug>:M_DEBUG>
+)
+
+set_target_properties(gpu-interactive-verify PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED ON
+)
+
 # ---- atomic-test executable (diagnostic, not part of the renderer) ----
 add_executable(atomic-test atomic_test_main.cpp vk_context.cpp)
 add_dependencies(atomic-test gpu_shaders)
@@ -224,6 +262,9 @@ set_target_properties(atomic-test PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIR
 # ----------------------------------------------------------------------------
 add_library(gpu-renderer-lib STATIC
         gpu_renderer.cpp
+        gpu_scene_upload.cpp
+        gpu_session.cpp
+        gpu_image.cpp
         vk_context.cpp
         gpu_buffer.cpp
 )
