@@ -20,6 +20,9 @@ jobs:
         run: sudo apt-get install -y cmake build-essential
       - name: Configure and Build
         run: |
-          cmake -DCMAKE_BUILD_TYPE=Release -S . -B build
+          # M_ENABLE_GPU=OFF: the GPU backend requires the Vulkan SDK and slangc,
+          # neither of which is preinstalled on GitHub runners (and there is no
+          # GPU to run it on). Remove this flag in a job that installs them.
+          cmake -DCMAKE_BUILD_TYPE=Release -DM_ENABLE_GPU=OFF -S . -B build
           cd build
           make -j$(nproc)

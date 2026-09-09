@@ -20,7 +20,10 @@ jobs:
         run: brew install cmake
       - name: Configure and Build
         run: |
+          # M_ENABLE_GPU=OFF: the GPU backend requires the Vulkan SDK and slangc,
+          # neither of which is preinstalled on GitHub runners (and there is no
+          # GPU to run it on). Remove this flag in a job that installs them.
           mkdir build
           cd build
-          cmake .. -G "Xcode"
+          cmake .. -G "Xcode" -DM_ENABLE_GPU=OFF
           xcodebuild -configuration Release
