@@ -47,9 +47,9 @@
 | [Vulkan SDK](https://vulkan.lunarg.com/)（其中包含 `slangc`，且需在 `PATH` 中） | 可选 | GPU 后端（`--gpu`）与实时交互（`--interactive`） |
 | [GLFW 3](https://www.glfw.org/) + OpenGL | 可选 | 预览窗口（`--progress`）与实时交互 |
 
-第三方库（`pugixml`、`stb`、`tinyexr`、Dear ImGui）已经放在 `ext/` 下，无需额外安装。
+第三方库（`pugixml`、`stb`、`tinyexr`、Dear ImGui、GLFW）都以 git submodule 的形式放在 `ext/` 下，无需额外安装（clone 时加 `--recursive`，或执行 `git submodule update --init --recursive`）。
 
-注意"可选"不等于"不装也能顺利构建"：`M_ENABLE_GPU` 默认为 `ON`，所以默认构建**确实需要** Vulkan SDK 与 `slangc`；只有 GLFW 是 CMake 能在缺失时静默降级的那一个。
+注意"可选"不等于"不装也能顺利构建"：`M_ENABLE_GPU` 默认为 `ON`，所以默认构建**确实需要** Vulkan SDK 与 `slangc`；只有 GLFW 是 CMake 能在缺失时静默降级的那一个——即便如此，在 Windows/Apple 上它也会退回到编译自带的 `ext/glfw` 源码；Linux 仍然需要系统包（GLFW 的 X11/Wayland 后端需要 dev 头文件），所以只有 Linux 上"缺 GLFW"才等于"不带窗口"。
 
 可选依赖可以用系统的包管理器安装：
 
@@ -62,8 +62,7 @@ brew install glfw            # 预览窗口 / 实时交互
 sudo apt install libglfw3-dev
 # 然后安装 LunarG Vulkan SDK
 
-# Windows：安装 Vulkan SDK，并通过 vcpkg 获取 GLFW
-vcpkg install glfw3:x64-windows
+# Windows：安装 Vulkan SDK（提供 Vulkan 与 slangc）；GLFW 无需安装，会直接编译自带的 ext/glfw
 ```
 
 ### CMake 选项
@@ -71,7 +70,7 @@ vcpkg install glfw3:x64-windows
 | 选项 | 默认值 | 作用 |
 | --- | --- | --- |
 | `M_ENABLE_GPU` | `ON` | 构建 Vulkan GPU 后端并链接进 `tiny-renderer`。需要 Vulkan SDK 与 `slangc`，**缺任意一个都会直接配置失败**（`find_package(Vulkan REQUIRED)` / `find_program(slangc REQUIRED)`）。不想要 GPU 就设 `-DM_ENABLE_GPU=OFF`。 |
-| `M_ENABLE_PREVIEW_GUI` | `ON` | 构建 GLFW + Dear ImGui 窗口。如果**找不到** `glfw3`/OpenGL，CMake 只会打印一条状态信息并继续构建——此时 `--progress` 只剩下控制台进度条，而 `--interactive` 不可用。 |
+| `M_ENABLE_PREVIEW_GUI` | `ON` | 构建 GLFW + Dear ImGui 窗口。如果**找不到** `glfw3`/OpenGL，CMake 只会打印一条状态信息并继续构建——此时 `--progress` 只剩下控制台进度条，而 `--interactive` 不可用。不过在 Windows/Apple 上这种情况很少发生：找不到系统 `glfw3` 时会改为编译自带的 `ext/glfw` 源码。 |
 
 例如，一个不带窗口的纯 CPU 构建：
 
@@ -197,7 +196,7 @@ tiny-renderer assets/dragon/dragon.xml --interactive=1280x720
 只有**同时**满足以下条件时，交互模式才会被编译进来（见 [CMake 选项](#cmake-选项)）：
 
 - `M_ENABLE_GPU=ON`（Vulkan SDK + `slangc`），且
-- `M_ENABLE_PREVIEW_GUI=ON`，并且在配置阶段确实找到了 `glfw3` + OpenGL。
+- `M_ENABLE_PREVIEW_GUI=ON`，并且在配置阶段确实找到了 `glfw3` + OpenGL（Windows/Apple 上找不到系统 GLFW 时会改用自带的 `ext/glfw`）。
 
 否则运行 `--interactive` 会打印 `This build lacks interactive support ...` 并退出。配置时要留意 CMake 是否输出了 `M_ENABLE_PREVIEW_GUI is ON but glfw3/OpenGL were not found`——这就是"静默退化"的情况。
 
@@ -654,7 +653,7 @@ $$
 
 1. 图像分辨率不是$2^x$时保存图像会出错。（历史问题：现在 `Bitmap::save_png()` 通过 `stbi_write_png` 写出，没有 2 的幂限制——该问题可能已不复现，需要重新验证。）
 2. 双层材质`Smooth`标签的识别。
-3. 缺少 GPU 后端或预览窗口时 `--interactive` 不可用；若 `glfw3`/OpenGL 缺失，CMake 只会打印一条状态信息并继续，因此问题要到运行时才暴露。
+3. 缺少 GPU 后端或预览窗口时 `--interactive` 不可用；若 `glfw3`/OpenGL 缺失，CMake 只会打印一条状态信息并继续，因此问题要到运行时才暴露（Windows/Apple 会退回编译自带的 `ext/glfw`，不会走到这一步）。
 4. GPU 后端只支持能导出扁平 BVH 的加速结构（目前只有 `bvh`），其他类型会抛出 `std::runtime_error`。
 5. 命令行 usage 中仍然列着 `--no-gui`，但它并未实现；预览窗口是由 `--progress` 打开的。
 6. 交互模式不输出图像，也还没有"把当前机位复制回 XML"的按钮。

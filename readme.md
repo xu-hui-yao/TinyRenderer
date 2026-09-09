@@ -45,9 +45,9 @@ The renderer takes an XML file describing the scene as input and generates an im
 | [Vulkan SDK](https://vulkan.lunarg.com/) (including `slangc` on `PATH`) | Optional | GPU backend (`--gpu`) and interactive mode (`--interactive`) |
 | [GLFW 3](https://www.glfw.org/) + OpenGL | Optional | Preview window (`--progress`) and interactive mode |
 
-Third-party libraries (`pugixml`, `stb`, `tinyexr`, Dear ImGui) are vendored under `ext/` and need no installation.
+Third-party libraries (`pugixml`, `stb`, `tinyexr`, Dear ImGui, GLFW) are vendored under `ext/` as git submodules and need no installation (clone with `--recursive`, or run `git submodule update --init --recursive`).
 
-Note that "optional" is not the same as "safe to skip": `M_ENABLE_GPU` defaults to `ON`, so a default build *does* require the Vulkan SDK and `slangc`. GLFW is the only one CMake can silently do without.
+Note that "optional" is not the same as "safe to skip": `M_ENABLE_GPU` defaults to `ON`, so a default build *does* require the Vulkan SDK and `slangc`. GLFW is the only one CMake can silently do without - and even then, on Windows/Apple it builds the bundled `ext/glfw` from source. Linux still needs the system package (GLFW's X11/Wayland backends need dev headers), so only there does a missing GLFW mean building without a window.
 
 Install the optional dependencies with the system package manager, e.g.:
 
@@ -60,8 +60,7 @@ brew install glfw            # preview window / interactive mode
 sudo apt install libglfw3-dev
 # then install the LunarG Vulkan SDK
 
-# Windows: install the Vulkan SDK, and get GLFW via vcpkg
-vcpkg install glfw3:x64-windows
+# Windows: install the Vulkan SDK (provides Vulkan + slangc); GLFW needs nothing, it is built from ext/glfw
 ```
 
 ### CMake Options
@@ -69,7 +68,7 @@ vcpkg install glfw3:x64-windows
 | Option | Default | Effect |
 | --- | --- | --- |
 | `M_ENABLE_GPU` | `ON` | Builds the Vulkan GPU backend and links it into `tiny-renderer`. Requires the Vulkan SDK and `slangc`; **if either is missing, configure fails** (`find_package(Vulkan REQUIRED)` / `find_program(slangc REQUIRED)`). Set `-DM_ENABLE_GPU=OFF` to build CPU-only. |
-| `M_ENABLE_PREVIEW_GUI` | `ON` | Builds the GLFW + Dear ImGui windows. If `glfw3`/OpenGL are **not** found, CMake prints a status message and silently continues without them - `--progress` then only prints a console bar, and `--interactive` is unavailable. |
+| `M_ENABLE_PREVIEW_GUI` | `ON` | Builds the GLFW + Dear ImGui windows. If `glfw3`/OpenGL are **not** found, CMake prints a status message and silently continues without them - `--progress` then only prints a console bar, and `--interactive` is unavailable. On Windows/Apple this rarely happens: when no system `glfw3` is found, the bundled `ext/glfw` is compiled from source instead. |
 
 For example, a minimal CPU-only build with no windowing:
 
@@ -195,7 +194,7 @@ tiny-renderer assets/dragon/dragon.xml --interactive=1280x720
 Interactive mode is compiled in only when **both** are true (see [CMake Options](#cmake-options)):
 
 - `M_ENABLE_GPU=ON` (Vulkan SDK + `slangc`), and
-- `M_ENABLE_PREVIEW_GUI=ON` **and** `glfw3` + OpenGL were found at configure time.
+- `M_ENABLE_PREVIEW_GUI=ON` **and** `glfw3` + OpenGL were found at configure time (on Windows/Apple a missing system `glfw3` is covered by the bundled `ext/glfw`).
 
 Otherwise the flag prints `This build lacks interactive support ...` and exits. When configuring, watch for the CMake line `M_ENABLE_PREVIEW_GUI is ON but glfw3/OpenGL were not found` - that is the silent-degradation case.
 
@@ -647,7 +646,7 @@ Each scene directory also holds the unfiltered render (`*_noisy.png`), written a
 
 1. Image resolution not being a power of two causes errors when saving the image. (Historical: `Bitmap::save_png()` now writes through `stbi_write_png`, which imposes no power-of-two constraint - this may no longer reproduce, and needs re-verification.)
 2. Misidentification of the `Smooth` tag in layered materials.
-3. `--interactive` is unavailable when the build lacks the GPU backend or the preview GUI; if `glfw3`/OpenGL are missing, CMake only prints a status line and continues, so the failure surfaces at run time rather than configure time.
+3. `--interactive` is unavailable when the build lacks the GPU backend or the preview GUI; if `glfw3`/OpenGL are missing, CMake only prints a status line and continues, so the failure surfaces at run time rather than configure time (on Windows/Apple this cannot happen: the bundled `ext/glfw` is used).
 4. The GPU backends only support scenes whose acceleration structure exports a flat BVH (currently only `bvh`); other types throw `std::runtime_error`.
 5. `--no-gui` is still advertised in the CLI usage string but is not implemented; `--progress` is what enables the preview window.
-6. Interactive mode does not write images to disk, and there is no button yet to copy the current camera pose back into the XML.
+6. Interactive mode does not write images to disk, and there is no button yet to copy the current camera pose back into the XML.

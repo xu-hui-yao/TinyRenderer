@@ -118,7 +118,13 @@ void main(uint3 tid: SV_DispatchThreadID)
         color = frac(img_pos_id[ip].xyz * 0.25);
     } else {
         // ---- Final image: remodulate, then tonemap ----
-        color = (pc.use_raw_illum != 0u ? img_illum_raw : img_illum)[ip].rgb;
+        // Slang cannot lower a `?:` that selects between two Texture2D resources
+        // for SPIR-V (E56004: opaque type in local variable), so branch on the
+        // sample, not on the resource.
+        float3 illum = img_illum[ip].rgb;
+        if (pc.use_raw_illum != 0u)
+            illum = img_illum_raw[ip].rgb;
+        color = illum;
         if (pc.modulate != 0u)
             color *= img_albedo[ip].rgb;
     }

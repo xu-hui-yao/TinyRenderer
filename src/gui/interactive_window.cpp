@@ -11,7 +11,18 @@
 #define GL_SILENCE_DEPRECATION
 #include <OpenGL/gl3.h>
 #else
+// The Windows SDK GL/gl.h needs windows.h first (WINGDIAPI/APIENTRY); glfw3.h
+// does not pull it in for us.
+#if defined(_WIN32)
+#include <windows.h>
+#endif
 #include <GL/gl.h>
+
+// The Windows SDK only ships OpenGL 1.1 headers, so this 1.2 constant is
+// missing there.
+#ifndef GL_CLAMP_TO_EDGE
+#define GL_CLAMP_TO_EDGE 0x812F
+#endif
 #endif
 
 #include <GLFW/glfw3.h>
@@ -105,7 +116,6 @@ InteractiveWindow::InteractiveWindow(int width, int height, const std::string &t
     glfwSetInputMode(m_impl->window, GLFW_STICKY_MOUSE_BUTTONS, GLFW_FALSE);
 
     glfwSetWindowUserPointer(m_impl->window, m_impl);
-    glfwSetScrollCallback(m_impl->window, &Impl::scroll_callback);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -118,6 +128,13 @@ InteractiveWindow::InteractiveWindow(int width, int height, const std::string &t
         throw std::runtime_error("InteractiveWindow: Dear ImGui GLFW/OpenGL3 backend init failed");
     }
     m_impl->imgui_created = true;
+
+    // Our scroll callback must be installed AFTER ImGui_ImplGlfw_InitForOpenGL():
+    // GLFW keeps a single slot, so whatever is registered first becomes the
+    // one ImGui chains to. Registering ours first made ImGui_ImplGlfw_ScrollCallback()
+    // call us, and the forwarding inside scroll_callback() called it right back -
+    // infinite recursion, i.e. a stack overflow on the very first wheel event.
+    glfwSetScrollCallback(m_impl->window, &Impl::scroll_callback);
 
     // Don't let ImGui persist layout to disk - interacting with the panel
     // shouldn't leave state behind between runs.

@@ -91,7 +91,21 @@ option(M_ENABLE_PREVIEW_GUI "Build the ImGui live preview window used by --progr
 if (M_ENABLE_PREVIEW_GUI)
     find_package(glfw3 QUIET)
     find_package(OpenGL QUIET)
-    if (glfw3_FOUND AND OpenGL_FOUND)
+
+    # No system GLFW? Fall back to the vendored submodule (ext/glfw) on the
+    # platforms where it needs nothing but the OS SDK: Win32 and Cocoa. Linux is
+    # deliberately left out - GLFW's X11/Wayland backends require dev packages
+    # that are not guaranteed to be present (the CI image has none), and
+    # building it there would turn "no preview window" into a configure error.
+    if (NOT glfw3_FOUND AND (WIN32 OR APPLE) AND EXISTS "${CMAKE_SOURCE_DIR}/ext/glfw/CMakeLists.txt")
+        set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+        set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+        set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+        set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
+        add_subdirectory(ext/glfw)
+    endif ()
+
+    if ((glfw3_FOUND OR TARGET glfw) AND OpenGL_FOUND)
         add_subdirectory(src/gui)
         target_link_libraries(tiny-renderer PRIVATE preview-gui-lib)
     else ()

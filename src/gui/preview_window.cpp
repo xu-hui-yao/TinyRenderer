@@ -9,7 +9,18 @@
 #define GL_SILENCE_DEPRECATION
 #include <OpenGL/gl3.h>
 #else
+// The Windows SDK GL/gl.h needs windows.h first (WINGDIAPI/APIENTRY); glfw3.h
+// does not pull it in for us.
+#if defined(_WIN32)
+#include <windows.h>
+#endif
 #include <GL/gl.h>
+
+// The Windows SDK only ships OpenGL 1.1 headers, so this 1.2 constant is
+// missing there.
+#ifndef GL_CLAMP_TO_EDGE
+#define GL_CLAMP_TO_EDGE 0x812F
+#endif
 #endif
 
 #include <GLFW/glfw3.h>
